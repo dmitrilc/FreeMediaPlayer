@@ -40,8 +40,6 @@ class HomeFragment : Fragment() {
     ): View {
         val fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
         val recyclerView = fragmentHomeBinding.recyclerDirectories
-        val layoutManager = recyclerView.layoutManager as GridLayoutManager
-        //layoutManager.
 
         val randomData = arrayOf("test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10")
 
