@@ -43,7 +43,7 @@ class HomeFragment : Fragment() {
         val layoutManager = recyclerView.layoutManager as GridLayoutManager
         //layoutManager.
 
-        val randomData = arrayOf("test1", "test2", "test3", "test4")
+        val randomData = arrayOf("test1", "test2", "test3", "test4", "test5", "test6", "test7", "test8", "test9", "test10")
 
         recyclerView.adapter = LocalFileAdapter(randomData)
 
