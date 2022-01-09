@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">Free Media Player</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="bottom_navigation_radio">Free Radio</string>
+    <string name="bottom_navigation_local_files">Local Files</string>
 </resources>
