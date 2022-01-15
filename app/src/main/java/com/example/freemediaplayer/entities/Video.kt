@@ -1,15 +1,14 @@
-package com.example.freemediaplayer
+package com.example.freemediaplayer.entities
 
-import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 
-@Entity(tableName = "audio")
-data class Audio(
+@Entity(tableName = "video")
+data class Video(
     val title: String?,
-    val artist: String?,
+    //val artist: String?,
     //val year: String?,
-    val album: String?,
+    //val album: String?,
     val uri: String?
     //val isMusic: Boolean = false,
     //val isPodcast: Boolean = false
