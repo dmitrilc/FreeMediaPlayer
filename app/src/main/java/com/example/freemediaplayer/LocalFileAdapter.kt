@@ -6,13 +6,12 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderViewBinding
 
-class LocalFileAdapter(private val dataSet: List<FolderData>) :
+class LocalFileAdapter(private val dataSet: Array<String>) :
     RecyclerView.Adapter<LocalFileAdapter.FileViewHolder>() {
 
     class FileViewHolder(private val folderViewBinding: FolderViewBinding) :
         RecyclerView.ViewHolder(folderViewBinding.root) {
-        val type: TextView = folderViewBinding.textViewMediaType
-        val path: TextView = folderViewBinding.textViewMediaLocation
+        val textView: TextView = folderViewBinding.textViewDirectoryPath
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FileViewHolder {
@@ -25,8 +24,7 @@ class LocalFileAdapter(private val dataSet: List<FolderData>) :
     }
 
     override fun onBindViewHolder(viewHolder: FileViewHolder, position: Int) {
-        viewHolder.type.text = dataSet[position].type
-        viewHolder.path.text = dataSet[position].path
+        viewHolder.textView.text = dataSet[position]
     }
 
     override fun getItemCount() = dataSet.size
