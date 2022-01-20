@@ -4,21 +4,25 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts.RequestPermission
 import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FragmentHomeBinding
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.entities.Video
 import com.example.freemediaplayer.pojos.FolderData
+import com.example.freemediaplayer.proto.BottomNavProto
+import com.example.freemediaplayer.proto.bottomNavProtoDataStore
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -42,6 +46,11 @@ class HomeFragment : Fragment() {
     private val binding get() = _binding!!
 
     val viewModel: FmpViewModel by activityViewModels()
+
+    val bottomNavProtoFlow: Flow<BottomNavProto.State>? = context?.bottomNavProtoDataStore?.data
+        ?.map { state ->
+            state.state
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
