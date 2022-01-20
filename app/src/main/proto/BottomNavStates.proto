@@ -2,11 +2,10 @@ syntax = "proto3";
 package test;
 
 option java_package = "com.example.freemediaplayer.proto";
-option java_outer_classname = "UIDataStore";
 option java_multiple_files = true;
 option optimize_for = LITE_RUNTIME;
 
-message BottomNavStates {
+message BottomNavProto {
   State state = 1;
 
   enum State {
