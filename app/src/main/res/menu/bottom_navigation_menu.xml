@@ -1,12 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu
+    xmlns:android="http://schemas.android.com/apk/res/android">
         <item
             android:id="@+id/page_1"
             android:enabled="true"
-            android:icon="@drawable/ic_baseline_folder_24"
-            android:title="@string/bottom_navigation_local_files"/>
+            android:icon="@drawable/ic_baseline_library_music_24"
+            android:title="@string/bottom_navigation_audio"/>
         <item
             android:id="@+id/page_2"
+            android:enabled="true"
+            android:icon="@drawable/ic_baseline_video_library_24"
+            android:title="@string/bottom_navigation_video"/>
+        <item
+            android:id="@+id/page_3"
+            android:enabled="true"
+            android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+            android:title="@string/bottom_navigation_playlists"/>
+        <item
+            android:id="@+id/page_4"
             android:enabled="true"
             android:icon="@drawable/ic_baseline_radio_24"
             android:title="@string/bottom_navigation_radio"/>
