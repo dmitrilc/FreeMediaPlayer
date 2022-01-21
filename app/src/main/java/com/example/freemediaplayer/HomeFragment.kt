@@ -4,6 +4,7 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.content.Context
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,17 +13,18 @@ import androidx.core.content.ContextCompat.checkSelfPermission
 import androidx.core.content.PermissionChecker.PERMISSION_GRANTED
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FragmentHomeBinding
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.entities.Video
 import com.example.freemediaplayer.pojos.FolderData
-import com.example.freemediaplayer.proto.BottomNavProto
-import com.example.freemediaplayer.proto.bottomNavProtoDataStore
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.single
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -47,11 +49,6 @@ class HomeFragment : Fragment() {
 
     val viewModel: FmpViewModel by activityViewModels()
 
-    val bottomNavProtoFlow: Flow<BottomNavProto.State>? = context?.bottomNavProtoDataStore?.data
-        ?.map { state ->
-            state.state
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         arguments?.let {
@@ -64,8 +61,16 @@ class HomeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        val fragmentHomeBinding = FragmentHomeBinding.inflate(inflater, container, false)
-        val recycler = fragmentHomeBinding.recyclerDirectories
+        _binding = FragmentHomeBinding.inflate(inflater, container, false)
+        val recycler = binding.recyclerDirectories
+        val bottomNav = binding.bottomNavigation
+
+        bottomNav.setOnItemReselectedListener { true }
+
+        bottomNav.setOnItemSelectedListener { item ->
+            viewModel.updateBottomNavState(item)
+            true
+        }
 
         //Checks Perm, Asks for Perm if necessary, updates RecyclerView.Adapter
         context?.let {
@@ -80,7 +85,7 @@ class HomeFragment : Fragment() {
             }
         }
 
-        return fragmentHomeBinding.root
+        return binding.root
     }
 
     private fun isReadExternalStoragePermGranted(context: Context) =
@@ -176,9 +181,24 @@ class HomeFragment : Fragment() {
         return audioFolderData.plus(videoFolderData)
     }
 
+    //@OptIn(InternalCoroutinesApi::class)
+    override fun onResume() {
+        super.onResume()
+
+        Log.d(TAG, "in onResume")
+
+        lifecycleScope.launch {
+           //binding.bottomNavigation.selectedItemId = viewModel.getBottomNavState().single()
+
+            val test = viewModel.getBottomNavState().first()
+            Log.d(TAG, "$test")
+            binding.bottomNavigation.selectedItemId = test
+        }
+    }
+
     override fun onDestroy() {
-        super.onDestroy()
         _binding = null
+        super.onDestroy()
     }
 
     companion object {
