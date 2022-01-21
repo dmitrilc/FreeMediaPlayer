@@ -1,10 +1,18 @@
 package com.example.freemediaplayer.viewmodel
 
+import android.util.Log
+import android.view.MenuItem
+import androidx.datastore.core.DataStore
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.freemediaplayer.R
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.entities.Video
+import com.example.freemediaplayer.proto.BottomNavProto
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
@@ -15,6 +23,9 @@ class FmpViewModel @Inject constructor(): ViewModel() {
 
     @Inject
     lateinit var appDatabase: AppDatabase
+
+    @Inject
+    lateinit var bottomNavDataStore: DataStore<BottomNavProto>
 
     fun insertAudio(audio: Audio) = runBlocking {
         appDatabase.audioDao().insert(audio)
@@ -38,6 +49,37 @@ class FmpViewModel @Inject constructor(): ViewModel() {
 
     fun insertVideos(videos: List<Video>) = runBlocking {
         appDatabase.videoDao().insertAll(videos)
+    }
+
+    fun getBottomNavState() = bottomNavDataStore.data
+        .map { nav ->
+            bottomNavStateToId(nav.state)
+        }
+
+    fun updateBottomNavState(selectedItem: MenuItem) {
+        val state = idToBottomNavState(selectedItem.itemId)
+
+        viewModelScope.launch {
+            bottomNavDataStore.updateData { currentState ->
+                currentState.toBuilder()
+                    .setState(state)
+                    .build()
+            }
+        }
+    }
+
+    private fun bottomNavStateToId(state: BottomNavProto.State) = when (state) {
+        BottomNavProto.State.MUSIC -> R.id.music
+        BottomNavProto.State.VIDEOS -> R.id.videos
+        BottomNavProto.State.PLAYLISTS -> R.id.playlists
+        else -> R.id.radio
+    }
+
+    private fun idToBottomNavState(id: Int) = when (id) {
+        R.id.music -> BottomNavProto.State.MUSIC
+        R.id.videos -> BottomNavProto.State.VIDEOS
+        R.id.playlists -> BottomNavProto.State.PLAYLISTS
+        else -> BottomNavProto.State.RADIO
     }
 
 }
