@@ -1,9 +1,13 @@
 package com.example.freemediaplayer.viewmodel
 
+import android.Manifest
+import android.app.Application
 import android.util.Log
 import android.view.MenuItem
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.datastore.core.DataStore
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.entities.Audio
@@ -19,13 +23,19 @@ import javax.inject.Inject
 private const val TAG = "VIEW_MODEL"
 
 @HiltViewModel
-class FmpViewModel @Inject constructor(): ViewModel() {
+class FmpViewModel @Inject constructor(private val app: Application): AndroidViewModel(app) {
 
     @Inject
     lateinit var appDatabase: AppDatabase
 
     @Inject
     lateinit var bottomNavDataStore: DataStore<BottomNavProto>
+
+    fun isReadExternalStoragePermGranted() =
+        ContextCompat.checkSelfPermission(
+            app.applicationContext,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        ) == PermissionChecker.PERMISSION_GRANTED
 
     fun insertAudio(audio: Audio) = runBlocking {
         appDatabase.audioDao().insert(audio)
@@ -56,8 +66,8 @@ class FmpViewModel @Inject constructor(): ViewModel() {
             bottomNavStateToId(nav.state)
         }
 
-    fun updateBottomNavState(selectedItem: MenuItem) {
-        val state = idToBottomNavState(selectedItem.itemId)
+    fun persistBottomNavState(id: Int) {
+        val state = idToBottomNavState(id)
 
         viewModelScope.launch {
             bottomNavDataStore.updateData { currentState ->
