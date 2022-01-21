@@ -3,24 +3,25 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/music">
     <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.freemediaplayer.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
-        <action
-            android:id="@+id/action_homeFragment_to_musicPlayerFragment"
-            app:destination="@id/musicPlayerFragment" />
-        <action
-            android:id="@+id/action_homeFragment_to_videoPlayerFragment"
-            app:destination="@id/videoPlayerFragment" />
-    </fragment>
-    <fragment android:id="@+id/musicPlayerFragment" />
-    <fragment android:id="@+id/videoPlayerFragment" >
-        <action
-            android:id="@+id/action_videoPlayerFragment_to_videoPlayerFullscreen"
-            app:destination="@id/videoPlayerFullscreen" />
-    </fragment>
-    <fragment android:id="@+id/videoPlayerFullscreen" />
+        android:id="@id/music"
+        android:name="com.example.freemediaplayer.fragments.AudioListFragment"
+        android:label="fragment_audio_list"
+        tools:layout="@layout/fragment_audio_list" />
+    <fragment
+        android:id="@id/videos"
+        android:name="com.example.freemediaplayer.fragments.VideoListFragment"
+        android:label="fragment_video_list"
+        tools:layout="@layout/fragment_video_list" />
+    <fragment
+        android:id="@id/radio"
+        android:name="com.example.freemediaplayer.fragments.RadioListFragment"
+        android:label="fragment_radio_list"
+        tools:layout="@layout/fragment_radio_list" />
+    <fragment
+        android:id="@id/playlists"
+        android:name="com.example.freemediaplayer.fragments.PlaylistListFragment"
+        android:label="fragment_playlist_list"
+        tools:layout="@layout/fragment_playlist_list" />
 </navigation>
