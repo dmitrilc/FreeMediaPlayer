@@ -27,7 +27,7 @@ class LocalFileAdapter(private val dataSet: List<FolderData>) :
 
     override fun onBindViewHolder(viewHolder: FileViewHolder, position: Int) {
         viewHolder.type.text = dataSet[position].type
-        viewHolder.path.text = dataSet[position].path
+        //viewHolder.path.text = dataSet[position].path
     }
 
     override fun getItemCount() = dataSet.size

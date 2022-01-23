@@ -2,8 +2,6 @@ package com.example.freemediaplayer.viewmodel
 
 import android.Manifest
 import android.app.Application
-import android.util.Log
-import android.view.MenuItem
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.datastore.core.DataStore
@@ -49,12 +47,24 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
         appDatabase.audioDao().getAll()
     }
 
+    fun getAudioTypes(): List<String> = runBlocking {
+        appDatabase.audioDao().getTypes()
+    }
+
     fun getAudioUris(): List<String> = runBlocking {
         appDatabase.audioDao().getUris()
     }
 
     fun getVideoUris(): List<String> = runBlocking {
         appDatabase.videoDao().getUris()
+    }
+
+    fun getVideoTypes(): List<String> = runBlocking {
+        appDatabase.videoDao().getTypes()
+    }
+
+    fun getAllVideos(): List<Video> = runBlocking {
+        appDatabase.videoDao().getAll()
     }
 
     fun insertVideos(videos: List<Video>) = runBlocking {
