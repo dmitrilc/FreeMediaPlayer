@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import com.example.freemediaplayer.LocalFileAdapter
 import com.example.freemediaplayer.databinding.FragmentVideoListBinding
 import com.example.freemediaplayer.entities.Video
 import com.example.freemediaplayer.pojos.FolderData
@@ -44,63 +45,59 @@ class VideoListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.fragment_video_list, container, false)
-
         _binding = FragmentVideoListBinding.inflate(inflater, container, false)
-
-        //val data = getFolderDataList()
-        //binding.recyclerAudio.adapter = LocalFileAdapter(getFolderDataList())
-
+        binding.recyclerVideo.adapter = LocalFileAdapter(getFolderDataList())
         return binding.root
     }
 
+//    DCIM
+//    Movies
+//    Pictures
+
+    //TODO Remove repetitive code
     private fun scanVideos() {
-        val projection = arrayOf(
-            MediaStore.Video.Media.TITLE
+        val projection = mutableListOf(
+            MediaStore.Video.Media.DISPLAY_NAME
         )
+
         val selection = null
         val selectionArgs = null
         val sortOrder = null
 
         activity?.contentResolver?.query(
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
-            projection,
+            projection.toTypedArray(),
             selection,
             selectionArgs,
             sortOrder
         )?.use { cursor ->
-            val titleColIndex = cursor.getColumnIndex(MediaStore.Video.Media.TITLE)
+            val displayNameColIndex = cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME)
+
             val videos = mutableListOf<Video>()
 
             while (cursor.moveToNext()) {
-                Video(
-                    title = cursor.getString(titleColIndex),
-                    uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI.toString()
-                ).also {
-                    videos.add(it)
-                }
+               val video = Video(
+                   displayName = cursor.getString(displayNameColIndex),
+                   uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI.toString()
+               )
+
+               videos.add(video)
             }
 
             viewModel.insertVideos(videos)
         }
     }
 
+    //TODO Remove repetitive code
     private fun getFolderDataList(): List<FolderData> {
         scanVideos()
 
-//        val audioFolderData = viewModel.getAudioUris().map { uri ->
-//            FolderData("Audio", uri)
-//        }
-
-        val videoFolderData = viewModel.getVideoUris().map { uri ->
-            FolderData("Video", uri)
+        val videoFolderData = viewModel.getVideoTypes().map { type ->
+            FolderData(type)
         }
 
         return videoFolderData
     }
-
-
 
     companion object {
         /**
