@@ -51,7 +51,7 @@ class MainActivity : AppCompatActivity() {
     override fun onPause() {
         val currentDestination: NavDestination? = navHostFragment.navController.currentDestination
 
-        if(currentDestination != null){
+        currentDestination?.run {
             viewModel.persistBottomNavState(currentDestination.id)
         }
 
