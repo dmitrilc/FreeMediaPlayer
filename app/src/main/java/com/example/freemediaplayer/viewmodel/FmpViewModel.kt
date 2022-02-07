@@ -10,9 +10,11 @@ import androidx.lifecycle.viewModelScope
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.entities.Video
+import com.example.freemediaplayer.pojos.FileData
 import com.example.freemediaplayer.proto.BottomNavProto
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
@@ -35,6 +37,15 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
             Manifest.permission.READ_EXTERNAL_STORAGE
         ) == PermissionChecker.PERMISSION_GRANTED
 
+    val allAudios by lazy { getAllAudio() }
+    var currentAudioFiles: List<Audio> = listOf()
+
+    var currentFileData: FileData? = null
+
+    val playerProgress = flow<Int> {
+
+    }
+
     fun insertAudio(audio: Audio) = runBlocking {
         appDatabase.audioDao().insert(audio)
     }
@@ -47,9 +58,9 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
         appDatabase.audioDao().getAll()
     }
 
-    fun getAudioTypes(): List<String> = runBlocking {
-        appDatabase.audioDao().getTypes()
-    }
+//    fun getAudioTypes(): List<String> = runBlocking {
+//        appDatabase.audioDao().getPaths()
+//    }
 
     fun getAudioUris(): List<String> = runBlocking {
         appDatabase.audioDao().getUris()
@@ -60,7 +71,7 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
     }
 
     fun getVideoTypes(): List<String> = runBlocking {
-        appDatabase.videoDao().getTypes()
+        appDatabase.videoDao().getPaths()
     }
 
     fun getAllVideos(): List<Video> = runBlocking {
@@ -88,18 +99,12 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
         }
     }
 
-    private fun bottomNavStateToId(state: BottomNavProto.State) = when (state) {
-        BottomNavProto.State.MUSIC -> R.id.music
-        BottomNavProto.State.VIDEOS -> R.id.videos
-        BottomNavProto.State.PLAYLISTS -> R.id.playlists
-        else -> R.id.radio
-    }
+    private fun bottomNavStateToId(state: BottomNavProto.State) =
+        if (state == BottomNavProto.State.MUSIC) R.id.music_paths
+        else R.id.video_paths
 
-    private fun idToBottomNavState(id: Int) = when (id) {
-        R.id.music -> BottomNavProto.State.MUSIC
-        R.id.videos -> BottomNavProto.State.VIDEOS
-        R.id.playlists -> BottomNavProto.State.PLAYLISTS
-        else -> BottomNavProto.State.RADIO
-    }
+    private fun idToBottomNavState(id: Int) =
+        if (id == R.id.music_paths) BottomNavProto.State.MUSIC
+        else BottomNavProto.State.VIDEOS
 
 }

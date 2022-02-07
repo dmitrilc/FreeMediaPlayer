@@ -14,8 +14,8 @@ interface VideoDao {
     @Query("SELECT DISTINCT uri FROM Video")
     suspend fun getUris(): List<String>
 
-    @Query("SELECT DISTINCT uri FROM video")
-    suspend fun getTypes(): List<String>
+    @Query("SELECT DISTINCT path FROM video")
+    suspend fun getPaths(): List<String>
 
 //    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
 //    fun loadAllByIds(userIds: IntArray): List<User>

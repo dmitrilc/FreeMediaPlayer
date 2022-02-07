@@ -3,25 +3,41 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/music">
+    app:startDestination="@id/music_paths">
     <fragment
-        android:id="@id/music"
+        android:id="@id/music_paths"
         android:name="com.example.freemediaplayer.fragments.AudioListFragment"
         android:label="fragment_audio_list"
-        tools:layout="@layout/fragment_audio_list" />
+        tools:layout="@layout/fragment_audio_list" >
+        <action
+            android:id="@+id/action_music_paths_to_files_path"
+            app:destination="@id/files_path">
+        </action>
+    </fragment>
     <fragment
-        android:id="@id/videos"
+        android:id="@id/video_paths"
         android:name="com.example.freemediaplayer.fragments.VideoListFragment"
         android:label="fragment_video_list"
         tools:layout="@layout/fragment_video_list" />
     <fragment
-        android:id="@id/radio"
-        android:name="com.example.freemediaplayer.fragments.RadioListFragment"
-        android:label="fragment_radio_list"
-        tools:layout="@layout/fragment_radio_list" />
+        android:id="@+id/files_path"
+        android:name="com.example.freemediaplayer.fragments.FilesFragment"
+        android:label="files_fragment"
+        tools:layout="@layout/files_fragment" >
+        <argument
+            android:name="type"
+            app:argType="string" />
+        <action
+            android:id="@+id/action_files_path_to_audioPlayerFragment"
+            app:destination="@id/audioPlayerFragment" />
+    </fragment>
     <fragment
-        android:id="@id/playlists"
-        android:name="com.example.freemediaplayer.fragments.PlaylistListFragment"
-        android:label="fragment_playlist_list"
-        tools:layout="@layout/fragment_playlist_list" />
+        android:id="@+id/audioPlayerFragment"
+        android:name="com.example.freemediaplayer.fragments.AudioPlayerFragment"
+        android:label="fragment_audio_player"
+        tools:layout="@layout/fragment_audio_player" >
+        <argument
+            android:name="selectedFilePos"
+            app:argType="integer" />
+    </fragment>
 </navigation>

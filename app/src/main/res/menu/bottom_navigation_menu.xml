@@ -2,23 +2,13 @@
 <menu
     xmlns:android="http://schemas.android.com/apk/res/android">
         <item
-            android:id="@+id/music"
+            android:id="@+id/music_paths"
             android:enabled="true"
             android:icon="@drawable/ic_baseline_library_music_24"
             android:title="@string/bottom_navigation_audio"/>
         <item
-            android:id="@+id/videos"
+            android:id="@+id/video_paths"
             android:enabled="true"
             android:icon="@drawable/ic_baseline_video_library_24"
             android:title="@string/bottom_navigation_video"/>
-        <item
-            android:id="@+id/playlists"
-            android:enabled="true"
-            android:icon="@drawable/ic_baseline_format_list_bulleted_24"
-            android:title="@string/bottom_navigation_playlists"/>
-        <item
-            android:id="@+id/radio"
-            android:enabled="true"
-            android:icon="@drawable/ic_baseline_radio_24"
-            android:title="@string/bottom_navigation_radio"/>
 </menu>

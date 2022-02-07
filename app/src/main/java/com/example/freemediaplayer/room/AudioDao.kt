@@ -14,8 +14,8 @@ interface AudioDao {
     @Query("SELECT DISTINCT uri FROM audio")
     suspend fun getUris(): List<String>
 
-    @Query("SELECT DISTINCT type FROM audio")
-    suspend fun getTypes(): List<String>
+//    @Query("SELECT DISTINCT path FROM audio")
+//    suspend fun getPaths(): List<String>
 
 //    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
 //    fun loadAllByIds(userIds: IntArray): List<User>

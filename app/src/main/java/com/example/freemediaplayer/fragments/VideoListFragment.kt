@@ -7,16 +7,19 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import com.example.freemediaplayer.LocalFileAdapter
+import com.example.freemediaplayer.*
 import com.example.freemediaplayer.databinding.FragmentVideoListBinding
 import com.example.freemediaplayer.entities.Video
 import com.example.freemediaplayer.pojos.FolderData
 import com.example.freemediaplayer.viewmodel.FmpViewModel
+import java.io.File
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
+
+private const val TAG = "VIDEO_LIST_FRAGMENT"
 
 /**
  * A simple [Fragment] subclass.
@@ -46,7 +49,7 @@ class VideoListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVideoListBinding.inflate(inflater, container, false)
-        binding.recyclerVideo.adapter = LocalFileAdapter(getFolderDataList())
+        binding.recyclerVideo.adapter = FoldersAdapter(getFolderDataList())
         return binding.root
     }
 
@@ -59,6 +62,12 @@ class VideoListFragment : Fragment() {
         val projection = mutableListOf(
             MediaStore.Video.Media.DISPLAY_NAME
         )
+
+        if(isSameOrAfterQ()){
+            projection.add(MediaStore.Video.Media.RELATIVE_PATH)
+        } else {
+            projection.add(MediaStore.Video.Media.DATA)
+        }
 
         val selection = null
         val selectionArgs = null
@@ -73,20 +82,46 @@ class VideoListFragment : Fragment() {
         )?.use { cursor ->
             val displayNameColIndex = cursor.getColumnIndex(MediaStore.Video.Media.DISPLAY_NAME)
 
+            val dataColIndex: Int? = if (isBeforeQ()){
+                cursor.getColumnIndex(MediaStore.Video.Media.DATA)
+            } else null
+
+            val relativePathColIndex: Int? = if (isSameOrAfterQ()) {
+                cursor.getColumnIndex(MediaStore.Video.Media.RELATIVE_PATH)
+            } else null
+
             val videos = mutableListOf<Video>()
 
             while (cursor.moveToNext()) {
+                val dataLocation = dataColIndex?.let {
+                    val data = cursor.getString(it)
+                    File(data).parent
+                        ?.split("/")
+                        ?.last()
+                }
+
+                val pathLocation = relativePathColIndex?.let {
+                    cursor.getString(it).dropLast(1)
+                }
+
                val video = Video(
                    displayName = cursor.getString(displayNameColIndex),
-                   uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI.toString()
+                   uri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI.toString(),
+                   path = dataLocation
+                       ?: pathLocation
+                       ?: "Unknown"
                )
 
-               videos.add(video)
+                videos.add(video)
             }
 
             viewModel.insertVideos(videos)
         }
     }
+
+    //private fun getDataColumnIndex()
+
+    //private fun isQ() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     //TODO Remove repetitive code
     private fun getFolderDataList(): List<FolderData> {

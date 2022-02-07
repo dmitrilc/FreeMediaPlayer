@@ -11,7 +11,5 @@ message BottomNavProto {
   enum State {
     MUSIC = 0;
     VIDEOS = 1;
-    PLAYLISTS = 2;
-    RADIO = 3;
   }
 }

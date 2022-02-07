@@ -1,16 +1,23 @@
 package com.example.freemediaplayer
 
 import android.Manifest
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.navArgs
+import androidx.navigation.navArgs
 import androidx.navigation.ui.setupWithNavController
 import com.example.freemediaplayer.databinding.ActivityMainBinding
+import com.example.freemediaplayer.fragments.AudioPlayerFragmentArgs
+import com.example.freemediaplayer.fragments.FilesFragmentArgs
+import com.example.freemediaplayer.pojos.FileData
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -25,7 +32,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
     private lateinit var navHostFragment: NavHostFragment
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+        override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -37,6 +44,15 @@ class MainActivity : AppCompatActivity() {
         //Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
         navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
+
+        //TODO Clean up
+        navHostFragment.navController.addOnDestinationChangedListener { _, dest, _ ->
+            if (dest.id == R.id.audioPlayerFragment) {
+                binding.bottomNavigation.visibility = View.GONE
+            } else {
+                binding.bottomNavigation.visibility = View.VISIBLE
+            }
+        }
     }
 
     private fun requestReadExternalStoragePerm(){
