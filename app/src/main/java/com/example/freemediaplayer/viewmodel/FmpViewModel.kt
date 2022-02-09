@@ -6,6 +6,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.entities.Audio
@@ -57,10 +59,6 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
     fun getAllAudio(): List<Audio> = runBlocking {
         appDatabase.audioDao().getAll()
     }
-
-//    fun getAudioTypes(): List<String> = runBlocking {
-//        appDatabase.audioDao().getPaths()
-//    }
 
     fun getAudioUris(): List<String> = runBlocking {
         appDatabase.audioDao().getUris()

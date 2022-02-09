@@ -9,19 +9,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.SeekBar
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.example.freemediaplayer.FoldersAdapter
 import com.example.freemediaplayer.R
-import com.example.freemediaplayer.databinding.FragmentAudioListBinding
 import com.example.freemediaplayer.databinding.FragmentAudioPlayerBinding
 import com.example.freemediaplayer.pojos.FileData
+//import com.example.freemediaplayer.viewmodel.AudioPlayerFragmentState
 import com.example.freemediaplayer.viewmodel.FmpViewModel
+//import com.example.freemediaplayer.viewmodel.UserAction.*
 import kotlinx.coroutines.*
-import kotlin.coroutines.coroutineContext
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -43,7 +44,7 @@ class AudioPlayerFragment : Fragment() {
     private var _binding: FragmentAudioPlayerBinding? = null
     private val binding get() = _binding!!
 
-    val args: AudioPlayerFragmentArgs by navArgs()
+    private val args: AudioPlayerFragmentArgs by navArgs()
 
     val viewModel: FmpViewModel by activityViewModels()
 
@@ -87,32 +88,87 @@ class AudioPlayerFragment : Fragment() {
     ): View? {
         _binding = FragmentAudioPlayerBinding.inflate(inflater, container, false)
 
-        mediaPlayer?.let { player ->
-            val seekBar = binding.seekBar
-
-            val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
-                override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
-                    if (fromUser){
-                        player.seekTo(progress)
-                    }
-                }
-
-                override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-                override fun onStopTrackingTouch(seekBar: SeekBar?) {}
-            }
-
-            seekBar.max = player.duration
-            seekBar.setOnSeekBarChangeListener(seekBarListener)
-
-            lifecycleScope.launch {
-                while (true){
-                    seekBar.progress = player.currentPosition
-                    delay(1000)
-                }
-            }
+        mediaPlayer?.let {
+            syncSeekBarToPlayer(it)
+            syncPlayPauseButtonToPlayer(it)
+            syncReplayButtonToPlayer(it)
+            syncReplay10ButtonToPlayer(it)
+            syncForward30ButtonToPlayer(it)
         }
 
         return binding.root
+    }
+
+    private fun syncSeekBarToPlayer(player: MediaPlayer){
+        binding.seekBar.max = player.duration
+
+        val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
+            override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
+                if (fromUser){
+                    player.seekTo(progress)
+                }
+            }
+
+            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+        }
+
+        binding.seekBar.setOnSeekBarChangeListener(seekBarListener)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            while (mediaPlayer != null){
+                if (player.isPlaying){
+                    binding.seekBar.progress = player.currentPosition
+                }
+                delay(1000)
+            }
+        }
+    }
+
+    private fun syncPlayPauseButtonToPlayer(player: MediaPlayer){
+        binding.imageButtonPlayPause.setOnClickListener {
+            if(player.isPlaying) {
+                player.pause()
+                binding.imageButtonPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+            } else {
+                player.start()
+                binding.imageButtonPlayPause.setImageResource(R.drawable.ic_baseline_pause_24)
+            }
+        }
+
+        player.setOnCompletionListener {
+            binding.imageButtonPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+        }
+    }
+
+    private fun syncReplayButtonToPlayer(player: MediaPlayer){
+        binding.imageButtonReplayInfinite.setOnClickListener {
+            player.isLooping = !player.isLooping
+
+            if (player.isLooping){
+                binding.imageButtonReplayInfinite.setImageResource(
+                    R.drawable.ic_baseline_repeat_one_24)
+            } else {
+                binding.imageButtonReplayInfinite.setImageResource(
+                    R.drawable.ic_baseline_repeat_24)
+            }
+        }
+    }
+
+    //Also syncs to ProgressBar
+    private fun syncReplay10ButtonToPlayer(player: MediaPlayer){
+        binding.imageButtonReplay10.setOnClickListener {
+            player.seekTo(player.currentPosition - 10_000)
+            binding.seekBar.progress = player.currentPosition
+        }
+    }
+
+    //Also syncs to ProgressBar
+    private fun syncForward30ButtonToPlayer(player: MediaPlayer){
+        binding.imageButtonForward30.setOnClickListener {
+            player.seekTo(player.currentPosition + 30_000)
+            binding.seekBar.progress  = player.currentPosition
+        }
     }
 
     companion object {

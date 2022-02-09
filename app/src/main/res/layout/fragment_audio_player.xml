@@ -49,17 +49,17 @@
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_replay_10_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton_play"
+                app:layout_constraintEnd_toStartOf="@+id/imageButton_playPause"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_play"
+                android:id="@+id/imageButton_playPause"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_play_arrow_24"
+                android:src="@drawable/ic_baseline_pause_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_forward30"
                 app:layout_constraintStart_toEndOf="@id/imageButton_replay10"
@@ -74,7 +74,7 @@
                 android:src="@drawable/ic_baseline_forward_30_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imageButton_play"
+                app:layout_constraintStart_toEndOf="@id/imageButton_playPause"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
