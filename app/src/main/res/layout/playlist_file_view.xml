@@ -4,11 +4,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/playlistFileView"
         android:layout_width="match_parent"
-        android:layout_height="72dp">
+        android:layout_height="wrap_content">
 
         <ImageView
-            android:id="@+id/imageView_filesSmallDisplayArt"
+            android:id="@+id/imageView_playlistFileSmallDisplayArt"
             android:layout_width="56dp"
             android:layout_height="56dp"
             android:layout_marginStart="8dp"
@@ -20,16 +21,15 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/innerConstraint"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/imageButton_filesBurger"
-            app:layout_constraintStart_toEndOf="@id/imageView_filesSmallDisplayArt"
+            app:layout_constraintEnd_toStartOf="@id/imageButton_playListFileBurger"
+            app:layout_constraintStart_toEndOf="@id/imageView_playlistFileSmallDisplayArt"
             app:layout_constraintTop_toTopOf="parent">
 
             <TextView
-                android:id="@+id/textView_filesTitle"
+                android:id="@+id/textView_playlistFileTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -42,7 +42,7 @@
                 tools:text="A really longgggggggggggggggggggggggggggggg name.mp3" />
 
             <TextView
-                android:id="@+id/textView_FilesAlbum"
+                android:id="@+id/textView_playlistFileAlbum"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
@@ -53,13 +53,13 @@
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@id/textView_filesTitle"
+                app:layout_constraintTop_toBottomOf="@id/textView_playlistFileTitle"
                 tools:text="A really longggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg Album" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <ImageButton
-            android:id="@+id/imageButton_filesBurger"
+            android:id="@+id/imageButton_playListFileBurger"
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_marginEnd="16dp"
@@ -67,6 +67,7 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_more_vert_24" />
+            app:srcCompat="@drawable/ic_baseline_menu_24" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>

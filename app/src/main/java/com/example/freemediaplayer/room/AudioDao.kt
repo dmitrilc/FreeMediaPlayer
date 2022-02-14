@@ -14,23 +14,9 @@ interface AudioDao {
     @Query("SELECT DISTINCT uri FROM audio")
     suspend fun getUris(): List<String>
 
-//    @Query("SELECT DISTINCT path FROM audio")
-//    suspend fun getPaths(): List<String>
-
-//    @Query("SELECT * FROM user WHERE uid IN (:userIds)")
-//    fun loadAllByIds(userIds: IntArray): List<User>
-//
-//    @Query("SELECT * FROM user WHERE first_name LIKE :first AND " +
-//            "last_name LIKE :last LIMIT 1")
-//    fun findByName(first: String, last: String): User
-//
     @Insert(onConflict = REPLACE)
     suspend fun insert(audio: Audio)
 
     @Insert(onConflict = REPLACE)
-    suspend fun insertAll(audios: List<Audio>)
-
-//    @Delete
-//    fun delete(user: User)
-
+    suspend fun insertAll(audios: Collection<Audio>)
 }

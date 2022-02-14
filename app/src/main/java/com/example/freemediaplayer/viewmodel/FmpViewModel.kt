@@ -2,27 +2,26 @@ package com.example.freemediaplayer.viewmodel
 
 import android.Manifest
 import android.app.Application
+import android.graphics.Bitmap
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.entities.Video
-import com.example.freemediaplayer.pojos.FileData
+import com.example.freemediaplayer.fragments.RepeatMode
+import com.example.freemediaplayer.pojos.FolderData
 import com.example.freemediaplayer.proto.BottomNavProto
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-private const val TAG = "VIEW_MODEL"
+private const val TAG = "VIEWMODEL"
 
 @HiltViewModel
 class FmpViewModel @Inject constructor(private val app: Application): AndroidViewModel(app) {
@@ -33,6 +32,7 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
     @Inject
     lateinit var bottomNavDataStore: DataStore<BottomNavProto>
 
+    //TODO Move to Activity/Fragment
     fun isReadExternalStoragePermGranted() =
         ContextCompat.checkSelfPermission(
             app.applicationContext,
@@ -40,19 +40,28 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
         ) == PermissionChecker.PERMISSION_GRANTED
 
     val allAudios by lazy { getAllAudio() }
+
+    var allFolders: List<FolderData>? = null
+    var currentAudioLocation: Int? = null
+
+    //Also used as playlist
     var currentAudioFiles: List<Audio> = listOf()
 
-    var currentFileData: FileData? = null
+    val currentPlaylist: MutableList<Audio> = mutableListOf()
 
-    val playerProgress = flow<Int> {
+    var repeatMode: RepeatMode = RepeatMode.NONE
 
-    }
+    var currentAudio: Audio? = null
+
+    val loadedThumbnails: MutableMap<String, Bitmap?> = mutableMapOf()
+
+    var audioPlayerThumbnail: Bitmap? = null
 
     fun insertAudio(audio: Audio) = runBlocking {
         appDatabase.audioDao().insert(audio)
     }
 
-    fun insertAudios(audios: List<Audio>) = runBlocking {
+    fun insertAudios(audios: Collection<Audio>) = runBlocking {
         appDatabase.audioDao().insertAll(audios)
     }
 

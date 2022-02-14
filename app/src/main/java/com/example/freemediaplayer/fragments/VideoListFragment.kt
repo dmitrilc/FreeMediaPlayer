@@ -49,13 +49,8 @@ class VideoListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentVideoListBinding.inflate(inflater, container, false)
-        binding.recyclerVideo.adapter = FoldersAdapter(getFolderDataList())
         return binding.root
     }
-
-//    DCIM
-//    Movies
-//    Pictures
 
     //TODO Remove repetitive code
     private fun scanVideos() {
@@ -118,10 +113,6 @@ class VideoListFragment : Fragment() {
             viewModel.insertVideos(videos)
         }
     }
-
-    //private fun getDataColumnIndex()
-
-    //private fun isQ() = Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q
 
     //TODO Remove repetitive code
     private fun getFolderDataList(): List<FolderData> {

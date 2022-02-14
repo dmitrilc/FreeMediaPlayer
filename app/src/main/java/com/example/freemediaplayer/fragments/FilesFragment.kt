@@ -1,18 +1,22 @@
 package com.example.freemediaplayer.fragments
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
+import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
-import androidx.navigation.fragment.navArgs
-import com.example.freemediaplayer.FilesAdapter
+import androidx.navigation.fragment.findNavController
+import com.example.freemediaplayer.AdapterChildClickedListener
+import com.example.freemediaplayer.AdapterChildThumbnailLoad
+import com.example.freemediaplayer.FileAdapter
 import com.example.freemediaplayer.databinding.FilesFragmentBinding
-import com.example.freemediaplayer.pojos.FileData
+import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.viewmodel.FmpViewModel
+import java.io.FileNotFoundException
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -26,7 +30,7 @@ private const val TAG = "FILES_FRAGMENT"
  * Use the [FilesFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FilesFragment : Fragment() {
+class FilesFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumbnailLoad {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -35,8 +39,6 @@ class FilesFragment : Fragment() {
     private val binding get() = _binding!!
 
     val viewModel: FmpViewModel by activityViewModels()
-
-    val args: FilesFragmentArgs by navArgs()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -50,27 +52,14 @@ class FilesFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        // Inflate the layout for this fragment
-        //return inflater.inflate(R.layout.audio_files_fragment, container, false)
-
         _binding = FilesFragmentBinding.inflate(inflater, container, false)
-
-        //TODO CLean up
-
-        val fileViewsData = viewModel.allAudios
-            .filter { it.type == args.type }
-            .map { FileData(it.displayName, Uri.parse(it.uri)) }
-
-        viewModel.currentAudioFiles = viewModel.allAudios
-            .filter { it.type == args.type }
-
-        binding.recyclerFiles.adapter = FilesAdapter(fileViewsData)
-
-        Log.d(TAG, binding.recyclerFiles.adapter.toString())
-
-
-
+        prepareRecycler()
         return binding.root
+    }
+
+    private fun prepareRecycler(){
+        //TODO CLean up
+        binding.recyclerFiles.adapter = FileAdapter(viewModel.currentAudioFiles)
     }
 
     companion object {
@@ -91,5 +80,52 @@ class FilesFragment : Fragment() {
                     putString(ARG_PARAM2, param2)
                 }
             }
+    }
+
+    override fun onAdapterChildClicked(v: View, position: Int) {
+        //TODO CLean up
+        viewModel.currentPlaylist.clear()
+        viewModel.currentPlaylist.addAll(viewModel.currentAudioFiles)
+        viewModel.currentAudio = viewModel.currentAudioFiles[position]
+        viewModel.audioPlayerThumbnail = viewModel.loadedThumbnails[viewModel.currentAudio?.album]
+
+        val navController = findNavController()
+
+        //TODO Clean up
+        navController.navigate(
+            FilesFragmentDirections.actionFilesFragmentToAudioPlayerFragment())
+    }
+
+    override fun onAdapterChildThumbnailLoad(v: ImageView, position: Int){
+        val audio = viewModel.currentAudioFiles[position]
+        val thumbnailKey = audio.album
+        val thumbnails = viewModel.loadedThumbnails
+
+        //TODO Clean up
+        context?.contentResolver?.let {
+            if (!thumbnails.containsKey(thumbnailKey)) {
+                if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
+                    try {
+                        val thumbnail = it.loadThumbnail(
+                            audio.uri,
+                            Size(300, 300),
+                            null
+                        )
+
+                        viewModel.loadedThumbnails[thumbnailKey] = thumbnail
+
+                        Log.d(TAG, "$thumbnailKey = ${viewModel.loadedThumbnails[thumbnailKey]}")
+                    }
+                    catch (e: FileNotFoundException) {
+                        //TODO Implement
+                        Log.d(TAG, e.toString())
+                    }
+                }
+            }
+
+            if (thumbnails[thumbnailKey] !== null){
+               v.setImageBitmap(thumbnails[thumbnailKey])
+            }
+        }
     }
 }

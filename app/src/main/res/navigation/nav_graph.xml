@@ -11,7 +11,7 @@
         tools:layout="@layout/fragment_audio_list" >
         <action
             android:id="@+id/action_music_paths_to_files_path"
-            app:destination="@id/files_path">
+            app:destination="@id/files_fragment">
         </action>
     </fragment>
     <fragment
@@ -20,15 +20,12 @@
         android:label="fragment_video_list"
         tools:layout="@layout/fragment_video_list" />
     <fragment
-        android:id="@+id/files_path"
+        android:id="@+id/files_fragment"
         android:name="com.example.freemediaplayer.fragments.FilesFragment"
         android:label="files_fragment"
         tools:layout="@layout/files_fragment" >
-        <argument
-            android:name="type"
-            app:argType="string" />
         <action
-            android:id="@+id/action_files_path_to_audioPlayerFragment"
+            android:id="@+id/action_filesFragment_to_audioPlayerFragment"
             app:destination="@id/audioPlayerFragment" />
     </fragment>
     <fragment
@@ -36,8 +33,12 @@
         android:name="com.example.freemediaplayer.fragments.AudioPlayerFragment"
         android:label="fragment_audio_player"
         tools:layout="@layout/fragment_audio_player" >
-        <argument
-            android:name="selectedFilePos"
-            app:argType="integer" />
+        <action
+            android:id="@+id/action_audioPlayerFragment_to_playlistFragment"
+            app:destination="@id/playlistFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/playlistFragment"
+        android:name="com.example.freemediaplayer.fragments.PlaylistFragment"
+        android:label="PlaylistFragment" />
 </navigation>

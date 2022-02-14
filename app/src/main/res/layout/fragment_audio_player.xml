@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/frameLayout"
+        android:id="@+id/audioPlayerLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".fragments.AudioPlayerFragment">
@@ -23,9 +23,11 @@
 
         <TextView
             android:id="@+id/textView_mediaTitle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
             android:layout_margin="16dp"
+            android:gravity="center"
+            android:maxLines="1"
             android:text="Media Title"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"

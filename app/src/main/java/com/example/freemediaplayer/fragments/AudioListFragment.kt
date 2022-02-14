@@ -1,15 +1,20 @@
 package com.example.freemediaplayer.fragments
 
+import android.content.ContentUris
 import android.os.Bundle
 import android.provider.MediaStore
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.navigation.fragment.findNavController
+import com.example.freemediaplayer.AdapterChildClickedListener
 import com.example.freemediaplayer.FoldersAdapter
 import com.example.freemediaplayer.databinding.FragmentAudioListBinding
 import com.example.freemediaplayer.entities.Audio
+import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.pojos.FolderData
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 
@@ -25,7 +30,7 @@ private const val TAG = "AUDIO_LIST_FRAGMENT"
  * Use the [AudioListFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AudioListFragment : Fragment() {
+class AudioListFragment : Fragment(), AdapterChildClickedListener {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -48,124 +53,64 @@ class AudioListFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentAudioListBinding.inflate(inflater, container, false)
-        binding.recyclerAudio.adapter = FoldersAdapter(getFolderDataList())
-        //val list =
-        //val navController = findNavController()
-
-        //binding.recyclerAudio
-
-//        binding.recyclerAudio.children.forEach { child ->
-//            Log.d(TAG, child.toString())
-//            child.setOnClickListener {
-//                Log.d(TAG, "navigating")
-//                navController.navigate(AudioListFragmentDirections.actionMusicPathsToFilesPath())
-//            }
-//        }
+        prepareRecycler()
 
         return binding.root
     }
 
     private fun scanAudios() {
-/*        val audioTypes = mutableListOf(
-            MediaStore.Audio.Media.IS_RINGTONE,
-            MediaStore.Audio.Media.IS_MUSIC,
-            MediaStore.Audio.Media.IS_PODCAST,
-            MediaStore.Audio.Media.IS_NOTIFICATION,
-            MediaStore.Audio.Media.IS_ALARM
-        )*/
-
-//        if (isSameOrAfterQ()) {
-//            audioTypes.add(MediaStore.Audio.Media.IS_AUDIOBOOK)
-//        }
-//
-//        if (isSameOrAfterS()) {
-//            audioTypes.add(MediaStore.Audio.Media.IS_RECORDING)
-//        }
+        val collection =
+            if (isSameOrAfterQ()) {
+                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+            } else {
+                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
+            }
 
         val projection = mutableListOf(
-            //MediaStore.Audio.Media.DISPLAY_NAME,
+            MediaStore.Audio.Media._ID,
+            MediaStore.Audio.Media.TITLE,
+            MediaStore.Audio.Media.ALBUM,
             MediaStore.Audio.Media.DATA
         )
-
-//        if(isSameOrAfterQ()){
-//            projection.add(MediaStore.Audio.Media.RELATIVE_PATH)
-//        } else {
-//            projection.add(MediaStore.Audio.Media.DATA)
-//        }
 
         val selection = null
         val selectionArgs = null
         val sortOrder = null
 
         activity?.contentResolver?.query(
-            MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+            collection,
             projection.toTypedArray(),
             selection,
             selectionArgs,
             sortOrder
         )?.use { cursor ->
-            //val displayNameColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DISPLAY_NAME)
-            val dataColIndex: Int = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val idColIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
+            val dataColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
+            val titleColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
+            val albumColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
 
-//            val dataColIndex: Int? = if (isBeforeQ()){
-//                cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-//            } else null
-
-//            val relativePathColIndex: Int? = if (isSameOrAfterQ()) {
-//                cursor.getColumnIndex(MediaStore.Audio.Media.RELATIVE_PATH)
-//            } else null
-
-            val audios = mutableListOf<Audio>()
+            val audios = mutableSetOf<Audio>()
 
             while (cursor.moveToNext()) {
-//                val audioType = audioTypeIndexMap.entries.first {
-//                    (it.value > -1) && (cursor.getInt(it.value) == 1)
-//                }.key.let {
-//                    toReadableAudioType(it)
-//                }
-
-//                val android11AndLowerPath = dataColIndex?.let {
-//                    cursor.getString(it)
-//                }
-
-//                val android11AndLowerType = dataColIndex?.let {
-//                    val data = cursor.getString(it)
-//                    File(data).parent
-//                        ?.split("/")
-//                        ?.last()
-//                }
-
-    ///storage/emulated/0/Music/Axletree - Unexpected Gifts of Spring.mp3
+                val id = cursor.getLong(idColIndex)
                 val data = cursor.getString(dataColIndex)
 
-                val displayName = data.substringAfterLast('/')
-                val type = data.substringBeforeLast('/')
+                val uri = ContentUris.withAppendedId(
+                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    id
+                )
 
-//                val android11AndHigherRelativePath = relativePathColIndex?.let {
-//                    cursor.getString(it)
-//                }
-//
-//                val displayName = cursor.getString(displayNameColIndex)
-//
-//                val android11AndHigherPath = android11AndHigherRelativePath?.let { relativePath ->
-//                    relativePath + displayName
-//                }
-//
-//                val type = if (android11AndLowerPath !== null){
-//                    android11AndLowerPath.substringAfterLast('/')
-//                } else android11AndHigherRelativePath
-//
-//                val uri = if (android11AndLowerPath !== null){
-//                    android11AndLowerPath
-//                } else android11AndHigherPath
+                val displayName = data.substringAfterLast('/')
+                val location = data.substringBeforeLast('/')
 
                 val audio = Audio(
+                    id = id,
+                    uri = uri,
+                    data = data,
                     displayName = displayName,
-//                    title = cursor.getString(titleColIndex),
-//                    artist = cursor.getString(artistColIndex),
-//                    album = cursor.getString(albumColIndex),
-                    type = type,
-                    uri = data
+                    title = cursor.getString(titleColIndex),
+                    album = cursor.getString(albumColIndex),
+                    location = location
                 )
 
                 audios.add(audio)
@@ -175,31 +120,41 @@ class AudioListFragment : Fragment() {
         }
     }
 
-//    private fun toReadableAudioType(type: String) = when (type) {
-//        MediaStore.Audio.Media.IS_RINGTONE -> "Ringtones"
-//        MediaStore.Audio.Media.IS_MUSIC -> "Music"
-//        MediaStore.Audio.Media.IS_PODCAST -> "Podcast"
-//        MediaStore.Audio.Media.IS_NOTIFICATION -> "Notifications"
-//        MediaStore.Audio.Media.IS_ALARM -> "Alarms"
-//        MediaStore.Audio.Media.IS_AUDIOBOOK -> "Audio Books"
-//        MediaStore.Audio.Media.IS_RECORDING -> "Recording"
-//        else -> "Unknown"
-//    }
-
+    //TODO Only scan if MediaStore changed
     private fun getFolderDataList(): List<FolderData> {
         scanAudios()
 
-//        val audioFolderData = viewModel.getAudioTypes().map { path ->
-//            FolderData(path)
+        //TODO Fix issue of slow loading on first load
+//        val audioFolderData = viewModel.allAudios.map { audio ->
+//            FolderData(audio.location)
 //        }
 
-        //TODO Fix issue of slow loading on first load
+        val audioFolderData = viewModel.allAudios
+            .distinctBy { it.location }
+            .map { FolderData(it.location) }
 
-        val audioFolderData = viewModel.allAudios.map { audio ->
-            FolderData(audio.type)
-        }
+        //TODO Too lazy. Dont do this
+        viewModel.allFolders = audioFolderData
 
         return audioFolderData
+    }
+
+    private fun prepareRecycler(){
+        binding.recyclerAudio.adapter = FoldersAdapter(getFolderDataList())
+    }
+
+    override fun onAdapterChildClicked(v: View, position: Int){
+        //TODO CLean up
+        viewModel.currentAudioLocation = position
+
+        viewModel.currentAudioFiles = viewModel.allAudios
+            .filter { it.location == viewModel.allFolders?.get(position)?.type}
+
+        val navController = findNavController()
+
+        navController
+            .navigate(
+                AudioListFragmentDirections.actionMusicPathsToFilesPath())
     }
 
     companion object {

@@ -1,23 +1,16 @@
 package com.example.freemediaplayer
 
 import android.Manifest
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.fragment.navArgs
-import androidx.navigation.navArgs
 import androidx.navigation.ui.setupWithNavController
 import com.example.freemediaplayer.databinding.ActivityMainBinding
-import com.example.freemediaplayer.fragments.AudioPlayerFragmentArgs
-import com.example.freemediaplayer.fragments.FilesFragmentArgs
-import com.example.freemediaplayer.pojos.FileData
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -47,7 +40,7 @@ class MainActivity : AppCompatActivity() {
 
         //TODO Clean up
         navHostFragment.navController.addOnDestinationChangedListener { _, dest, _ ->
-            if (dest.id == R.id.audioPlayerFragment) {
+            if (dest.id == R.id.audioPlayerFragment || dest.id == R.id.playlistFragment) {
                 binding.bottomNavigation.visibility = View.GONE
             } else {
                 binding.bottomNavigation.visibility = View.VISIBLE

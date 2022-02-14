@@ -3,19 +3,30 @@ package com.example.freemediaplayer
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.navigation.findNavController
+import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderViewBinding
-import com.example.freemediaplayer.fragments.AudioListFragmentDirections
+import com.example.freemediaplayer.fragments.AudioListFragment
 import com.example.freemediaplayer.pojos.FolderData
+
+private const val TAG = "FOLDERS_ADAPTER"
 
 class FoldersAdapter(private val dataSet: List<FolderData>) :
     RecyclerView.Adapter<FoldersAdapter.FolderViewHolder>() {
 
-    class FolderViewHolder(private val folderViewBinding: FolderViewBinding) :
+    class FolderViewHolder(folderViewBinding: FolderViewBinding) :
         RecyclerView.ViewHolder(folderViewBinding.root) {
         val type: TextView = folderViewBinding.textViewMediaType
         val path: TextView = folderViewBinding.textViewMediaLocation
+
+        //TODO Make sure to unbind onclicklistener
+        init {
+            folderViewBinding.root.setOnClickListener {
+                //DON'T holder a reference to the fragment
+                it.findFragment<AudioListFragment>()
+                    .onAdapterChildClicked(it, bindingAdapterPosition)
+            }
+        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FolderViewHolder {
@@ -24,20 +35,11 @@ class FoldersAdapter(private val dataSet: List<FolderData>) :
             viewGroup,
             false)
 
-        val navController = viewGroup.findNavController()
-
-        folderViewBinding.cardView.setOnClickListener {
-            navController.navigate(AudioListFragmentDirections.actionMusicPathsToFilesPath(folderViewBinding.textViewMediaType.text.toString()))
-        }
-
         return FolderViewHolder(folderViewBinding)
     }
 
     override fun onBindViewHolder(viewHolder: FolderViewHolder, position: Int) {
         viewHolder.type.text = dataSet[position].type
-
-
-        //viewHolder.path.text = dataSet[position].path
     }
 
     override fun getItemCount() = dataSet.size
