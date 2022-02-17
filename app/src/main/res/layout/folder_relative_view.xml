@@ -9,7 +9,7 @@
         android:layout_marginTop="16dp">
 
         <com.google.android.material.card.MaterialCardView
-            android:id="@+id/card_view"
+            android:id="@+id/cardView_folder"
             android:layout_width="156dp"
             android:layout_height="156dp"
             card_view:cardCornerRadius="16dp"
@@ -23,7 +23,7 @@
                 android:layout_height="match_parent">
 
                 <TextView
-                    android:id="@+id/textView_mediaType"
+                    android:id="@+id/textView_folderRelativePath"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     card_view:layout_constraintEnd_toEndOf="parent"
@@ -31,16 +31,6 @@
                     card_view:layout_constraintTop_toTopOf="parent"
                     tools:text="Audio" />
 
-                <TextView
-                    android:id="@+id/textView_mediaLocation"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    card_view:layout_constraintBottom_toBottomOf="parent"
-                    card_view:layout_constraintEnd_toEndOf="parent"
-                    card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toBottomOf="@id/textView_mediaType"
-                    tools:text="content://abc/xyz" />
             </androidx.constraintlayout.widget.ConstraintLayout>
         </com.google.android.material.card.MaterialCardView>
     </androidx.constraintlayout.widget.ConstraintLayout>

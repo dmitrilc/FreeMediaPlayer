@@ -4,9 +4,9 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
-import com.example.freemediaplayer.databinding.FileViewBinding
+import com.example.freemediaplayer.databinding.FolderItemViewBinding
 import com.example.freemediaplayer.entities.Audio
-import com.example.freemediaplayer.fragments.FilesFragment
+import com.example.freemediaplayer.fragments.FolderItemsFragment
 
 private const val TAG = "FILE_ADAPTER"
 
@@ -14,23 +14,23 @@ private const val TAG = "FILE_ADAPTER"
 class FileAdapter(private val dataSet: List<Audio>) :
     RecyclerView.Adapter<FileAdapter.FileViewHolder>() {
 
-    class FileViewHolder(fileViewBinding: FileViewBinding) :
-        RecyclerView.ViewHolder(fileViewBinding.root) {
-        val titleView = fileViewBinding.textViewFilesTitle
-        val albumView = fileViewBinding.textViewFilesAlbum
-        val thumbnailView = fileViewBinding.imageViewFilesSmallDisplayArt
+    class FileViewHolder(folderItemViewBinding: FolderItemViewBinding) :
+        RecyclerView.ViewHolder(folderItemViewBinding.root) {
+        val titleView = folderItemViewBinding.textViewFolderItemTitle
+        val albumView = folderItemViewBinding.textViewFolderItemAlbum
+        val displayArtView = folderItemViewBinding.imageViewFolderItemDisplayArt
 
         init {
-            fileViewBinding.root.setOnClickListener {
+            folderItemViewBinding.root.setOnClickListener {
                 //DON'T holder a reference to the fragment
-                it.findFragment<FilesFragment>()
+                it.findFragment<FolderItemsFragment>()
                     .onAdapterChildClicked(it, bindingAdapterPosition)
             }
         }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FileViewHolder {
-        val fileViewBinding = FileViewBinding.inflate(
+        val fileViewBinding = FolderItemViewBinding.inflate(
             LayoutInflater.from(viewGroup.context),
             viewGroup,
             false
@@ -49,8 +49,8 @@ class FileAdapter(private val dataSet: List<Audio>) :
     override fun onViewAttachedToWindow(holder: FileViewHolder) {
         super.onViewAttachedToWindow(holder)
 
-        holder.thumbnailView.findFragment<FilesFragment>()
-            .onAdapterChildThumbnailLoad(holder.thumbnailView, holder.bindingAdapterPosition)
+        holder.displayArtView.findFragment<FolderItemsFragment>()
+            .onAdapterChildThumbnailLoad(holder.displayArtView, holder.bindingAdapterPosition)
     }
 
 }

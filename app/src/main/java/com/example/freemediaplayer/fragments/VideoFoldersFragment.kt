@@ -8,7 +8,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import com.example.freemediaplayer.*
-import com.example.freemediaplayer.databinding.FragmentVideoListBinding
+import com.example.freemediaplayer.databinding.FragmentVideoFoldersBinding
 import com.example.freemediaplayer.entities.Video
 import com.example.freemediaplayer.pojos.FolderData
 import com.example.freemediaplayer.viewmodel.FmpViewModel
@@ -23,15 +23,15 @@ private const val TAG = "VIDEO_LIST_FRAGMENT"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [VideoListFragment.newInstance] factory method to
+ * Use the [VideoFoldersFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class VideoListFragment : Fragment() {
+class VideoFoldersFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    private var _binding: FragmentVideoListBinding? = null
+    private var _binding: FragmentVideoFoldersBinding? = null
     private val binding get() = _binding!!
 
     val viewModel: FmpViewModel by activityViewModels()
@@ -48,7 +48,7 @@ class VideoListFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentVideoListBinding.inflate(inflater, container, false)
+        _binding = FragmentVideoFoldersBinding.inflate(inflater, container, false)
         return binding.root
     }
 
@@ -115,15 +115,15 @@ class VideoListFragment : Fragment() {
     }
 
     //TODO Remove repetitive code
-    private fun getFolderDataList(): List<FolderData> {
-        scanVideos()
-
-        val videoFolderData = viewModel.getVideoTypes().map { type ->
-            FolderData(type)
-        }
-
-        return videoFolderData
-    }
+//    private fun getFolderDataList(): List<FolderData> {
+//        scanVideos()
+//
+//        val videoFolderData = viewModel.getVideoTypes().map { type ->
+//            FolderData(type)
+//        }
+//
+//        return videoFolderData
+//    }
 
     companion object {
         /**
@@ -137,7 +137,7 @@ class VideoListFragment : Fragment() {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            VideoListFragment().apply {
+            VideoFoldersFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

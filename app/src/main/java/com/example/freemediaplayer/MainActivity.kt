@@ -9,6 +9,7 @@ import androidx.activity.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.freemediaplayer.databinding.ActivityMainBinding
 import com.example.freemediaplayer.viewmodel.FmpViewModel
@@ -29,21 +30,63 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        //TODO Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
+        navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView_navHostFragment) as NavHostFragment
+
+        bindNavElementsToNav()
         initBottomNav()
         requestReadExternalStoragePerm()
     }
 
     private fun initBottomNav(){
-        //Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
-        navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        binding.bottomNavigation.setupWithNavController(navHostFragment.navController)
+        binding.bottomNavViewBottomNav.setupWithNavController(navHostFragment.navController)
+    }
 
+    private fun bindNavElementsToNav(){
         //TODO Clean up
+        val appBarConfiguration = AppBarConfiguration(
+            setOf(
+                R.id.audio_folders_path,
+                R.id.video_folders_path,
+                R.id.playlists_path
+            )
+        )
+
+        //TODO fix awkward animation of titles
+        binding.materialToolBarViewTopAppBar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
+
+        //navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navHostFragment.navController.addOnDestinationChangedListener { _, dest, _ ->
-            if (dest.id == R.id.audioPlayerFragment || dest.id == R.id.playlistFragment) {
-                binding.bottomNavigation.visibility = View.GONE
-            } else {
-                binding.bottomNavigation.visibility = View.VISIBLE
+            when(dest.id){
+                R.id.audio_folders_path -> {
+                    binding.materialToolBarViewTopAppBar.title = "Audios"
+                    binding.bottomNavViewBottomNav.visibility = View.VISIBLE
+                }
+                R.id.video_folders_path -> {
+                    binding.materialToolBarViewTopAppBar.title = "Videos"
+                    binding.bottomNavViewBottomNav.visibility = View.VISIBLE
+                }
+                R.id.playlists_path -> {
+                    binding.materialToolBarViewTopAppBar.title = "Playlists"
+                    binding.bottomNavViewBottomNav.visibility = View.VISIBLE
+                }
+                R.id.folder_items_path -> {
+                    binding.materialToolBarViewTopAppBar.title = viewModel.currentAudioFiles[0].location
+                    binding.bottomNavViewBottomNav.visibility = View.GONE
+                }
+                R.id.audio_player_path -> {
+                    binding.materialToolBarViewTopAppBar.title = "Add file Path here"
+                    binding.bottomNavViewBottomNav.visibility = View.GONE
+                }
+                R.id.active_playlist_path -> {
+                    binding.materialToolBarViewTopAppBar.title = "Playlist"
+                    binding.bottomNavViewBottomNav.visibility = View.GONE
+                }
+                else -> {
+                    binding.materialToolBarViewTopAppBar.title = "N/A"
+                    binding.bottomNavViewBottomNav.visibility = View.GONE
+                }
             }
         }
     }

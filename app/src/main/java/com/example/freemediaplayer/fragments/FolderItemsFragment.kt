@@ -13,7 +13,7 @@ import androidx.navigation.fragment.findNavController
 import com.example.freemediaplayer.AdapterChildClickedListener
 import com.example.freemediaplayer.AdapterChildThumbnailLoad
 import com.example.freemediaplayer.FileAdapter
-import com.example.freemediaplayer.databinding.FilesFragmentBinding
+import com.example.freemediaplayer.databinding.FolderItemsFragmentBinding
 import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 import java.io.FileNotFoundException
@@ -27,15 +27,15 @@ private const val TAG = "FILES_FRAGMENT"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [FilesFragment.newInstance] factory method to
+ * Use the [FolderItemsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FilesFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumbnailLoad {
+class FolderItemsFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumbnailLoad {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    private var _binding: FilesFragmentBinding? = null
+    private var _binding: FolderItemsFragmentBinding? = null
     private val binding get() = _binding!!
 
     val viewModel: FmpViewModel by activityViewModels()
@@ -52,14 +52,14 @@ class FilesFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumb
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FilesFragmentBinding.inflate(inflater, container, false)
+        _binding = FolderItemsFragmentBinding.inflate(inflater, container, false)
         prepareRecycler()
         return binding.root
     }
 
     private fun prepareRecycler(){
         //TODO CLean up
-        binding.recyclerFiles.adapter = FileAdapter(viewModel.currentAudioFiles)
+        binding.recyclerFolderItems.adapter = FileAdapter(viewModel.currentAudioFiles)
     }
 
     companion object {
@@ -74,7 +74,7 @@ class FilesFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumb
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            FilesFragment().apply {
+            FolderItemsFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
@@ -87,13 +87,13 @@ class FilesFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumb
         viewModel.currentPlaylist.clear()
         viewModel.currentPlaylist.addAll(viewModel.currentAudioFiles)
         viewModel.currentAudio = viewModel.currentAudioFiles[position]
-        viewModel.audioPlayerThumbnail = viewModel.loadedThumbnails[viewModel.currentAudio?.album]
+        //viewModel.audioPlayerThumbnail = viewModel.loadedThumbnails[viewModel.currentAudio?.album]
 
         val navController = findNavController()
 
         //TODO Clean up
         navController.navigate(
-            FilesFragmentDirections.actionFilesFragmentToAudioPlayerFragment())
+            FolderItemsFragmentDirections.actionFolderItemsPathToAudioPlayerPath())
     }
 
     override fun onAdapterChildThumbnailLoad(v: ImageView, position: Int){

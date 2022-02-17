@@ -3,7 +3,6 @@ package com.example.freemediaplayer.fragments
 import android.content.ContentUris
 import android.os.Bundle
 import android.provider.MediaStore
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -11,8 +10,8 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import com.example.freemediaplayer.AdapterChildClickedListener
-import com.example.freemediaplayer.FoldersAdapter
-import com.example.freemediaplayer.databinding.FragmentAudioListBinding
+import com.example.freemediaplayer.FoldersFullAdapter
+import com.example.freemediaplayer.databinding.FragmentAudioFoldersFullBinding
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.pojos.FolderData
@@ -27,15 +26,17 @@ private const val TAG = "AUDIO_LIST_FRAGMENT"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [AudioListFragment.newInstance] factory method to
+ * Use the [AudioFoldersFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AudioListFragment : Fragment(), AdapterChildClickedListener {
+class AudioFoldersFragment : Fragment()
+    //AdapterChildClickedListener
+{
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    private var _binding: FragmentAudioListBinding? = null
+    private var _binding: FragmentAudioFoldersFullBinding? = null
     private val binding get() = _binding!!
 
     val viewModel: FmpViewModel by activityViewModels()
@@ -52,7 +53,7 @@ class AudioListFragment : Fragment(), AdapterChildClickedListener {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentAudioListBinding.inflate(inflater, container, false)
+        _binding = FragmentAudioFoldersFullBinding.inflate(inflater, container, false)
         prepareRecycler()
 
         return binding.root
@@ -129,32 +130,61 @@ class AudioListFragment : Fragment(), AdapterChildClickedListener {
 //            FolderData(audio.location)
 //        }
 
-        val audioFolderData = viewModel.allAudios
+        val folderDataList = viewModel.allAudios
             .distinctBy { it.location }
-            .map { FolderData(it.location) }
+            .map { it.location }
+            .groupBy ({ it.substringBeforeLast('/') }) {
+                it.substringAfterLast('/')
+            }
+            .map {
+                FolderData(it.key, it.value)
+            }
 
         //TODO Too lazy. Dont do this
-        viewModel.allFolders = audioFolderData
+        viewModel.allFolders = folderDataList
 
-        return audioFolderData
+        return folderDataList
     }
 
     private fun prepareRecycler(){
-        binding.recyclerAudio.adapter = FoldersAdapter(getFolderDataList())
+        viewModel.audioFolderData = getFolderDataList().also {
+            binding.recyclerAudioFoldersFull.adapter = FoldersFullAdapter(it)
+        }
+        //binding.recyclerAudioFoldersFull.adapter = FoldersFullAdapter(viewModel.audioFolderData)
     }
 
-    override fun onAdapterChildClicked(v: View, position: Int){
+    fun onAdapterChildClicked(fullPathPos: Int, relativePathPos: Int){
         //TODO CLean up
-        viewModel.currentAudioLocation = position
+        //viewModel.currentAudioLocation = position
+        val audioFolder = viewModel.audioFolderData?.get(fullPathPos)
 
-        viewModel.currentAudioFiles = viewModel.allAudios
-            .filter { it.location == viewModel.allFolders?.get(position)?.type}
+        audioFolder?.let { folderData ->
+            val audioPathParent = folderData.parentPath
+            val audioPathRelative = folderData.relativePaths[relativePathPos]
+            val audioFullPath = "$audioPathParent/$audioPathRelative"
 
-        val navController = findNavController()
+            viewModel.currentAudioFiles = viewModel.allAudios
+                .filter { it.location == audioFullPath }
 
-        navController
-            .navigate(
-                AudioListFragmentDirections.actionMusicPathsToFilesPath())
+            val navController = findNavController()
+
+            navController
+                .navigate(
+                    AudioFoldersFragmentDirections.actionAudioFoldersPathToFolderItemsPath())
+        }
+
+//        val audioPathParent = audioFolder?.parentPath
+//        val audioPathRelative = audioFolder?.relativePaths?.get(relativePathPos)
+//        val audioFullPath = "$audioPathParent $audioPathRelative"
+//
+//        viewModel.currentAudioFiles = viewModel.allAudios
+//            .filter { it.location == viewModel.allFolders?.get(position)?.parentPath}
+
+//        val navController = findNavController()
+//
+//        navController
+//            .navigate(
+//                AudioFoldersFragmentDirections.actionAudioFoldersPathToFolderItemsPath())
     }
 
     companion object {
@@ -169,7 +199,7 @@ class AudioListFragment : Fragment(), AdapterChildClickedListener {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            AudioListFragment().apply {
+            AudioFoldersFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)

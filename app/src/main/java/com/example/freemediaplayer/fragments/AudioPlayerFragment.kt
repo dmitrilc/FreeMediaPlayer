@@ -81,15 +81,17 @@ class AudioPlayerFragment : Fragment() {
 
                 prepPlaylistButton()
 
-                binding.imageViewAlbumArt.setImageBitmap(viewModel.audioPlayerThumbnail)
-                binding.textViewMediaTitle.text = viewModel.currentAudio?.title
+                binding.imageViewAudioPlayerDisplayArt.setImageBitmap(viewModel.getAudioPlayerThumbnail())
+                //viewModel.audioPlayerThumbnail = viewModel.loadedThumbnails[viewModel.currentAudio?.album]
+                //Log.d(TAG, "${viewModel.audioPlayerThumbnail}")
+                binding.textViewAudioPlayerTitle.text = viewModel.currentAudio?.title
             }
         }
 
     }
 
     private fun prepSeekNextButton(){
-        binding.imageButtonSeekForward.setOnClickListener {
+        binding.imageButtonAudioPlayerSeekForward.setOnClickListener {
             if (viewModel.currentAudio === viewModel.currentPlaylist.last()){
                 viewModel.currentAudio = viewModel.currentPlaylist.first()
             } else {
@@ -105,8 +107,8 @@ class AudioPlayerFragment : Fragment() {
                         player.setDataSource(context, audio.uri)
                         player.prepare()
                         player.start()
-                        binding.imageViewAlbumArt.setImageBitmap(viewModel.audioPlayerThumbnail)
-                        binding.textViewMediaTitle.text = viewModel.currentAudio?.title
+                        binding.imageViewAudioPlayerDisplayArt.setImageBitmap(viewModel.getAudioPlayerThumbnail())
+                        binding.textViewAudioPlayerTitle.text = viewModel.currentAudio?.title
                     }
                 }
             }
@@ -115,7 +117,7 @@ class AudioPlayerFragment : Fragment() {
 
     //TODO Remove duplicate code from this and seeknext
     private fun prepSeekPreviousButton(){
-        binding.imageButtonSeekBackward.setOnClickListener {
+        binding.imageButtonAudioPlayerSeekBackward.setOnClickListener {
             if (viewModel.currentAudio === viewModel.currentPlaylist.first()){
                 viewModel.currentAudio = viewModel.currentPlaylist.last()
             } else {
@@ -131,8 +133,8 @@ class AudioPlayerFragment : Fragment() {
                         player.setDataSource(context, audio.uri)
                         player.prepare()
                         player.start()
-                        binding.imageViewAlbumArt.setImageBitmap(viewModel.audioPlayerThumbnail)
-                        binding.textViewMediaTitle.text = viewModel.currentAudio?.title
+                        binding.imageViewAudioPlayerDisplayArt.setImageBitmap(viewModel.getAudioPlayerThumbnail())
+                        binding.textViewAudioPlayerTitle.text = viewModel.currentAudio?.title
                     }
                 }
             }
@@ -140,7 +142,7 @@ class AudioPlayerFragment : Fragment() {
     }
 
     private fun prepShuffleButton(){
-        binding.imageButtonShuffle.setOnClickListener {
+        binding.imageButtonAudioPlayerShuffle.setOnClickListener {
             viewModel.currentPlaylist.shuffle()
             viewModel.currentPlaylist.forEach {
                 Log.d(TAG, it.toString())
@@ -151,13 +153,13 @@ class AudioPlayerFragment : Fragment() {
     private fun prepPlaylistButton() {
         val navController = findNavController()
 
-        binding.imageButtonPlayList.setOnClickListener {
-            navController.navigate(AudioPlayerFragmentDirections.actionAudioPlayerFragmentToPlaylistFragment())
+        binding.imageButtonAudioPlayerPlaylist.setOnClickListener {
+            navController.navigate(AudioPlayerFragmentDirections.actionAudioPlayerPathToActivePlaylistPath())
         }
     }
 
     private fun syncSeekBarToPlayer(player: MediaPlayer) {
-        binding.seekBar.max = player.duration
+        binding.seekBarAudioPlayerSeekBar.max = player.duration
 
         val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -170,12 +172,12 @@ class AudioPlayerFragment : Fragment() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         }
 
-        binding.seekBar.setOnSeekBarChangeListener(seekBarListener)
+        binding.seekBarAudioPlayerSeekBar.setOnSeekBarChangeListener(seekBarListener)
 
         viewLifecycleOwner.lifecycleScope.launch {
             while (mediaPlayer !== null) {
                 if (player.isPlaying) {
-                    binding.seekBar.progress = player.currentPosition
+                    binding.seekBarAudioPlayerSeekBar.progress = player.currentPosition
                 }
                 delay(1000)
             }
@@ -183,31 +185,31 @@ class AudioPlayerFragment : Fragment() {
     }
 
     private fun syncPlayPauseButtonToPlayer(player: MediaPlayer) {
-        binding.imageButtonPlayPause.setOnClickListener {
+        binding.imageButtonAudioPlayerPlayPause.setOnClickListener {
             if (player.isPlaying) {
                 player.pause()
-                binding.imageButtonPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+                binding.imageButtonAudioPlayerPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
             } else {
                 player.start()
-                binding.imageButtonPlayPause.setImageResource(R.drawable.ic_baseline_pause_24)
+                binding.imageButtonAudioPlayerPlayPause.setImageResource(R.drawable.ic_baseline_pause_24)
             }
         }
 
         player.setOnCompletionListener {
-            binding.imageButtonPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
+            binding.imageButtonAudioPlayerPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
         }
     }
 
     private fun syncReplayButtonToPlayer(player: MediaPlayer) {
-        binding.imageButtonReplayInfinite.setOnClickListener {
+        binding.imageButtonAudioPlayerReplayInfinite.setOnClickListener {
             player.isLooping = !player.isLooping
 
             if (player.isLooping) {
-                binding.imageButtonReplayInfinite.setImageResource(
+                binding.imageButtonAudioPlayerReplayInfinite.setImageResource(
                     R.drawable.ic_baseline_repeat_one_24
                 )
             } else {
-                binding.imageButtonReplayInfinite.setImageResource(
+                binding.imageButtonAudioPlayerReplayInfinite.setImageResource(
                     R.drawable.ic_baseline_repeat_24
                 )
             }
@@ -216,17 +218,17 @@ class AudioPlayerFragment : Fragment() {
 
     //Also syncs to ProgressBar
     private fun syncReplay10ButtonToPlayer(player: MediaPlayer) {
-        binding.imageButtonReplay10.setOnClickListener {
+        binding.imageButtonAudioPlayerReplay10.setOnClickListener {
             player.seekTo(player.currentPosition - 10_000)
-            binding.seekBar.progress = player.currentPosition
+            binding.seekBarAudioPlayerSeekBar.progress = player.currentPosition
         }
     }
 
     //Also syncs to ProgressBar
     private fun syncForward30ButtonToPlayer(player: MediaPlayer) {
-        binding.imageButtonForward30.setOnClickListener {
+        binding.imageButtonAudioPlayerForward30.setOnClickListener {
             player.seekTo(player.currentPosition + 30_000)
-            binding.seekBar.progress = player.currentPosition
+            binding.seekBarAudioPlayerSeekBar.progress = player.currentPosition
         }
     }
 
@@ -261,3 +263,5 @@ class AudioPlayerFragment : Fragment() {
 enum class RepeatMode{
     PLAYLIST, SELF, NONE
 }
+
+//TODO Player bug where you drag and then player pauses

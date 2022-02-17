@@ -11,24 +11,37 @@
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_more_vert_24.xml" value="0.2555" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_photo_album_24.xml" value="0.1405" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.2555" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_reorder_24.xml" value="0.1355" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_repeat_one_24.xml" value="0.1735" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_video_library_24.xml" value="0.14322916666666666" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_launcher_background.xml" value="0.14322916666666666" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/active_playlist_file_view.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/activity_main.xml" value="0.264" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/audio_files_fragment.xml" value="0.21784420289855072" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/drawer_layout.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/file_view.xml" value="0.1" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/files_fragment.xml" value="0.21784420289855072" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_full_view.xml" value="0.22146739130434784" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_item_view.xml" value="0.25" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_items_fragment.xml" value="0.25" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_relative_view.xml" value="0.1" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_view.xml" value="0.1" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_active_playlist.xml" value="0.25" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_folders.xml" value="0.264" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_folders_full.xml" value="0.25" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_folders_relative.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_list.xml" value="0.24456521739130435" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_paths.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_player.xml" value="0.1" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_file_list.xml" value="0.21784420289855072" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_home.xml" value="0.152" />
-        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_play_list.xml" value="0.2318840579710145" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_play_list.xml" value="0.1" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_playlist_list.xml" value="0.2223731884057971" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_playlists.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_radio_list.xml" value="0.2223731884057971" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_video_folders.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_video_list.xml" value="0.24456521739130435" />
-        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/playlist_file_view.xml" value="0.2318840579710145" />
+        <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/layout/playlist_file_view.xml" value="0.1" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/menu/navigation_drawer.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/menu/top_app_bar.xml" value="0.25" />

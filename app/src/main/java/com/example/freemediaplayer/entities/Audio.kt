@@ -1,6 +1,5 @@
 package com.example.freemediaplayer.entities
 
-import android.graphics.Bitmap
 import android.net.Uri
 import androidx.room.Entity
 import androidx.room.PrimaryKey

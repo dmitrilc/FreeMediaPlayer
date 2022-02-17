@@ -10,7 +10,7 @@
         tools:context=".fragments.AudioPlayerFragment">
 
         <ImageView
-            android:id="@+id/imageView_albumArt"
+            android:id="@+id/imageView_audioPlayerDisplayArt"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="16dp"
@@ -22,7 +22,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/textView_mediaTitle"
+            android:id="@+id/textView_audioPlayerTitle"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="16dp"
@@ -32,43 +32,43 @@
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/imageView_albumArt" />
+            app:layout_constraintTop_toBottomOf="@id/imageView_audioPlayerDisplayArt" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/firstMediaControlGroup"
+            android:id="@+id/audioPlayerFirstControlGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/textView_mediaTitle">
+            app:layout_constraintTop_toBottomOf="@id/textView_audioPlayerTitle">
 
             <ImageButton
-                android:id="@+id/imageButton_replay10"
+                android:id="@+id/imageButton_audioPlayerReplay10"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_replay_10_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton_playPause"
+                app:layout_constraintEnd_toStartOf="@+id/imageButton_audioPlayerPlayPause"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_playPause"
+                android:id="@+id/imageButton_audioPlayerPlayPause"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_pause_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/imageButton_forward30"
-                app:layout_constraintStart_toEndOf="@id/imageButton_replay10"
+                app:layout_constraintEnd_toStartOf="@id/imageButton_audioPlayerForward30"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerReplay10"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_forward30"
+                android:id="@+id/imageButton_audioPlayerForward30"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
@@ -76,77 +76,77 @@
                 android:src="@drawable/ic_baseline_forward_30_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imageButton_playPause"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerPlayPause"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <SeekBar
-            android:id="@+id/seekBar"
+            android:id="@+id/seekBar_audioPlayerSeekBar"
             android:layout_width="match_parent"
             android:layout_height="80dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/firstMediaControlGroup" />
+            app:layout_constraintTop_toBottomOf="@id/audioPlayerFirstControlGroup" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/secondMediaControlGroup"
+            android:id="@+id/audioPlayerSecondControlGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/seekBar">
+            app:layout_constraintTop_toBottomOf="@id/seekBar_audioPlayerSeekBar">
 
             <ImageButton
-                android:id="@+id/imageButton_replayInfinite"
+                android:id="@+id/imageButton_audioPlayerReplayInfinite"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_repeat_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/imageButton_shuffle"
+                app:layout_constraintEnd_toStartOf="@id/imageButton_audioPlayerShuffle"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_shuffle"
+                android:id="@+id/imageButton_audioPlayerShuffle"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_shuffle_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/imageButton_seekBackward"
-                app:layout_constraintStart_toEndOf="@id/imageButton_replayInfinite"
+                app:layout_constraintEnd_toStartOf="@id/imageButton_audioPlayerSeekBackward"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerReplayInfinite"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_seekBackward"
+                android:id="@+id/imageButton_audioPlayerSeekBackward"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_skip_previous_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/imageButton_seekForward"
-                app:layout_constraintStart_toEndOf="@id/imageButton_shuffle"
+                app:layout_constraintEnd_toStartOf="@id/imageButton_audioPlayerSeekForward"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerShuffle"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_seekForward"
+                android:id="@+id/imageButton_audioPlayerSeekForward"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_skip_next_24"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/imageButton_playList"
-                app:layout_constraintStart_toEndOf="@id/imageButton_seekBackward"
+                app:layout_constraintEnd_toStartOf="@id/imageButton_audioPlayerPlaylist"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerSeekBackward"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_playList"
+                android:id="@+id/imageButton_audioPlayerPlaylist"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
@@ -154,7 +154,7 @@
                 android:src="@drawable/ic_baseline_format_list_bulleted_24"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imageButton_seekForward"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerSeekForward"
                 app:layout_constraintTop_toTopOf="parent" />
         </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>

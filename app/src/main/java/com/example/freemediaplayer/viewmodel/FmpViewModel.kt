@@ -42,7 +42,7 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
     val allAudios by lazy { getAllAudio() }
 
     var allFolders: List<FolderData>? = null
-    var currentAudioLocation: Int? = null
+    //var currentAudioLocation: Int? = null
 
     //Also used as playlist
     var currentAudioFiles: List<Audio> = listOf()
@@ -55,7 +55,13 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
 
     val loadedThumbnails: MutableMap<String, Bitmap?> = mutableMapOf()
 
-    var audioPlayerThumbnail: Bitmap? = null
+    //private var audioPlayerThumbnail: Bitmap? = reloadThumbnail()
+
+    var audioFolderData: List<FolderData>? = null
+
+    fun getAudioPlayerThumbnail(): Bitmap? {
+        return loadedThumbnails[currentAudio?.album]
+    }
 
     fun insertAudio(audio: Audio) = runBlocking {
         appDatabase.audioDao().insert(audio)
@@ -107,11 +113,11 @@ class FmpViewModel @Inject constructor(private val app: Application): AndroidVie
     }
 
     private fun bottomNavStateToId(state: BottomNavProto.State) =
-        if (state == BottomNavProto.State.MUSIC) R.id.music_paths
-        else R.id.video_paths
+        if (state == BottomNavProto.State.MUSIC) R.id.audio_folders_path
+        else R.id.video_folders_path
 
     private fun idToBottomNavState(id: Int) =
-        if (id == R.id.music_paths) BottomNavProto.State.MUSIC
+        if (id == R.id.audio_folders_path) BottomNavProto.State.MUSIC
         else BottomNavProto.State.VIDEOS
 
 }

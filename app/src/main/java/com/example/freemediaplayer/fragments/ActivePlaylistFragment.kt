@@ -1,5 +1,6 @@
 package com.example.freemediaplayer.fragments
 
+import android.graphics.Canvas
 import android.os.Bundle
 import android.util.Log
 import android.util.Size
@@ -8,12 +9,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.AdapterChildThumbnailLoad
-import com.example.freemediaplayer.PlaylistFileAdapter
-import com.example.freemediaplayer.databinding.FragmentPlayListBinding
+import com.example.freemediaplayer.ActivePlaylistItemAdapter
+import com.example.freemediaplayer.databinding.FragmentActivePlaylistBinding
 import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.viewmodel.FmpViewModel
 import java.io.FileNotFoundException
@@ -28,15 +31,15 @@ private const val TAG = "PLAYLIST_FRAGMENT"
 
 /**
  * A simple [Fragment] subclass.
- * Use the [PlaylistFragment.newInstance] factory method to
+ * Use the [ActivePlaylistFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
+class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    private var _binding: FragmentPlayListBinding? = null
+    private var _binding: FragmentActivePlaylistBinding? = null
     private val binding get() = _binding!!
 
     val viewModel: FmpViewModel by activityViewModels()
@@ -53,11 +56,11 @@ class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        _binding = FragmentPlayListBinding.inflate(inflater, container, false)
+        _binding = FragmentActivePlaylistBinding.inflate(inflater, container, false)
 
         val helperCallback = object : ItemTouchHelper.SimpleCallback(
-            ItemTouchHelper.UP.or(ItemTouchHelper.DOWN),
-            ItemTouchHelper.START.or(ItemTouchHelper.END)
+            UP or DOWN,
+            START or END
         ) {
             override fun onMove(
                 recyclerView: RecyclerView,
@@ -72,7 +75,7 @@ class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
                 viewModel.currentPlaylist.removeAt(fromPos)
                 viewModel.currentPlaylist.add(toPos, movedItem)
 
-                binding.recyclerPlaylistFiles.adapter?.notifyItemMoved(
+                binding.recyclerActivePlaylist.adapter?.notifyItemMoved(
                     fromPos, toPos
                 )
 
@@ -82,33 +85,59 @@ class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
             override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
 //                //TODO("Not yet implemented")
 //                Log.d(TAG, "$direction")
+
                 val position = viewHolder.bindingAdapterPosition
 
-                viewModel.currentPlaylist.removeAt(position)
+                val removedItem = viewModel.currentPlaylist.removeAt(position)
 
                 if (viewModel.currentPlaylist.isEmpty()){
                     //TODO POP backstack
                     throw RuntimeException("playlist is emptied. need to pop backstack")
                 } else {
-                    if (viewModel.currentAudio === viewModel.currentPlaylist.last()){
+                    if (viewModel.currentAudio === removedItem && position == viewModel.currentPlaylist.size){ //TODO add fun IfLastItemRemoved, etc.
                         viewModel.currentAudio = viewModel.currentPlaylist.first()
-                    } else {
-                        val currentAudioIndex = viewModel.currentPlaylist.indexOf(viewModel.currentAudio)
-                        viewModel.currentAudio = viewModel.currentPlaylist[currentAudioIndex + 1]
+                    } else if (viewModel.currentAudio === removedItem){
+                        viewModel.currentAudio = viewModel.currentPlaylist[position]
                     }
                 }
 
-                binding.recyclerPlaylistFiles.adapter?.apply {
+                binding.recyclerActivePlaylist.adapter?.apply {
                     notifyItemRemoved(position)
-                    notifyItemRangeChanged(position, 1);
                 }
             }
+
+            override fun onChildDraw(
+                c: Canvas,
+                recyclerView: RecyclerView,
+                viewHolder: RecyclerView.ViewHolder,
+                dX: Float,
+                dY: Float,
+                actionState: Int,
+                isCurrentlyActive: Boolean
+            ) {
+                super.onChildDraw(
+                    c,
+                    recyclerView,
+                    viewHolder,
+                    dX,
+                    dY,
+                    actionState,
+                    isCurrentlyActive
+                )
+
+                if (isCurrentlyActive){
+                    ViewCompat.setElevation(viewHolder.itemView, 16f)
+                }
+            }
+
         }
 
-        val helper = ItemTouchHelper(helperCallback)
-        helper.attachToRecyclerView(binding.recyclerPlaylistFiles)
 
-        binding.recyclerPlaylistFiles.adapter = PlaylistFileAdapter(viewModel.currentPlaylist)
+        val helper = ItemTouchHelper(helperCallback)
+
+        helper.attachToRecyclerView(binding.recyclerActivePlaylist)
+
+        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(viewModel.currentPlaylist)
 
         return binding.root
     }
@@ -125,7 +154,7 @@ class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
         // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
-            PlaylistFragment().apply {
+            ActivePlaylistFragment().apply {
                 arguments = Bundle().apply {
                     putString(ARG_PARAM1, param1)
                     putString(ARG_PARAM2, param2)
@@ -134,7 +163,7 @@ class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     }
 
     override fun onAdapterChildThumbnailLoad(v: ImageView, position: Int) {
-        val audio = viewModel.currentAudioFiles[position]
+        val audio = viewModel.currentPlaylist[position]
         val thumbnailKey = audio.album
         val thumbnails = viewModel.loadedThumbnails
 
@@ -166,3 +195,6 @@ class PlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
         }
     }
 }
+
+//TODO Clean up
+//TODO add visual indications when moving/removing
