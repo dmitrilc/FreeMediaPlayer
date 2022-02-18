@@ -24,7 +24,7 @@ class FileAdapter(private val dataSet: List<Audio>) :
             folderItemViewBinding.root.setOnClickListener {
                 //DON'T holder a reference to the fragment
                 it.findFragment<FolderItemsFragment>()
-                    .onAdapterChildClicked(it, bindingAdapterPosition)
+                    .onFolderItemClicked(bindingAdapterPosition)
             }
         }
     }
@@ -50,7 +50,7 @@ class FileAdapter(private val dataSet: List<Audio>) :
         super.onViewAttachedToWindow(holder)
 
         holder.displayArtView.findFragment<FolderItemsFragment>()
-            .onAdapterChildThumbnailLoad(holder.displayArtView, holder.bindingAdapterPosition)
+            .onAdapterChildThumbnailLoad(holder.displayArtView, dataSet[holder.bindingAdapterPosition])
     }
 
 }

@@ -7,7 +7,6 @@ import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderRelativeViewBinding
 import com.example.freemediaplayer.fragments.AudioFoldersFragment
-import com.example.freemediaplayer.pojos.FolderData
 
 private const val TAG = "FOLDERS_RELATIVE_ADAPTER"
 
@@ -24,7 +23,7 @@ class FoldersRelativeAdapter(private val dataSet: List<String>,
             folderRelativeViewBinding.root.setOnClickListener {
                 //DON'T hold a reference to the fragment
                 it.findFragment<AudioFoldersFragment>()
-                    .onAdapterChildClicked(parentPos, bindingAdapterPosition)
+                    .onFolderRelativeClicked(parentPos, bindingAdapterPosition)
             }
         }
     }

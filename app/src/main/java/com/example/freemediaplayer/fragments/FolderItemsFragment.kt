@@ -1,22 +1,26 @@
 package com.example.freemediaplayer.fragments
 
+import android.graphics.Bitmap
 import android.os.Bundle
-import android.util.Log
-import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
-import com.example.freemediaplayer.AdapterChildClickedListener
-import com.example.freemediaplayer.AdapterChildThumbnailLoad
+import androidx.navigation.fragment.navArgs
 import com.example.freemediaplayer.FileAdapter
 import com.example.freemediaplayer.databinding.FolderItemsFragmentBinding
-import com.example.freemediaplayer.isSameOrAfterQ
-import com.example.freemediaplayer.viewmodel.FmpViewModel
-import java.io.FileNotFoundException
+import com.example.freemediaplayer.entities.Audio
+import com.example.freemediaplayer.viewmodel.AudiosViewModel
+import com.example.freemediaplayer.viewmodel.FolderItemsViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -30,7 +34,10 @@ private const val TAG = "FILES_FRAGMENT"
  * Use the [FolderItemsFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class FolderItemsFragment : Fragment(), AdapterChildClickedListener, AdapterChildThumbnailLoad {
+@AndroidEntryPoint
+class FolderItemsFragment : Fragment()
+    //AdapterChildThumbnailLoad
+{
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -38,7 +45,10 @@ class FolderItemsFragment : Fragment(), AdapterChildClickedListener, AdapterChil
     private var _binding: FolderItemsFragmentBinding? = null
     private val binding get() = _binding!!
 
-    val viewModel: FmpViewModel by activityViewModels()
+    private val args: FolderItemsFragmentArgs by navArgs()
+
+    private val audiosViewModel by activityViewModels<AudiosViewModel>()
+    private val folderItemsViewModel by viewModels<FolderItemsViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,7 +69,45 @@ class FolderItemsFragment : Fragment(), AdapterChildClickedListener, AdapterChil
 
     private fun prepareRecycler(){
         //TODO CLean up
-        binding.recyclerFolderItems.adapter = FileAdapter(viewModel.currentAudioFiles)
+        folderItemsViewModel.currentFolderAudioFiles.observe(viewLifecycleOwner){
+            binding.recyclerFolderItems.adapter = FileAdapter(it)
+        }
+
+        audiosViewModel.allAudiosLiveData
+            .map { allAudios ->
+                allAudios.filter {
+                    it.location == args.folderFullPath
+                }
+            }
+            .observe(viewLifecycleOwner) {
+                folderItemsViewModel.currentFolderAudioFiles.postValue(it)
+            }
+    }
+
+    fun onFolderItemClicked(position: Int) {
+        folderItemsViewModel.currentFolderLocation?.let {
+            val navController = findNavController()
+
+            navController.navigate(
+                FolderItemsFragmentDirections.actionFolderItemsPathToAudioPlayerPath(it, position))
+        }
+    }
+
+    fun onAdapterChildThumbnailLoad(imageView: ImageView, audio: Audio) {
+        lifecycleScope.launch {
+            val thumbnailObserver = object : Observer<Map<String, Bitmap?>> {
+                override fun onChanged(thumbnailMap: Map<String, Bitmap?>?) {
+                    thumbnailMap?.get(audio.album)?.let {
+                        imageView.setImageBitmap(it)
+                        audiosViewModel.loadedThumbnails.removeObserver(this)
+                    }
+                }
+            }
+
+            audiosViewModel.loadedThumbnails.observe(viewLifecycleOwner, thumbnailObserver)
+
+            audiosViewModel.loadThumbnail(audio)
+        }
     }
 
     companion object {
@@ -82,50 +130,4 @@ class FolderItemsFragment : Fragment(), AdapterChildClickedListener, AdapterChil
             }
     }
 
-    override fun onAdapterChildClicked(v: View, position: Int) {
-        //TODO CLean up
-        viewModel.currentPlaylist.clear()
-        viewModel.currentPlaylist.addAll(viewModel.currentAudioFiles)
-        viewModel.currentAudio = viewModel.currentAudioFiles[position]
-        //viewModel.audioPlayerThumbnail = viewModel.loadedThumbnails[viewModel.currentAudio?.album]
-
-        val navController = findNavController()
-
-        //TODO Clean up
-        navController.navigate(
-            FolderItemsFragmentDirections.actionFolderItemsPathToAudioPlayerPath())
-    }
-
-    override fun onAdapterChildThumbnailLoad(v: ImageView, position: Int){
-        val audio = viewModel.currentAudioFiles[position]
-        val thumbnailKey = audio.album
-        val thumbnails = viewModel.loadedThumbnails
-
-        //TODO Clean up
-        context?.contentResolver?.let {
-            if (!thumbnails.containsKey(thumbnailKey)) {
-                if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
-                    try {
-                        val thumbnail = it.loadThumbnail(
-                            audio.uri,
-                            Size(300, 300),
-                            null
-                        )
-
-                        viewModel.loadedThumbnails[thumbnailKey] = thumbnail
-
-                        Log.d(TAG, "$thumbnailKey = ${viewModel.loadedThumbnails[thumbnailKey]}")
-                    }
-                    catch (e: FileNotFoundException) {
-                        //TODO Implement
-                        Log.d(TAG, e.toString())
-                    }
-                }
-            }
-
-            if (thumbnails[thumbnailKey] !== null){
-               v.setImageBitmap(thumbnails[thumbnailKey])
-            }
-        }
-    }
 }

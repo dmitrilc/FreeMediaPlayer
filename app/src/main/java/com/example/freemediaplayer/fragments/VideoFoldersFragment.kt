@@ -10,8 +10,7 @@ import androidx.fragment.app.activityViewModels
 import com.example.freemediaplayer.*
 import com.example.freemediaplayer.databinding.FragmentVideoFoldersBinding
 import com.example.freemediaplayer.entities.Video
-import com.example.freemediaplayer.pojos.FolderData
-import com.example.freemediaplayer.viewmodel.FmpViewModel
+import com.example.freemediaplayer.viewmodel.AudiosViewModel
 import java.io.File
 
 // TODO: Rename parameter arguments, choose names that match
@@ -34,7 +33,7 @@ class VideoFoldersFragment : Fragment() {
     private var _binding: FragmentVideoFoldersBinding? = null
     private val binding get() = _binding!!
 
-    val viewModel: FmpViewModel by activityViewModels()
+    val viewModel: AudiosViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

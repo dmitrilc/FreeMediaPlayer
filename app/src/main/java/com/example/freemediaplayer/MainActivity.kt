@@ -12,7 +12,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.freemediaplayer.databinding.ActivityMainBinding
-import com.example.freemediaplayer.viewmodel.FmpViewModel
+import com.example.freemediaplayer.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -22,11 +22,11 @@ private const val TAG = "MAIN_ACTIVITY"
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
 
-    private val viewModel: FmpViewModel by viewModels()
     private lateinit var binding: ActivityMainBinding
     private lateinit var navHostFragment: NavHostFragment
+    private val mainActivityViewModel: MainActivityViewModel by viewModels()
 
-        override fun onCreate(savedInstanceState: Bundle?) {
+    override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
                 }
                 R.id.folder_items_path -> {
-                    binding.materialToolBarViewTopAppBar.title = viewModel.currentAudioFiles[0].location
+                    //binding.materialToolBarViewTopAppBar.title = viewModel.currentAudioFiles[0].location
                     binding.bottomNavViewBottomNav.visibility = View.GONE
                 }
                 R.id.audio_player_path -> {
@@ -92,7 +92,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestReadExternalStoragePerm(){
-        if (!viewModel.isReadExternalStoragePermGranted()) { //TODO Handle first launch where this is always false
+        if (!mainActivityViewModel.isReadExternalStoragePermGranted()) { //TODO Handle first launch where this is always false
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
 //                if (!isGranted) { //TODO Display some message to the user that the permission has not been granted
 //                }
@@ -104,7 +104,7 @@ class MainActivity : AppCompatActivity() {
         val currentDestination: NavDestination? = navHostFragment.navController.currentDestination
 
         currentDestination?.run {
-            viewModel.persistBottomNavState(currentDestination.id)
+            mainActivityViewModel.persistBottomNavState(currentDestination.id)
         }
 
         super.onPause()
@@ -116,7 +116,7 @@ class MainActivity : AppCompatActivity() {
         //query saved state from ViewModel
         lifecycleScope.launch {
             val navController = navHostFragment.navController
-            navController.navigate(viewModel.getBottomNavState().first())
+            navController.navigate(mainActivityViewModel.getBottomNavState().first())
         }
     }
 

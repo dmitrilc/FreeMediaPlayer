@@ -3,6 +3,7 @@ package com.example.freemediaplayer.hilt
 import android.content.Context
 import androidx.room.Room
 import com.example.freemediaplayer.room.AppDatabase
+import com.example.freemediaplayer.viewmodel.AudioFoldersViewModel
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

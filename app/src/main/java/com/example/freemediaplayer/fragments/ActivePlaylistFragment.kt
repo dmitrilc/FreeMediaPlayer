@@ -1,26 +1,18 @@
 package com.example.freemediaplayer.fragments
 
-import android.graphics.Canvas
 import android.os.Bundle
-import android.util.Log
-import android.util.Size
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
-import androidx.recyclerview.widget.ItemTouchHelper
-import androidx.recyclerview.widget.ItemTouchHelper.*
-import androidx.recyclerview.widget.RecyclerView
+import androidx.fragment.app.viewModels
 import com.example.freemediaplayer.AdapterChildThumbnailLoad
-import com.example.freemediaplayer.ActivePlaylistItemAdapter
 import com.example.freemediaplayer.databinding.FragmentActivePlaylistBinding
-import com.example.freemediaplayer.isSameOrAfterQ
-import com.example.freemediaplayer.viewmodel.FmpViewModel
-import java.io.FileNotFoundException
-import java.lang.RuntimeException
+import com.example.freemediaplayer.viewmodel.ActivePlaylistViewModel
+import com.example.freemediaplayer.viewmodel.AudiosViewModel
+import dagger.hilt.android.AndroidEntryPoint
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -34,6 +26,7 @@ private const val TAG = "PLAYLIST_FRAGMENT"
  * Use the [ActivePlaylistFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
+@AndroidEntryPoint
 class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -42,7 +35,8 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     private var _binding: FragmentActivePlaylistBinding? = null
     private val binding get() = _binding!!
 
-    val viewModel: FmpViewModel by activityViewModels()
+    private val audiosViewModel: AudiosViewModel by activityViewModels()
+    private val activePlaylistViewModel: ActivePlaylistViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -58,7 +52,7 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     ): View? {
         _binding = FragmentActivePlaylistBinding.inflate(inflater, container, false)
 
-        val helperCallback = object : ItemTouchHelper.SimpleCallback(
+/*        val helperCallback = object : ItemTouchHelper.SimpleCallback(
             UP or DOWN,
             START or END
         ) {
@@ -94,10 +88,10 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
                     //TODO POP backstack
                     throw RuntimeException("playlist is emptied. need to pop backstack")
                 } else {
-                    if (viewModel.currentAudio === removedItem && position == viewModel.currentPlaylist.size){ //TODO add fun IfLastItemRemoved, etc.
-                        viewModel.currentAudio = viewModel.currentPlaylist.first()
-                    } else if (viewModel.currentAudio === removedItem){
-                        viewModel.currentAudio = viewModel.currentPlaylist[position]
+                    if (viewModel.activeAudio === removedItem && position == viewModel.currentPlaylist.size){ //TODO add fun IfLastItemRemoved, etc.
+                        viewModel.activeAudio = viewModel.currentPlaylist.first()
+                    } else if (viewModel.activeAudio === removedItem){
+                        viewModel.activeAudio = viewModel.currentPlaylist[position]
                     }
                 }
 
@@ -137,7 +131,7 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
 
         helper.attachToRecyclerView(binding.recyclerActivePlaylist)
 
-        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(viewModel.currentPlaylist)
+        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(viewModel.currentPlaylist)*/
 
         return binding.root
     }
@@ -163,12 +157,12 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     }
 
     override fun onAdapterChildThumbnailLoad(v: ImageView, position: Int) {
-        val audio = viewModel.currentPlaylist[position]
-        val thumbnailKey = audio.album
-        val thumbnails = viewModel.loadedThumbnails
+       //val audio = viewModel.currentPlaylist[position]
+        //val thumbnailKey = audio.album
+        val thumbnails = audiosViewModel.loadedThumbnails
 
         //TODO Clean up
-        context?.contentResolver?.let {
+/*        context?.contentResolver?.let {
             if (!thumbnails.containsKey(thumbnailKey)) {
                 if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
                     try {
@@ -192,7 +186,7 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
             if (thumbnails[thumbnailKey] !== null){
                 v.setImageBitmap(thumbnails[thumbnailKey])
             }
-        }
+        }*/
     }
 }
 

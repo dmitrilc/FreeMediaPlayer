@@ -1,21 +1,21 @@
 package com.example.freemediaplayer.fragments
 
-import android.content.ContentUris
 import android.os.Bundle
-import android.provider.MediaStore
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import com.example.freemediaplayer.AdapterChildClickedListener
 import com.example.freemediaplayer.FoldersFullAdapter
 import com.example.freemediaplayer.databinding.FragmentAudioFoldersFullBinding
-import com.example.freemediaplayer.entities.Audio
-import com.example.freemediaplayer.isSameOrAfterQ
-import com.example.freemediaplayer.pojos.FolderData
-import com.example.freemediaplayer.viewmodel.FmpViewModel
+import com.example.freemediaplayer.pojos.AdapterFolderData
+import com.example.freemediaplayer.viewmodel.AudioFoldersViewModel
+import com.example.freemediaplayer.viewmodel.AudiosViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -29,9 +29,8 @@ private const val TAG = "AUDIO_LIST_FRAGMENT"
  * Use the [AudioFoldersFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-class AudioFoldersFragment : Fragment()
-    //AdapterChildClickedListener
-{
+@AndroidEntryPoint
+class AudioFoldersFragment : Fragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -39,7 +38,8 @@ class AudioFoldersFragment : Fragment()
     private var _binding: FragmentAudioFoldersFullBinding? = null
     private val binding get() = _binding!!
 
-    val viewModel: FmpViewModel by activityViewModels()
+    private val audioFoldersViewModel: AudioFoldersViewModel by viewModels()
+    private val audiosViewModel: AudiosViewModel by activityViewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -59,132 +59,59 @@ class AudioFoldersFragment : Fragment()
         return binding.root
     }
 
-    private fun scanAudios() {
-        val collection =
-            if (isSameOrAfterQ()) {
-                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-            } else {
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            }
-
-        val projection = mutableListOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA
-        )
-
-        val selection = null
-        val selectionArgs = null
-        val sortOrder = null
-
-        activity?.contentResolver?.query(
-            collection,
-            projection.toTypedArray(),
-            selection,
-            selectionArgs,
-            sortOrder
-        )?.use { cursor ->
-            val idColIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            val dataColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            val titleColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val albumColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
-
-            val audios = mutableSetOf<Audio>()
-
-            while (cursor.moveToNext()) {
-                val id = cursor.getLong(idColIndex)
-                val data = cursor.getString(dataColIndex)
-
-                val uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
-                    id
-                )
-
-                val displayName = data.substringAfterLast('/')
-                val location = data.substringBeforeLast('/')
-
-                val audio = Audio(
-                    id = id,
-                    uri = uri,
-                    data = data,
-                    displayName = displayName,
-                    title = cursor.getString(titleColIndex),
-                    album = cursor.getString(albumColIndex),
-                    location = location
-                )
-
-                audios.add(audio)
-            }
-
-            viewModel.insertAudios(audios)
-        }
-    }
-
-    //TODO Only scan if MediaStore changed
-    private fun getFolderDataList(): List<FolderData> {
-        scanAudios()
-
-        //TODO Fix issue of slow loading on first load
-//        val audioFolderData = viewModel.allAudios.map { audio ->
-//            FolderData(audio.location)
-//        }
-
-        val folderDataList = viewModel.allAudios
-            .distinctBy { it.location }
-            .map { it.location }
-            .groupBy ({ it.substringBeforeLast('/') }) {
-                it.substringAfterLast('/')
-            }
-            .map {
-                FolderData(it.key, it.value)
-            }
-
-        //TODO Too lazy. Dont do this
-        viewModel.allFolders = folderDataList
-
-        return folderDataList
-    }
-
     private fun prepareRecycler(){
-        viewModel.audioFolderData = getFolderDataList().also {
+        audioFoldersViewModel.allAudioFoldersLiveData.observe(viewLifecycleOwner){
             binding.recyclerAudioFoldersFull.adapter = FoldersFullAdapter(it)
         }
-        //binding.recyclerAudioFoldersFull.adapter = FoldersFullAdapter(viewModel.audioFolderData)
+
+        audiosViewModel.allAudiosLiveData.observe(viewLifecycleOwner) { allAudios ->
+            lifecycleScope.launch {
+                val folderDataList = allAudios
+                    .distinctBy { it.location }
+                    .map { it.location }
+                    .groupBy({ it.substringBeforeLast('/') }) {
+                        it.substringAfterLast('/')
+                    }
+                    .map {
+                        AdapterFolderData(
+                            parentPath = it.key,
+                            relativePaths = it.value
+                        )
+                    }
+
+                audioFoldersViewModel.allAudioFoldersLiveData.postValue(folderDataList)
+            }
+        }
     }
 
-    fun onAdapterChildClicked(fullPathPos: Int, relativePathPos: Int){
+    fun onFolderRelativeClicked(fullPathPos: Int, relativePathPos: Int){
         //TODO CLean up
         //viewModel.currentAudioLocation = position
-        val audioFolder = viewModel.audioFolderData?.get(fullPathPos)
+        //val audioFolder = viewModel.audioFolderData?.get(fullPathPos)
+        //val audioFolder = viewModel.allAudioFolders?.get(fullPathPos)
+
+
+        val audioFolder = audioFoldersViewModel.allAudioFoldersLiveData.value?.get(fullPathPos)
 
         audioFolder?.let { folderData ->
             val audioPathParent = folderData.parentPath
             val audioPathRelative = folderData.relativePaths[relativePathPos]
             val audioFullPath = "$audioPathParent/$audioPathRelative"
 
-            viewModel.currentAudioFiles = viewModel.allAudios
-                .filter { it.location == audioFullPath }
+            //TODO Separate
+//            viewModel.currentAudioFiles = viewModel.allAudios
+//                .filter { it.location == audioFullPath }
 
             val navController = findNavController()
 
             navController
                 .navigate(
-                    AudioFoldersFragmentDirections.actionAudioFoldersPathToFolderItemsPath())
+                    AudioFoldersFragmentDirections.actionAudioFoldersPathToFolderItemsPath(audioFullPath))
         }
+    }
 
-//        val audioPathParent = audioFolder?.parentPath
-//        val audioPathRelative = audioFolder?.relativePaths?.get(relativePathPos)
-//        val audioFullPath = "$audioPathParent $audioPathRelative"
-//
-//        viewModel.currentAudioFiles = viewModel.allAudios
-//            .filter { it.location == viewModel.allFolders?.get(position)?.parentPath}
-
-//        val navController = findNavController()
-//
-//        navController
-//            .navigate(
-//                AudioFoldersFragmentDirections.actionAudioFoldersPathToFolderItemsPath())
+    fun onFolderFullCardViewClicked(position: Int){
+        audioFoldersViewModel.refreshAllAudioFoldersLiveData(position)
     }
 
     companion object {
