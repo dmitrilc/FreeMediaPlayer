@@ -9,8 +9,8 @@ import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.fragments.ActivePlaylistFragment
 
 private const val TAG = "ACTIVE_PLAYLIST_ITEM_ADAPTER"
-//TODO Remove contentresolver from dep
-class ActivePlaylistItemAdapter(private val dataSet: List<Audio>) :
+
+class ActivePlaylistItemAdapter(private val dataSet: MutableList<Audio>) :
     RecyclerView.Adapter<ActivePlaylistItemAdapter.ActivePlaylistItemViewHolder>() {
 
     class ActivePlaylistItemViewHolder(activePlaylistItemViewBinding: ActivePlaylistItemViewBinding) :
@@ -20,11 +20,11 @@ class ActivePlaylistItemAdapter(private val dataSet: List<Audio>) :
         val displayArtView = activePlaylistItemViewBinding.imageViewActivePlaylistItemDisplayArt
 
         init {
-//            playlistFileViewBinding.root.setOnClickListener {
-//                //DON'T holder a reference to the fragment
-//                it.findFragment<PlaylistFragment>()
-//                    .onAdapterChildClicked(it, bindingAdapterPosition)
-//            }
+            activePlaylistItemViewBinding.root.setOnClickListener {
+                //DON'T holder a reference to the fragment
+                it.findFragment<ActivePlaylistFragment>()
+                    .setActiveAudio(bindingAdapterPosition)
+            }
         }
 
     }
@@ -49,7 +49,7 @@ class ActivePlaylistItemAdapter(private val dataSet: List<Audio>) :
         super.onViewAttachedToWindow(holderActive)
 
         holderActive.displayArtView.findFragment<ActivePlaylistFragment>()
-            .onAdapterChildThumbnailLoad(holderActive.displayArtView, holderActive.bindingAdapterPosition)
+            .onAdapterChildThumbnailLoad(holderActive.displayArtView, dataSet[holderActive.bindingAdapterPosition])
     }
 
 }

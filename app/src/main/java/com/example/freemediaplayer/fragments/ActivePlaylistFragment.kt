@@ -1,25 +1,35 @@
 package com.example.freemediaplayer.fragments
 
+import android.graphics.Bitmap
+import android.graphics.Canvas
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.core.view.ViewCompat
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
+import androidx.lifecycle.Observer
+import androidx.lifecycle.lifecycleScope
+import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.ItemTouchHelper
+import androidx.recyclerview.widget.ItemTouchHelper.*
+import androidx.recyclerview.widget.RecyclerView
+import com.example.freemediaplayer.ActivePlaylistItemAdapter
 import com.example.freemediaplayer.AdapterChildThumbnailLoad
 import com.example.freemediaplayer.databinding.FragmentActivePlaylistBinding
-import com.example.freemediaplayer.viewmodel.ActivePlaylistViewModel
+import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.viewmodel.AudiosViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.launch
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
 
-private const val TAG = "PLAYLIST_FRAGMENT"
+private const val TAG = "ACTIVE_PLAYLIST"
 
 /**
  * A simple [Fragment] subclass.
@@ -36,7 +46,6 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     private val binding get() = _binding!!
 
     private val audiosViewModel: AudiosViewModel by activityViewModels()
-    private val activePlaylistViewModel: ActivePlaylistViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -52,7 +61,7 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
     ): View? {
         _binding = FragmentActivePlaylistBinding.inflate(inflater, container, false)
 
-/*        val helperCallback = object : ItemTouchHelper.SimpleCallback(
+        val helperCallback = object : ItemTouchHelper.SimpleCallback(
             UP or DOWN,
             START or END
         ) {
@@ -64,39 +73,58 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
                 val fromPos = viewHolder.bindingAdapterPosition
                 val toPos = target.bindingAdapterPosition
 
-                val movedItem = viewModel.currentPlaylist[fromPos]
+                val movedItem = audiosViewModel.globalPlaylist[fromPos]
 
-                viewModel.currentPlaylist.removeAt(fromPos)
-                viewModel.currentPlaylist.add(toPos, movedItem)
+                audiosViewModel.globalPlaylist.removeAt(fromPos)
+                audiosViewModel.globalPlaylist.add(toPos, movedItem)
 
-                binding.recyclerActivePlaylist.adapter?.notifyItemMoved(
-                    fromPos, toPos
-                )
+                binding.recyclerActivePlaylist.adapter?.notifyItemMoved(fromPos, toPos)
 
                 return true
             }
 
-            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
-//                //TODO("Not yet implemented")
-//                Log.d(TAG, "$direction")
+            private fun isRemovedSameAsActive(audio: Audio) = audiosViewModel.activeAudio.value == audio
+            private fun isLastItemRemoved(removedPos: Int) = removedPos == audiosViewModel.globalPlaylist.size
+            private fun isFirstItemRemoved(removedPos: Int) = removedPos == 0
+            private fun isOnlyOneLeft() = audiosViewModel.globalPlaylist.size == 1
 
+            override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
                 val position = viewHolder.bindingAdapterPosition
 
-                val removedItem = viewModel.currentPlaylist.removeAt(position)
+                binding.recyclerActivePlaylist.adapter?.notifyItemRemoved(position)
 
-                if (viewModel.currentPlaylist.isEmpty()){
-                    //TODO POP backstack
-                    throw RuntimeException("playlist is emptied. need to pop backstack")
-                } else {
-                    if (viewModel.activeAudio === removedItem && position == viewModel.currentPlaylist.size){ //TODO add fun IfLastItemRemoved, etc.
-                        viewModel.activeAudio = viewModel.currentPlaylist.first()
-                    } else if (viewModel.activeAudio === removedItem){
-                        viewModel.activeAudio = viewModel.currentPlaylist[position]
-                    }
+                val removedItem = audiosViewModel.globalPlaylist.removeAt(position)
+
+                if (audiosViewModel.globalPlaylist.isEmpty()){ //list is empty
+                    return
                 }
 
-                binding.recyclerActivePlaylist.adapter?.apply {
-                    notifyItemRemoved(position)
+                if (isOnlyOneLeft()){ //only one item left.
+                    val next = audiosViewModel.globalPlaylist.first()
+                    audiosViewModel.activeAudio.postValue(next)
+                    return
+                }
+
+                if (isLastItemRemoved(position)){ //last item in list removed
+                    if (isRemovedSameAsActive(removedItem)){
+                        val next = audiosViewModel.globalPlaylist.first()
+                        audiosViewModel.activeAudio.postValue(next)
+                    }
+                    return
+                }
+
+                if (isFirstItemRemoved(position)){ //first item removed
+                    if (isRemovedSameAsActive(removedItem)){
+                        val next = audiosViewModel.globalPlaylist.first()
+                        audiosViewModel.activeAudio.postValue(next)
+                    }
+                    return
+                }
+
+                if (isRemovedSameAsActive(removedItem)){
+                    val next = audiosViewModel.globalPlaylist[position]
+                    audiosViewModel.activeAudio.postValue(next)
+                    return
                 }
             }
 
@@ -120,18 +148,17 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
                 )
 
                 if (isCurrentlyActive){
-                    ViewCompat.setElevation(viewHolder.itemView, 16f)
+                    ViewCompat.setElevation(viewHolder.itemView, 32f)
                 }
             }
 
         }
 
-
         val helper = ItemTouchHelper(helperCallback)
 
         helper.attachToRecyclerView(binding.recyclerActivePlaylist)
 
-        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(viewModel.currentPlaylist)*/
+        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(audiosViewModel.globalPlaylist)
 
         return binding.root
     }
@@ -156,39 +183,29 @@ class ActivePlaylistFragment : Fragment(), AdapterChildThumbnailLoad {
             }
     }
 
-    override fun onAdapterChildThumbnailLoad(v: ImageView, position: Int) {
-       //val audio = viewModel.currentPlaylist[position]
-        //val thumbnailKey = audio.album
-        val thumbnails = audiosViewModel.loadedThumbnails
-
-        //TODO Clean up
-/*        context?.contentResolver?.let {
-            if (!thumbnails.containsKey(thumbnailKey)) {
-                if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
-                    try {
-                        val thumbnail = it.loadThumbnail(
-                            audio.uri,
-                            Size(300, 300),
-                            null
-                        )
-
-                        viewModel.loadedThumbnails[thumbnailKey] = thumbnail
-
-                        Log.d(TAG, "$thumbnailKey = ${viewModel.loadedThumbnails[thumbnailKey]}")
-                    }
-                    catch (e: FileNotFoundException) {
-                        //TODO Implement
-                        Log.d(TAG, e.toString())
+    //TODO Remove duplicate code from FolderItemsFragment
+    override fun onAdapterChildThumbnailLoad(v: ImageView, audio: Audio) {
+        lifecycleScope.launch {
+            val thumbnailObserver = object : Observer<Map<String, Bitmap?>> {
+                override fun onChanged(thumbnailMap: Map<String, Bitmap?>?) {
+                    thumbnailMap?.get(audio.album)?.let {
+                        v.setImageBitmap(it)
+                        audiosViewModel.loadedThumbnails.removeObserver(this)
                     }
                 }
             }
 
-            if (thumbnails[thumbnailKey] !== null){
-                v.setImageBitmap(thumbnails[thumbnailKey])
-            }
-        }*/
-    }
-}
+            audiosViewModel.loadedThumbnails.observe(viewLifecycleOwner, thumbnailObserver)
 
-//TODO Clean up
-//TODO add visual indications when moving/removing
+            audiosViewModel.loadThumbnail(audio)
+        }
+    }
+
+    fun setActiveAudio(bindingAdapterPosition: Int){
+        val next = audiosViewModel.globalPlaylist[bindingAdapterPosition]
+        audiosViewModel.activeAudio.postValue(next)
+        val navController = findNavController()
+        navController.popBackStack()
+    }
+
+}

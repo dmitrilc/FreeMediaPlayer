@@ -11,13 +11,13 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.databinding.FragmentAudioPlayerBinding
 import com.example.freemediaplayer.entities.Audio
 import com.example.freemediaplayer.viewmodel.AudioPlayerViewModel
 import com.example.freemediaplayer.viewmodel.AudiosViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -41,8 +41,6 @@ class AudioPlayerFragment : Fragment() {
 
     private var _binding: FragmentAudioPlayerBinding? = null
     private val binding get() = _binding!!
-
-    private val args: AudioPlayerFragmentArgs by navArgs()
 
     private val audiosViewModel: AudiosViewModel by activityViewModels()
     private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
@@ -76,14 +74,6 @@ class AudioPlayerFragment : Fragment() {
             setThumbnail(audio)
         }
 
-        audiosViewModel.currentPlaylist.observe(viewLifecycleOwner){
-            audiosViewModel.postActiveAudio(args.activeAudio)
-        }
-
-        audiosViewModel.allAudiosLiveData.value?.let {
-            audiosViewModel.postCurrentPlaylist(it, args.folderLocation)
-        }
-
         return binding.root
     }
 
@@ -93,8 +83,9 @@ class AudioPlayerFragment : Fragment() {
                 player.reset()
                 player.setDataSource(context, audio.uri)
                 player.prepare()
-                player.start()
                 syncPlayerToGlobalLooping()
+
+                audioPlayerViewModel.isPlaying.postValue(true)
             }
         }
     }
@@ -102,23 +93,19 @@ class AudioPlayerFragment : Fragment() {
     private fun createNewPlayer(audio: Audio){
         context?.let {
             mediaPlayer = MediaPlayer.create(it, audio.uri)
-        }
 
-        mediaPlayer?.let {
-            it.start()
-            syncPlayerPositionToViewModel()
             syncSeekBarToPlayer()
             syncPlayPauseButtonToPlayer()
             syncReplayButtonToPlayer()
             syncReplay10ButtonToPlayer()
             syncForward30ButtonToPlayer()
-
             prepShuffleButton()
             prepSeekPreviousButton()
             prepSeekNextButton()
-
             prepPlaylistButton()
             setOnCompletionListener()
+
+            audioPlayerViewModel.isPlaying.postValue(true)
         }
     }
 
@@ -134,13 +121,11 @@ class AudioPlayerFragment : Fragment() {
     private fun prepSeekNextButton(){
         binding.imageButtonAudioPlayerSeekForward.setOnClickListener {
             //TODO Improve readability
-            if (audiosViewModel.activeAudio.value === audiosViewModel.currentPlaylist.value?.last()){
+            if (audiosViewModel.activeAudio.value === audiosViewModel.globalPlaylist.last()){
                 audiosViewModel.postActiveAudio(0)
             } else {
-                val currentAudioIndex = audiosViewModel.currentPlaylist.value?.indexOf(audiosViewModel.activeAudio.value)
-                if (currentAudioIndex != null) {
-                    audiosViewModel.postActiveAudio(currentAudioIndex + 1)
-                }
+                val currentAudioIndex = audiosViewModel.globalPlaylist.indexOf(audiosViewModel.activeAudio.value)
+                audiosViewModel.postActiveAudio(currentAudioIndex + 1)
             }
         }
     }
@@ -148,15 +133,13 @@ class AudioPlayerFragment : Fragment() {
     //TODO Remove duplicate code from this and seeknext
     private fun prepSeekPreviousButton(){
         binding.imageButtonAudioPlayerSeekBackward.setOnClickListener {
-            if (audiosViewModel.activeAudio.value === audiosViewModel.currentPlaylist.value?.first()){
-                audiosViewModel.currentPlaylist.value?.lastIndex?.let {
+            if (audiosViewModel.activeAudio.value === audiosViewModel.globalPlaylist.first()){
+                audiosViewModel.globalPlaylist.lastIndex?.let {
                     audiosViewModel.postActiveAudio(it)
                 }
             } else {
-                val currentAudioIndex = audiosViewModel.currentPlaylist.value?.indexOf(audiosViewModel.activeAudio.value)
-                if (currentAudioIndex != null) {
-                    audiosViewModel.postActiveAudio(currentAudioIndex - 1)
-                }
+                val currentAudioIndex = audiosViewModel.globalPlaylist.indexOf(audiosViewModel.activeAudio.value)
+                audiosViewModel.postActiveAudio(currentAudioIndex - 1)
             }
         }
     }
@@ -164,7 +147,7 @@ class AudioPlayerFragment : Fragment() {
     private fun prepShuffleButton(){
         //TODO Test if need to post value to livedata
         binding.imageButtonAudioPlayerShuffle.setOnClickListener {
-            audiosViewModel.currentPlaylist.value?.shuffled()
+            audiosViewModel.globalPlaylist.shuffle()
         }
     }
 
@@ -179,23 +162,6 @@ class AudioPlayerFragment : Fragment() {
     private fun postNewPlayerMaxToViewModel(){
         mediaPlayer?.let {
             audioPlayerViewModel.maxPlayerDuration.postValue(it.duration)
-        }
-    }
-
-    private fun syncPlayerPositionToViewModel() {
-        lifecycleScope.launch {
-            while (mediaPlayer !== null) {
-                mediaPlayer?.let {
-                    try {
-                        if (it.isPlaying) {
-                            audioPlayerViewModel.playerPosition.postValue(it.currentPosition)
-                        }
-                    } catch (e: IllegalStateException) {
-                        //TODO Implement
-                    }
-                }
-                delay(1000)
-            }
         }
     }
 
@@ -222,13 +188,42 @@ class AudioPlayerFragment : Fragment() {
         binding.seekBarAudioPlayerSeekBar.setOnSeekBarChangeListener(seekBarListener)
     }
 
+
+
     private fun syncPlayPauseButtonToPlayer() {
+        var job: Job? = null
+
         audioPlayerViewModel.isPlaying.observe(viewLifecycleOwner){ isPlaying ->
             if (isPlaying){
-                mediaPlayer?.start()
                 binding.imageButtonAudioPlayerPlayPause.setImageResource(R.drawable.ic_baseline_pause_24)
+
+                if (mediaPlayer?.isPlaying == false){
+                    mediaPlayer?.start()
+                }
+
+                if (job === null){
+                    job = lifecycleScope.launch {
+                        while (mediaPlayer !== null) {
+                            mediaPlayer?.let {
+                                try {
+                                    if (it.isPlaying) {
+                                        audioPlayerViewModel.playerPosition.postValue(it.currentPosition)
+                                    }
+                                } catch (e: IllegalStateException) {
+                                    //TODO Implement
+                                }
+                            }
+                            delay(1000)
+                        }
+                    }
+                }
             } else {
-                mediaPlayer?.pause()
+                if (mediaPlayer?.isPlaying == true){
+                    mediaPlayer?.pause()
+                }
+
+                job?.cancel()
+                job = null
                 binding.imageButtonAudioPlayerPlayPause.setImageResource(R.drawable.ic_baseline_play_arrow_24)
             }
         }
@@ -245,6 +240,11 @@ class AudioPlayerFragment : Fragment() {
             if(audioPlayerViewModel.isGlobalSelfLooping.value == false){
                 val inverse = audioPlayerViewModel.isPlaying.value?.not()
                 audioPlayerViewModel.isPlaying.postValue(inverse)
+            }
+
+            if (audiosViewModel.activeAudio.value !== audiosViewModel.globalPlaylist.last()){
+                val currentAudioIndex = audiosViewModel.globalPlaylist.indexOf(audiosViewModel.activeAudio.value)
+                audiosViewModel.activeAudio.postValue(audiosViewModel.globalPlaylist[currentAudioIndex + 1])
             }
         }
     }

@@ -14,6 +14,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.map
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.example.freemediaplayer.AdapterChildThumbnailLoad
 import com.example.freemediaplayer.FileAdapter
 import com.example.freemediaplayer.databinding.FolderItemsFragmentBinding
 import com.example.freemediaplayer.entities.Audio
@@ -35,9 +36,7 @@ private const val TAG = "FILES_FRAGMENT"
  * create an instance of this fragment.
  */
 @AndroidEntryPoint
-class FolderItemsFragment : Fragment()
-    //AdapterChildThumbnailLoad
-{
+class FolderItemsFragment : Fragment(), AdapterChildThumbnailLoad {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
@@ -85,20 +84,24 @@ class FolderItemsFragment : Fragment()
     }
 
     fun onFolderItemClicked(position: Int) {
-        folderItemsViewModel.currentFolderLocation?.let {
-            val navController = findNavController()
-
-            navController.navigate(
-                FolderItemsFragmentDirections.actionFolderItemsPathToAudioPlayerPath(it, position))
+        folderItemsViewModel.currentFolderAudioFiles.value?.let {
+            audiosViewModel.globalPlaylist.clear()
+            audiosViewModel.globalPlaylist.addAll(it)
+            audiosViewModel.activeAudio.postValue(it[position])
         }
+
+        val navController = findNavController()
+
+        navController.navigate(
+            FolderItemsFragmentDirections.actionFolderItemsPathToAudioPlayerPath())
     }
 
-    fun onAdapterChildThumbnailLoad(imageView: ImageView, audio: Audio) {
+    override fun onAdapterChildThumbnailLoad(v: ImageView, audio: Audio) {
         lifecycleScope.launch {
             val thumbnailObserver = object : Observer<Map<String, Bitmap?>> {
                 override fun onChanged(thumbnailMap: Map<String, Bitmap?>?) {
                     thumbnailMap?.get(audio.album)?.let {
-                        imageView.setImageBitmap(it)
+                        v.setImageBitmap(it)
                         audiosViewModel.loadedThumbnails.removeObserver(this)
                     }
                 }

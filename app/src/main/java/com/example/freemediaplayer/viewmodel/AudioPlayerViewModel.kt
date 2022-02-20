@@ -7,11 +7,11 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AudioPlayerViewModel @Inject constructor(): ViewModel()  {
-    val playerPosition = MutableLiveData<Int>()
+    val playerPosition = MutableLiveData(0)
 
-    val maxPlayerDuration = MutableLiveData<Int>()
+    val maxPlayerDuration = MutableLiveData(0)
 
-    val isGlobalSelfLooping = MutableLiveData<Boolean>(false)
+    val isGlobalSelfLooping = MutableLiveData(false)
 
-    val isPlaying = MutableLiveData<Boolean>(true)
+    val isPlaying = MutableLiveData(false)
 }

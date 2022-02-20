@@ -13,6 +13,7 @@ import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
@@ -26,20 +27,12 @@ class AudiosViewModel @Inject constructor(
     private val appDatabase: AppDatabase
     ): AndroidViewModel(app) {
 
-    val currentPlaylist = MutableLiveData<List<Audio>>()
+    val globalPlaylist = mutableListOf<Audio>()
 
     val activeAudio = MutableLiveData<Audio>()
 
-    fun postCurrentPlaylist(allAudios: List<Audio>, currentFolderLocation: String){
-        val playlist = allAudios.filter { audio ->
-            audio.location == currentFolderLocation
-        }
-
-        currentPlaylist.postValue(playlist)
-    }
-
     fun postActiveAudio(position: Int){
-        activeAudio.postValue(currentPlaylist.value?.get(position))
+        activeAudio.postValue(globalPlaylist[position])
     }
 
     val loadedThumbnails: MutableLiveData<MutableMap<String, Bitmap?>> = MutableLiveData(mutableMapOf())

@@ -7,6 +7,7 @@
     <fragment
         android:id="@id/audio_folders_path"
         android:name="com.example.freemediaplayer.fragments.AudioFoldersFragment"
+        tools:layout="@layout/fragment_audio_folders_full"
         android:label="Audio Locations">
         <action
             android:id="@+id/action_audio_folders_path_to_folder_items_path"
@@ -42,12 +43,6 @@
         <action
             android:id="@+id/action_audio_player_path_to_active_playlist_path"
             app:destination="@id/active_playlist_path" />
-        <argument
-            android:name="folder_location"
-            app:argType="string" />
-        <argument
-            android:name="active_audio"
-            app:argType="integer" />
     </fragment>
     <fragment
         android:id="@+id/active_playlist_path"
