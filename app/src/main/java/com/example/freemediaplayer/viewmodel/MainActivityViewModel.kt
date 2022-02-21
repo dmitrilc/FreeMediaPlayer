@@ -2,19 +2,13 @@ package com.example.freemediaplayer.viewmodel
 
 import android.Manifest
 import android.app.Application
-import android.content.ContentUris
-import android.provider.MediaStore
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
 import androidx.datastore.core.DataStore
 import androidx.lifecycle.*
 import com.example.freemediaplayer.R
-import com.example.freemediaplayer.entities.Audio
-import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.proto.BottomNavProto
-import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,6 +18,8 @@ class MainActivityViewModel @Inject constructor(
     private val app: Application,
     private val bottomNavDataStore: DataStore<BottomNavProto>
     ): AndroidViewModel(app) {
+
+    //val folderType = MutableLiveData<FolderType>()
 
     //@Inject
     //lateinit var bottomNavDataStore: DataStore<BottomNavProto>
@@ -61,4 +57,8 @@ class MainActivityViewModel @Inject constructor(
         if (id == R.id.audio_folders_path) BottomNavProto.State.MUSIC
         else BottomNavProto.State.VIDEOS
 
+}
+
+enum class FolderType {
+    AUDIO, VIDEO
 }

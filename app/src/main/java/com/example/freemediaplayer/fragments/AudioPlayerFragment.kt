@@ -118,6 +118,7 @@ class AudioPlayerFragment : Fragment() {
         binding.imageViewAudioPlayerDisplayArt.setImageBitmap(thumbnail)
     }
 
+    //TODO Fix glitch where progress bar does not resync automatically
     private fun prepSeekNextButton(){
         binding.imageButtonAudioPlayerSeekForward.setOnClickListener {
             //TODO Improve readability

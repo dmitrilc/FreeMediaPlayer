@@ -12,6 +12,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.freemediaplayer.databinding.ActivityMainBinding
+import com.example.freemediaplayer.viewmodel.FolderType
 import com.example.freemediaplayer.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -57,21 +58,27 @@ class MainActivity : AppCompatActivity() {
         binding.materialToolBarViewTopAppBar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
 
         //navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navHostFragment.navController.addOnDestinationChangedListener { _, dest, _ ->
+        navHostFragment.navController.addOnDestinationChangedListener { navController, dest, _ ->
             when(dest.id){
                 R.id.audio_folders_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Audios"
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
+                    //mainActivityViewModel.folderType.postValue(FolderType.AUDIO)
                 }
                 R.id.video_folders_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Videos"
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
+                    //mainActivityViewModel.folderType.postValue(FolderType.VIDEO)
                 }
                 R.id.playlists_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Playlists"
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
                 }
-                R.id.folder_items_path -> {
+                R.id.audio_folder_items_path -> {
+                    //binding.materialToolBarViewTopAppBar.title = viewModel.currentAudioFiles[0].location
+                    binding.bottomNavViewBottomNav.visibility = View.GONE
+                }
+                R.id.video_folder_items_path -> {
                     //binding.materialToolBarViewTopAppBar.title = viewModel.currentAudioFiles[0].location
                     binding.bottomNavViewBottomNav.visibility = View.GONE
                 }

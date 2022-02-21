@@ -16,7 +16,7 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
-import com.example.freemediaplayer.ActivePlaylistItemAdapter
+import com.example.freemediaplayer.adapter.ActivePlaylistItemAdapter
 import com.example.freemediaplayer.AdapterChildThumbnailLoad
 import com.example.freemediaplayer.databinding.FragmentActivePlaylistBinding
 import com.example.freemediaplayer.entities.Audio

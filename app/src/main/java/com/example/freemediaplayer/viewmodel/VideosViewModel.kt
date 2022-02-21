@@ -6,55 +6,52 @@ import android.graphics.Bitmap
 import android.provider.MediaStore
 import android.util.Log
 import android.util.Size
-import androidx.lifecycle.*
-import com.example.freemediaplayer.entities.Audio
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.liveData
+import androidx.lifecycle.viewModelScope
 import com.example.freemediaplayer.entities.Video
 import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import java.io.FileNotFoundException
 import javax.inject.Inject
 
-private const val TAG = "AUDIOS_VIEW_MODEL"
+private const val TAG = "VIDEOS_VIEW_MODEL"
 
 @HiltViewModel
-class AudiosViewModel @Inject constructor(
+class VideosViewModel @Inject constructor(
     private val app: Application,
     private val appDatabase: AppDatabase
-    ): AndroidViewModel(app) {
+): AndroidViewModel(app) {
 
-    val globalPlaylist = mutableListOf<Audio>()
+    val globalVideoPlaylist = mutableListOf<Video>()
 
-    val activeAudio = MutableLiveData<Audio>()
+    val activeVideo = MutableLiveData<Video>()
 
-    private var isAllAudiosScanned = false
+    private var isAllVideosScanned = false
 
-    private val allAudios: List<Audio> by lazy { scanAudios() }
+    private val allVideos: List<Video> by lazy { scanVideos() }
 
-    val allAudiosLiveData = liveData {
-        emit(allAudios)
+    val allVideosLiveData = liveData {
+        emit(allVideos)
     }
 
     val loadedThumbnails: MutableLiveData<MutableMap<String, Bitmap?>> = MutableLiveData(mutableMapOf())
 
-    fun postActiveAudio(position: Int){
-        activeAudio.postValue(globalPlaylist[position])
-    }
-
-    fun loadThumbnail(audio: Audio){
+    fun loadThumbnail(video: Video){
         loadedThumbnails.value?.let { thumbnailMap ->
-            val album = audio.album
+            val album = video.album
             val isAlbumThumbnailLoaded = thumbnailMap.containsKey(album)
 
             if (!isAlbumThumbnailLoaded) {
                 if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
                     try {
                         val thumbnail = app.contentResolver.loadThumbnail(
-                            audio.uri,
+                            video.uri,
                             Size(300, 300),
                             null
                         )
@@ -71,30 +68,32 @@ class AudiosViewModel @Inject constructor(
         }
     }
 
-    private suspend fun insertAudios(audios: Collection<Audio>) {
-        appDatabase.audioDao().insertAll(audios)
+    private suspend fun insertVideos(videos: Collection<Video>) {
+        appDatabase.videoDao().insertAll(videos)
     }
 
-    //TODO Move to viewmodel or service
-    private fun scanAudios(): List<Audio> {
-        if (isAllAudiosScanned){
-            return allAudios
+    fun postActiveVideo(position: Int){
+        activeVideo.postValue(globalVideoPlaylist[position])
+    }
+
+    private fun scanVideos(): List<Video> {
+        if (isAllVideosScanned) {
+            return allVideos
         }
 
-        val audios = mutableListOf<Audio>()
+        val videos = mutableListOf<Video>()
 
-        val collection =
-            if (isSameOrAfterQ()) {
-                MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
-            } else {
-                MediaStore.Audio.Media.EXTERNAL_CONTENT_URI
-            }
+        val collection = if (isSameOrAfterQ()) {
+            MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL)
+        } else {
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        }
 
         val projection = mutableListOf(
-            MediaStore.Audio.Media._ID,
-            MediaStore.Audio.Media.TITLE,
-            MediaStore.Audio.Media.ALBUM,
-            MediaStore.Audio.Media.DATA
+            MediaStore.Video.Media._ID,
+            MediaStore.Video.Media.TITLE,
+            MediaStore.Video.Media.ALBUM,
+            MediaStore.Video.Media.DATA
         )
 
         val selection = null
@@ -108,24 +107,24 @@ class AudiosViewModel @Inject constructor(
             selectionArgs,
             sortOrder
         )?.use { cursor ->
-            val idColIndex = cursor.getColumnIndex(MediaStore.Audio.Media._ID)
-            val dataColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.DATA)
-            val titleColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE)
-            val albumColIndex = cursor.getColumnIndex(MediaStore.Audio.Media.ALBUM)
+            val idColIndex = cursor.getColumnIndex(MediaStore.Video.Media._ID)
+            val dataColIndex = cursor.getColumnIndex(MediaStore.Video.Media.DATA)
+            val titleColIndex = cursor.getColumnIndex(MediaStore.Video.Media.TITLE)
+            val albumColIndex = cursor.getColumnIndex(MediaStore.Video.Media.ALBUM)
 
             while (cursor.moveToNext()) {
                 val id = cursor.getLong(idColIndex)
                 val data = cursor.getString(dataColIndex)
 
                 val uri = ContentUris.withAppendedId(
-                    MediaStore.Audio.Media.EXTERNAL_CONTENT_URI,
+                    MediaStore.Video.Media.EXTERNAL_CONTENT_URI,
                     id
                 )
 
                 val displayName = data.substringAfterLast('/')
                 val location = data.substringBeforeLast('/')
 
-                val audio = Audio(
+                val video = Video(
                     id = id,
                     uri = uri,
                     data = data,
@@ -135,17 +134,17 @@ class AudiosViewModel @Inject constructor(
                     location = location
                 )
 
-                audios.add(audio)
+                videos.add(video)
             }
         }
 
-        isAllAudiosScanned = true
+        isAllVideosScanned = true
 
         viewModelScope.launch(Dispatchers.IO) {
-            insertAudios(allAudios)
+            insertVideos(allVideos)
         }
 
-        return audios
+        return videos
     }
 
 }

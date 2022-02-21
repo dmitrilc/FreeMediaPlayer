@@ -1,4 +1,4 @@
-package com.example.freemediaplayer
+package com.example.freemediaplayer.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

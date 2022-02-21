@@ -1,4 +1,5 @@
-package com.example.freemediaplayer
+package com.example.freemediaplayer.adapter
+/*
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,19 +8,19 @@ import androidx.cardview.widget.CardView
 import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderFullViewBinding
-import com.example.freemediaplayer.fragments.AudioFoldersFragment
+import com.example.freemediaplayer.fragments.FoldersFullFragment
 import com.example.freemediaplayer.pojos.AdapterFolderData
 
 private const val TAG = "FOLDERS_FULL_ADAPTER"
 
-class FoldersFullAdapter(private val dataSet: List<AdapterFolderData>) :
+class AudioFoldersFullAdapter(private val dataSet: List<AdapterFolderData>) :
     RecyclerView.Adapter<FoldersFullAdapter.FolderFullViewHolder>() {
 
-    class FolderFullViewHolder(folderFullViewBinding: FolderFullViewBinding) :
-        RecyclerView.ViewHolder(folderFullViewBinding.root) {
-        private val cardView: CardView = folderFullViewBinding.cardViewFolderFullPath
-        val fullPath: TextView = folderFullViewBinding.textViewFolderFullPath
-        val relativeRecyclerView: RecyclerView = folderFullViewBinding.recyclerAudioFoldersRelative
+    class AudioFolderFullViewHolder(audioFolderFullViewBinding: FolderFullViewBinding) :
+        RecyclerView.ViewHolder(audioFolderFullViewBinding.root) {
+        private val cardView: CardView = audioFolderFullViewBinding.cardViewFolderFullPath
+        val fullPath: TextView = audioFolderFullViewBinding.textViewFolderFullPath
+        val relativeRecyclerView: RecyclerView = audioFolderFullViewBinding.recyclerAudioFoldersRelative
 
         //var isFoldersVisible = true
 
@@ -27,23 +28,23 @@ class FoldersFullAdapter(private val dataSet: List<AdapterFolderData>) :
         init {
             cardView.setOnClickListener {
                 //DON'T holder a reference to the fragment
-                it.findFragment<AudioFoldersFragment>()
+                it.findFragment<FoldersFullFragment>()
                     .onFolderFullCardViewClicked(bindingAdapterPosition)
             }
         }
 
     }
 
-    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FolderFullViewHolder {
+    override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): AudioFolderFullViewHolder {
         val folderFullViewBinding = FolderFullViewBinding.inflate(
             LayoutInflater.from(viewGroup.context),
             viewGroup,
             false)
 
-        return FolderFullViewHolder(folderFullViewBinding)
+        return AudioFolderFullViewHolder(folderFullViewBinding)
     }
 
-    override fun onBindViewHolder(viewHolder: FolderFullViewHolder, position: Int) {
+    override fun onBindViewHolder(viewHolder: AudioFolderFullViewHolder, position: Int) {
         viewHolder.fullPath.text = dataSet[position].parentPath
 
         //viewHolder.relativeRecyclerView.adapter = FoldersRelativeAdapter(dataSet[position].relativePaths, position)
@@ -68,4 +69,4 @@ class FoldersFullAdapter(private val dataSet: List<AdapterFolderData>) :
 
     override fun getItemCount() = dataSet.size
 
-}
+}*/

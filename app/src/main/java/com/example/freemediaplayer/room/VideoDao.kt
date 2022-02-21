@@ -8,19 +8,16 @@ import com.example.freemediaplayer.entities.Video
 
 @Dao
 interface VideoDao {
-    @Query("SELECT * FROM Video")
+    @Query("SELECT * FROM video")
     suspend fun getAll(): List<Video>
 
-    @Query("SELECT DISTINCT uri FROM Video")
+    @Query("SELECT DISTINCT uri FROM video")
     suspend fun getUris(): List<String>
 
-    @Query("SELECT DISTINCT path FROM video")
-    suspend fun getPaths(): List<String>
+    @Insert(onConflict = REPLACE)
+    suspend fun insert(video: Video)
 
     @Insert(onConflict = REPLACE)
-    suspend fun insert(Video: Video)
-
-    @Insert(onConflict = REPLACE)
-    suspend fun insertAll(Videos: List<Video>)
+    suspend fun insertAll(videos: Collection<Video>)
 
 }

@@ -6,15 +6,15 @@ import com.example.freemediaplayer.pojos.AdapterFolderData
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
-private const val TAG = "AUDIO_FOLDERS_VIEW_MODEL"
+private const val TAG = "FOLDERS_VIEW_MODEL"
 
 @HiltViewModel
-class AudioFoldersViewModel @Inject constructor(): ViewModel() {
+class AllFoldersViewModel @Inject constructor(): ViewModel() {
 
-    val allAudioFoldersLiveData = MutableLiveData<List<AdapterFolderData>>(listOf())
+    val allFoldersLiveData = MutableLiveData<List<AdapterFolderData>>(listOf())
 
-    fun refreshAllAudioFoldersLiveData(position: Int){
-        allAudioFoldersLiveData.value?.let {
+    fun refreshAllFoldersLiveData(position: Int){
+        allFoldersLiveData.value?.let {
             val newData = AdapterFolderData(
                 it[position].parentPath,
                 it[position].relativePaths,
@@ -25,7 +25,7 @@ class AudioFoldersViewModel @Inject constructor(): ViewModel() {
             mutableTmp.removeAt(position)
             mutableTmp.add(position, newData)
 
-            allAudioFoldersLiveData.postValue(mutableTmp)
+            allFoldersLiveData.postValue(mutableTmp)
         }
     }
 }
