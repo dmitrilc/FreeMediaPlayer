@@ -8,9 +8,9 @@ import dagger.hilt.android.components.ViewModelComponent
 
 @Module
 @InstallIn(ViewModelComponent::class)
-object AudioDaoModule {
+object MediaItemDaoModule {
 
     @Provides
-    fun provideAudioDao(db: AppDatabase) = db.audioDao()
+    fun provideMediaItemDao(db: AppDatabase) = db.mediaItemDao()
 
 }

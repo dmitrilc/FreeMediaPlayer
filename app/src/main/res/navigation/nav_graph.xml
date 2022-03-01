@@ -6,8 +6,8 @@
     app:startDestination="@id/audio_folders_path">
     <fragment
         android:id="@id/audio_folders_path"
-        android:name="com.example.freemediaplayer.fragments.AudioFoldersFragment"
-        tools:layout="@layout/fragment_audio_folders_full"
+        android:name="com.example.freemediaplayer.fragments.FoldersFragment"
+        tools:layout="@layout/fragment_folders_full"
         android:label="Audio Location">
         <action
             android:id="@+id/action_audio_folders_path_to_audioFolderItemsFragment"
@@ -15,20 +15,56 @@
     </fragment>
     <fragment
         android:id="@id/video_folders_path"
-        android:name="com.example.freemediaplayer.fragments.VideoFoldersFragment"
+        android:name="com.example.freemediaplayer.fragments.FoldersFragment"
         android:label="Video Location"
-        tools:layout="@layout/fragment_video_folders_full" >
+        tools:layout="@layout/fragment_folders_full" >
         <action
             android:id="@+id/action_video_folders_path_to_videoFolderItemsFragment"
             app:destination="@id/video_folder_items_path" />
     </fragment>
     <fragment
+        android:id="@+id/audio_folder_items_path"
+        android:name="com.example.freemediaplayer.fragments.FolderItemsFragment"
+        tools:layout="@layout/folder_items_fragment"
+        android:label="AudioFolderItemsFragment" >
+        <action
+            android:id="@+id/action_audioFolderItemsFragment_to_player_path"
+            app:destination="@id/audio_player_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/video_folder_items_path"
+        android:name="com.example.freemediaplayer.fragments.FolderItemsFragment"
+        tools:layout="@layout/folder_items_fragment"
+        android:label="VideoFolderItemsFragment" >
+        <action
+            android:id="@+id/action_videoFolderItemsFragment_to_player_path"
+            app:destination="@id/video_player_path" />
+    </fragment>
+<!--    <fragment
         android:id="@+id/audio_player_path"
         android:name="com.example.freemediaplayer.fragments.AudioPlayerFragment"
         android:label="fragment_audio_player"
         tools:layout="@layout/fragment_audio_player" >
         <action
             android:id="@+id/action_audio_player_path_to_active_playlist_path"
+            app:destination="@id/active_playlist_path" />
+    </fragment>-->
+    <fragment
+        android:id="@+id/audio_player_path"
+        android:name="com.example.freemediaplayer.fragments.AudioPlayerFragment"
+        android:label="fragment_audio_player"
+        tools:layout="@layout/fragment_player" >
+        <action
+            android:id="@+id/action_audio_player_path_to_active_playlist_path"
+            app:destination="@id/active_playlist_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/video_player_path"
+        android:name="com.example.freemediaplayer.fragments.VideoPlayerFragment"
+        android:label="fragment_video_player"
+        tools:layout="@layout/fragment_player" >
+        <action
+            android:id="@+id/action_video_player_path_to_active_playlist_path"
             app:destination="@id/active_playlist_path" />
     </fragment>
     <fragment
@@ -41,30 +77,8 @@
         android:name="com.example.freemediaplayer.fragments.PlaylistsFragment"
         android:label="fragment_playlists"
         tools:layout="@layout/fragment_playlists" >
-        <action
-            android:id="@+id/action_playlists_path_to_audio_player_path"
-            app:destination="@id/audio_player_path" />
-    </fragment>
-    <fragment
-        android:id="@+id/audio_folder_items_path"
-        android:name="com.example.freemediaplayer.fragments.AudioFolderItemsFragment"
-        android:label="AudioFolderItemsFragment" >
-        <action
-            android:id="@+id/action_audioFolderItemsFragment_to_audio_player_path"
-            app:destination="@id/audio_player_path" />
-        <argument
-            android:name="full_path"
-            app:argType="string" />
-    </fragment>
-    <fragment
-        android:id="@+id/video_folder_items_path"
-        android:name="com.example.freemediaplayer.fragments.VideoFolderItemsFragment"
-        android:label="VideoFolderItemsFragment" >
-        <action
-            android:id="@+id/action_videoFolderItemsFragment_to_audio_player_path"
-            app:destination="@id/audio_player_path" />
-        <argument
-            android:name="full_path"
-            app:argType="string" />
+<!--        <action-->
+<!--            android:id="@+id/action_playlists_path_to_player_path"-->
+<!--            app:destination="@id/player_path" />-->
     </fragment>
 </navigation>

@@ -1,6 +1,7 @@
 package com.example.freemediaplayer
 
 import android.Manifest
+import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
@@ -12,7 +13,7 @@ import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import com.example.freemediaplayer.databinding.ActivityMainBinding
-import com.example.freemediaplayer.viewmodel.FolderType
+//import com.example.freemediaplayer.viewmodel.FolderType
 import com.example.freemediaplayer.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
@@ -38,6 +39,8 @@ class MainActivity : AppCompatActivity() {
         bindNavElementsToNav()
         initBottomNav()
         requestReadExternalStoragePerm()
+
+        contentResolver.getType(Uri.parse(""))
     }
 
     private fun initBottomNav(){
@@ -61,12 +64,12 @@ class MainActivity : AppCompatActivity() {
         navHostFragment.navController.addOnDestinationChangedListener { navController, dest, _ ->
             when(dest.id){
                 R.id.audio_folders_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Audios"
+                    //binding.materialToolBarViewTopAppBar.title = "Audios"
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
                     //mainActivityViewModel.folderType.postValue(FolderType.AUDIO)
                 }
                 R.id.video_folders_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Videos"
+                    //binding.materialToolBarViewTopAppBar.title = "Videos"
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
                     //mainActivityViewModel.folderType.postValue(FolderType.VIDEO)
                 }
@@ -82,10 +85,10 @@ class MainActivity : AppCompatActivity() {
                     //binding.materialToolBarViewTopAppBar.title = viewModel.currentAudioFiles[0].location
                     binding.bottomNavViewBottomNav.visibility = View.GONE
                 }
-                R.id.audio_player_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Add file Path here"
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                }
+//                R.id.audio_player_path -> {
+//                    binding.materialToolBarViewTopAppBar.title = "Add file Path here"
+//                    binding.bottomNavViewBottomNav.visibility = View.GONE
+//                }
                 R.id.active_playlist_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Playlist"
                     binding.bottomNavViewBottomNav.visibility = View.GONE
@@ -127,4 +130,8 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+}
+
+enum class MediaType {
+    AUDIO, VIDEO
 }

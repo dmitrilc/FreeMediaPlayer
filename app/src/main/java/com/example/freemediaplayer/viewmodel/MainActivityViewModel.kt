@@ -58,7 +58,3 @@ class MainActivityViewModel @Inject constructor(
         else BottomNavProto.State.VIDEOS
 
 }
-
-enum class FolderType {
-    AUDIO, VIDEO
-}

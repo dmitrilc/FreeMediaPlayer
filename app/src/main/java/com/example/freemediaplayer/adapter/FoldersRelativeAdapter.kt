@@ -3,11 +3,10 @@ package com.example.freemediaplayer.adapter
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import android.widget.TextView
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderRelativeViewBinding
-import com.example.freemediaplayer.fragments.FoldersFullFragment
+import com.example.freemediaplayer.fragments.FoldersFragment
 
 private const val TAG = "FOLDERS_RELATIVE_ADAPTER"
 
@@ -25,7 +24,7 @@ class FoldersRelativeAdapter(private val dataSet: List<String>,
         init {
             folderRelativeViewBinding.root.setOnClickListener {
                 //DON'T hold a reference to the fragment
-                it.findFragment<FoldersFullFragment>()
+                it.findFragment<FoldersFragment>()
                     .onFolderRelativeClicked(fullPathPos, bindingAdapterPosition)
             }
         }
