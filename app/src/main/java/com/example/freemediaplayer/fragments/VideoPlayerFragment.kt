@@ -12,6 +12,8 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
+import com.example.freemediaplayer.R
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -286,11 +288,16 @@ class VideoPlayerFragment : PlayerFragment() {
     }
 
     private fun bindVideoError(){
-        binding.videoViewPlayer.setOnErrorListener { mp, what, extra ->
+        binding.videoViewPlayer.setOnErrorListener { _, what, extra ->
             if (what == MEDIA_ERROR_UNKNOWN && extra == -2147483648){
-                Log.d(TAG, "This app is only used for demonstration purposes. " +
-                        "So it will run into unsupported media formats. " +
-                        "Add ExoPlayer and its additional software decoders if want more support.")
+                context?.let {
+                    MaterialAlertDialogBuilder(it)
+                        .setTitle("Codec not supported")
+                        .setMessage("This app is only used for demonstration purposes. " +
+                                "Add ExoPlayer lib to use additional software decoders.")
+                        .setNeutralButton("Close") { _, _ -> }
+                        .show()
+                }
             }
 
             true
