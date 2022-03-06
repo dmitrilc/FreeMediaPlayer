@@ -3,6 +3,7 @@ package com.example.freemediaplayer.service
 import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
@@ -12,8 +13,10 @@ import android.support.v4.media.session.MediaSessionCompat.FLAG_HANDLES_QUEUE_CO
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
+import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -221,7 +224,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
                     onPlayFromUri(activeQueueItem?.description?.mediaUri, Bundle())
 
-
 //                if (mediaItemsViewModel.activeMedia.value === mediaItemsViewModel.globalPlaylist.last()){
 //                    mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.first())
 //                } else {
@@ -341,6 +343,14 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                         playlist.remove(
                             MediaSessionCompat.QueueItem(description, it)
                         )
+                    }
+                }
+
+                override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+                    super.onCommand(command, extras, cb)
+
+                    if (command == "Clear Queue"){
+                        playlist.clear()
                     }
                 }
 

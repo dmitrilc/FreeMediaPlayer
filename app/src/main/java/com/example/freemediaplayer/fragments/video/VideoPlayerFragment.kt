@@ -1,4 +1,4 @@
-package com.example.freemediaplayer.fragments
+package com.example.freemediaplayer.fragments.video
 
 import android.media.MediaPlayer
 import android.media.MediaPlayer.MEDIA_ERROR_UNKNOWN
@@ -13,6 +13,7 @@ import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import com.example.freemediaplayer.R
+import com.example.freemediaplayer.fragments.PlayerFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay

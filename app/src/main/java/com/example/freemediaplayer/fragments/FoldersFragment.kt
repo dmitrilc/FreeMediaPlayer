@@ -6,24 +6,28 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
+import androidx.fragment.app.viewModels
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
-import com.example.freemediaplayer.R
 import com.example.freemediaplayer.adapter.FoldersFullAdapter
 import com.example.freemediaplayer.databinding.FragmentFoldersFullBinding
-import com.example.freemediaplayer.entities.MediaItem
-import com.example.freemediaplayer.pojos.AdapterFolderData
+import com.example.freemediaplayer.entities.ui.ParentPath
+import com.example.freemediaplayer.entities.ui.ParentPathWithRelativePaths
+import com.example.freemediaplayer.viewmodel.FoldersViewModel
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
 private const val TAG = "FOLDERS_FRAGMENT"
 
-class FoldersFragment : Fragment() {
+@AndroidEntryPoint
+abstract class FoldersFragment : Fragment() {
     private var _binding: FragmentFoldersFullBinding? = null
     private val binding get() = _binding!!
 
-    private val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
+    protected val foldersViewModel: FoldersViewModel by viewModels()
+
+    protected abstract val foldersLiveData: LiveData<List<ParentPathWithRelativePaths>>
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -35,67 +39,41 @@ class FoldersFragment : Fragment() {
     }
 
     private fun prepareRecycler(){
-        mediaItemsViewModel.mediaFoldersLiveData.observe(viewLifecycleOwner){
-            binding.recyclerFoldersFull.adapter = FoldersFullAdapter(it)
-        }
-
-        getFolderDataFromViewModel()
-    }
-
-    private fun getFolderDataFromViewModel() {
-        val observer: Observer<List<MediaItem>> = Observer { mediaItems ->
-            lifecycleScope.launch {
-                mediaItems
-                    .asSequence()
-                    .distinctBy { it.location }
-                    .map { it.location }
-                    .groupBy({ it.substringBeforeLast('/') }) {
-                        it.substringAfterLast('/')
-                    }
-                    .map {
-                        AdapterFolderData(
-                            parentPath = it.key,
-                            relativePaths = it.value
-                        )
-                    }
-                    .toList()
-                    .also {
-                        mediaItemsViewModel.mediaFoldersLiveData.postValue(it)
-                    }
+        foldersLiveData.observe(viewLifecycleOwner){ list ->
+            binding.recyclerFoldersFull.adapter = FoldersFullAdapter(list){
+                onFolderFullClicked(it)
             }
         }
+    }
 
-        if (isAudioDest()){
-            mediaItemsViewModel.allAudiosLiveData.observe(viewLifecycleOwner, observer)
-        } else {
-            mediaItemsViewModel.allVideosLiveData.observe(viewLifecycleOwner, observer)
+    private fun onFolderFullClicked(fullPathPos: Int){
+        lifecycleScope.launch {
+            foldersLiveData.value?.let { list ->
+                val oldData = list[fullPathPos].parentPath
+                val newData = ParentPath(
+                    id = oldData.id,
+                    isAudio = oldData.isAudio,
+                    parentPath = oldData.parentPath,
+                    isExpanded = !oldData.isExpanded
+                )
+
+                foldersViewModel.updateParentPath(newData)
+            }
         }
     }
 
     fun onFolderRelativeClicked(fullPathPos: Int, relativePathPos: Int){
-        val folder = mediaItemsViewModel.mediaFoldersLiveData.value?.get(fullPathPos)
+        lifecycleScope.launch {
+            foldersLiveData.value?.get(fullPathPos)?.let { folderData ->
+                val pathParent = folderData.parentPath.parentPath
+                val pathRelative = folderData.relativePaths[relativePathPos].relativePath
+                val fullPath = "$pathParent/$pathRelative"
 
-        folder?.let { folderData ->
-            val pathParent = folderData.parentPath
-            val pathRelative = folderData.relativePaths[relativePathPos]
-            val fullPath = "$pathParent/$pathRelative"
-
-            navigateToFolderItems(fullPath)
+                foldersViewModel.updateCurrentFolderFullPath(fullPath)
+            }
+            navigateToFolderItems()
         }
     }
 
-    private fun navigateToFolderItems(fullPath: String){
-        mediaItemsViewModel.currentFolderFullPathLiveData.postValue(fullPath)
-
-        val navController = findNavController()
-
-        if(isAudioDest()){
-            navController.navigate(R.id.action_audio_folders_path_to_audioFolderItemsFragment)
-        } else {
-            navController.navigate(R.id.action_video_folders_path_to_videoFolderItemsFragment)
-        }
-    }
-
-    private fun isAudioDest() = findNavController().currentDestination?.id == R.id.audio_folders_path
-
+    abstract fun navigateToFolderItems()
 }

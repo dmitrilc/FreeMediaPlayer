@@ -6,11 +6,12 @@ import android.widget.TextView
 import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderRelativeViewBinding
+import com.example.freemediaplayer.entities.ui.RelativePath
 import com.example.freemediaplayer.fragments.FoldersFragment
 
 private const val TAG = "FOLDERS_RELATIVE_ADAPTER"
 
-class FoldersRelativeAdapter(private val dataSet: List<String>,
+class FoldersRelativeAdapter(private val dataSet: List<RelativePath>,
                              private val fullPathPos: Int) :
     RecyclerView.Adapter<FoldersRelativeAdapter.FolderRelativeViewHolder>() {
 
@@ -41,7 +42,7 @@ class FoldersRelativeAdapter(private val dataSet: List<String>,
 
     override fun onBindViewHolder(viewHolder: FolderRelativeViewHolder, position: Int) {
         //viewHolder.fullPath.text = dataSet[position].fullPath
-        viewHolder.relativePath.text = dataSet[position]
+        viewHolder.relativePath.text = dataSet[position].relativePath
     }
 
     override fun getItemCount() = dataSet.size

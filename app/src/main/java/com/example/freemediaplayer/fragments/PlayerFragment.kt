@@ -6,6 +6,7 @@ import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -35,8 +36,12 @@ abstract class PlayerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
-        adaptChildPlayer()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        adaptChildPlayer()
     }
 
     abstract fun adaptChildPlayer()
@@ -84,9 +89,7 @@ abstract class PlayerFragment : Fragment() {
 
     private fun bindPlaylistButtonToController() {
         binding.imageButtonPlayerPlaylist.setOnClickListener {
-//            findNavController().navigate(
-//                PlayerFragmentDirections.actionPlayerPathToActivePlaylistPath()
-//            )
+            findNavController().navigate(R.id.active_playlist_path)
         }
     }
 
@@ -148,7 +151,7 @@ abstract class PlayerFragment : Fragment() {
         bindMediaControllerCallback(controller)
     }
 
-    private val mediaControllerCallbacks = object : MediaControllerCompat.Callback() {
+    protected val mediaControllerCallbacks = object : MediaControllerCompat.Callback() {
 
         override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
             super.onPlaybackStateChanged(state)
@@ -190,6 +193,12 @@ abstract class PlayerFragment : Fragment() {
 
             metadata?.getString(METADATA_KEY_TITLE)?.let {
                 binding.textViewPlayerTitle.text = it
+
+                val item = mediaItemsViewModel.globalPlaylist.value?.find { item ->
+                    item.title == it
+                }
+
+                mediaItemsViewModel.activeMedia.postValue(item)
             }
         }
 

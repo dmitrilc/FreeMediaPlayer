@@ -22,8 +22,8 @@ class ActivePlaylistItemAdapter(private val dataSet: MutableList<MediaItem>) :
         init {
             activePlaylistItemViewBinding.root.setOnClickListener {
                 //DON'T holder a reference to the fragment
-//                it.findFragment<ActivePlaylistFragment>()
-//                    .setActiveAudio(bindingAdapterPosition)
+                it.findFragment<ActivePlaylistFragment>()
+                    .setActiveMedia(bindingAdapterPosition)
             }
         }
 
@@ -48,8 +48,8 @@ class ActivePlaylistItemAdapter(private val dataSet: MutableList<MediaItem>) :
     override fun onViewAttachedToWindow(holderActive: ActivePlaylistItemViewHolder) {
         super.onViewAttachedToWindow(holderActive)
 
-//        holderActive.displayArtView.findFragment<ActivePlaylistFragment>()
-//            .onAdapterChildThumbnailLoad(holderActive.displayArtView, dataSet[holderActive.bindingAdapterPosition])
+        holderActive.displayArtView.findFragment<ActivePlaylistFragment>()
+            .onAdapterChildThumbnailLoad(holderActive.displayArtView, dataSet[holderActive.bindingAdapterPosition])
     }
 
 }

@@ -99,6 +99,9 @@ class MainActivity : AppCompatActivity() {
                 R.id.video_player_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Add file Path here"
                     binding.bottomNavViewBottomNav.visibility = View.GONE
+                    mediaController?.transportControls?.stop()
+                    mediaItemsViewModel.audioBrowser.value?.disconnect()
+                    mediaItemsViewModel.audioBrowser.postValue(null)
                 }
                 R.id.active_playlist_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Playlist"
@@ -112,12 +115,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun runQueries(){
+        mediaItemsViewModel.queryAudios()
+        mediaItemsViewModel.queryVideos()
+    }
+
     private fun requestReadExternalStoragePerm(){
         if (!mainActivityViewModel.isReadExternalStoragePermGranted()) { //TODO Handle first launch where this is always false
             registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
 //                if (!isGranted) { //TODO Display some message to the user that the permission has not been granted
 //                }
             }.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+        } else {
+            runQueries()
         }
     }
 
