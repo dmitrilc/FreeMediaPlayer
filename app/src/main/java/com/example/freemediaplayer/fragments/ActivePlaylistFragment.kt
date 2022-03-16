@@ -20,6 +20,8 @@ import com.example.freemediaplayer.adapter.ActivePlaylistItemAdapter
 import com.example.freemediaplayer.databinding.FragmentActivePlaylistBinding
 import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 private const val TAG = "ACTIVE_PLAYLIST"
@@ -45,10 +47,10 @@ class ActivePlaylistFragment : Fragment() {
 
             val movedItem = mediaItemsViewModel.globalPlaylist.value?.get(fromPos)
 
-            mediaItemsViewModel.globalPlaylist.value?.removeAt(fromPos)
+            //mediaItemsViewModel.globalPlaylist.value?.removeAt(fromPos)
 
             if (movedItem != null) {
-                mediaItemsViewModel.globalPlaylist.value?.add(toPos, movedItem)
+                //mediaItemsViewModel.globalPlaylist.value?.add(toPos, movedItem)
             }
 
             binding.recyclerActivePlaylist.adapter?.notifyItemMoved(fromPos, toPos)
@@ -56,7 +58,7 @@ class ActivePlaylistFragment : Fragment() {
             return true
         }
 
-        private fun isRemovedSameAsActive(audio: MediaItem) = mediaItemsViewModel.activeMedia.value == audio
+        //private fun isRemovedSameAsActive(audio: MediaItem) = mediaItemsViewModel.activeMedia.value == audio
         private fun isLastItemRemoved(removedPos: Int) = removedPos == mediaItemsViewModel.globalPlaylist.value?.size
         private fun isFirstItemRemoved(removedPos: Int) = removedPos == 0
         private fun isOnlyOneLeft() = mediaItemsViewModel.globalPlaylist.value?.size == 1
@@ -66,7 +68,7 @@ class ActivePlaylistFragment : Fragment() {
 
             binding.recyclerActivePlaylist.adapter?.notifyItemRemoved(position)
 
-            val removedItem = mediaItemsViewModel.globalPlaylist.value?.removeAt(position)
+            //val removedItem = mediaItemsViewModel.globalPlaylist.value?.removeAt(position)
 
             if (mediaItemsViewModel.globalPlaylist.value?.isEmpty() == true){ //list is empty
                 return
@@ -74,11 +76,11 @@ class ActivePlaylistFragment : Fragment() {
 
             if (isOnlyOneLeft()){ //only one item left.
                 val next = mediaItemsViewModel.globalPlaylist.value?.first()
-                mediaItemsViewModel.activeMedia.postValue(next)
+                //mediaItemsViewModel.activeMedia.postValue(next)
                 return
             }
 
-            if (isLastItemRemoved(position)){ //last item in list removed
+/*            if (isLastItemRemoved(position)){ //last item in list removed
                 if (removedItem?.let { isRemovedSameAsActive(it) } == true){
                     val next = mediaItemsViewModel.globalPlaylist.value?.first()
                     mediaItemsViewModel.activeMedia.postValue(next)
@@ -92,13 +94,13 @@ class ActivePlaylistFragment : Fragment() {
                     mediaItemsViewModel.activeMedia.postValue(next)
                 }
                 return
-            }
+            }*/
 
-            if (removedItem?.let { isRemovedSameAsActive(it) } == true){
+/*            if (removedItem?.let { isRemovedSameAsActive(it) } == true){
                 val next = mediaItemsViewModel.globalPlaylist.value?.get(position)
                 mediaItemsViewModel.activeMedia.postValue(next)
                 return
-            }
+            }*/
         }
 
         override fun onChildDraw(
@@ -137,36 +139,29 @@ class ActivePlaylistFragment : Fragment() {
 
         helper.attachToRecyclerView(binding.recyclerActivePlaylist)
 
-        binding.recyclerActivePlaylist.adapter = mediaItemsViewModel.globalPlaylist.value?.let {
+/*        binding.recyclerActivePlaylist.adapter = mediaItemsViewModel.globalPlaylist.value?.let {
             ActivePlaylistItemAdapter(
                 it
             )
-        }
+        }*/
 
         return binding.root
     }
 
     //TODO Remove duplicate code from FolderItemsFragment
-    fun onAdapterChildThumbnailLoad(v: ImageView, item: MediaItem) {
+    fun onAdapterChildThumbnailLoad(v: ImageView, albumArtUri: String) {
         lifecycleScope.launch {
-            val thumbnailObserver = object : Observer<Map<String, Bitmap?>> {
-                override fun onChanged(thumbnailMap: Map<String, Bitmap?>?) {
-                    thumbnailMap?.get(item.album)?.let {
-                        v.setImageBitmap(it)
-                        mediaItemsViewModel.loadedThumbnails.removeObserver(this)
-                    }
-                }
+            val bitmap = async(Dispatchers.IO) {
+                mediaItemsViewModel.getThumbnail(albumArtUri)
             }
 
-            mediaItemsViewModel.loadedThumbnails.observe(viewLifecycleOwner, thumbnailObserver)
-
-            mediaItemsViewModel.loadThumbnail(item)
+            v.setImageBitmap(bitmap.await())
         }
     }
 
     fun setActiveMedia(bindingAdapterPosition: Int){
         val next = mediaItemsViewModel.globalPlaylist.value?.get(bindingAdapterPosition)
-        mediaItemsViewModel.activeMedia.postValue(next)
+        //mediaItemsViewModel.activeMedia.postValue(next)
         val navController = findNavController()
         navController.popBackStack()
     }

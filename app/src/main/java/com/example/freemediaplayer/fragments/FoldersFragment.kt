@@ -16,6 +16,8 @@ import com.example.freemediaplayer.entities.ui.ParentPathWithRelativePaths
 import com.example.freemediaplayer.viewmodel.FoldersViewModel
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "FOLDERS_FRAGMENT"
@@ -25,6 +27,7 @@ abstract class FoldersFragment : Fragment() {
     private var _binding: FragmentFoldersFullBinding? = null
     private val binding get() = _binding!!
 
+    private val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
     protected val foldersViewModel: FoldersViewModel by viewModels()
 
     protected abstract val foldersLiveData: LiveData<List<ParentPathWithRelativePaths>>
@@ -47,18 +50,16 @@ abstract class FoldersFragment : Fragment() {
     }
 
     private fun onFolderFullClicked(fullPathPos: Int){
-        lifecycleScope.launch {
-            foldersLiveData.value?.let { list ->
-                val oldData = list[fullPathPos].parentPath
-                val newData = ParentPath(
-                    id = oldData.id,
-                    isAudio = oldData.isAudio,
-                    parentPath = oldData.parentPath,
-                    isExpanded = !oldData.isExpanded
-                )
+        foldersLiveData.value?.let { list ->
+            val oldData = list[fullPathPos].parentPath
+            val newData = ParentPath(
+                id = oldData.id,
+                isAudio = oldData.isAudio,
+                parentPath = oldData.parentPath,
+                isExpanded = !oldData.isExpanded
+            )
 
-                foldersViewModel.updateParentPath(newData)
-            }
+            foldersViewModel.updateParentPath(newData)
         }
     }
 
@@ -69,10 +70,11 @@ abstract class FoldersFragment : Fragment() {
                 val pathRelative = folderData.relativePaths[relativePathPos].relativePath
                 val fullPath = "$pathParent/$pathRelative"
 
-                foldersViewModel.updateCurrentFolderFullPath(fullPath)
+                mediaItemsViewModel.updateCurrentFolderFullPath(fullPath)
             }
-            navigateToFolderItems()
         }
+
+        navigateToFolderItems()
     }
 
     abstract fun navigateToFolderItems()

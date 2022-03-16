@@ -50,8 +50,10 @@ class MediaFolderItemAdapter(private val dataSet: List<MediaItem>) :
     override fun onViewAttachedToWindow(holder: FolderItemViewHolder) {
         super.onViewAttachedToWindow(holder)
 
-        holder.displayArtView.findFragment<FolderItemsFragment>()
-            .onAdapterChildThumbnailLoad(holder.displayArtView, dataSet[holder.bindingAdapterPosition])
+        dataSet[holder.bindingAdapterPosition].albumArtUri?.let {
+            holder.displayArtView.findFragment<FolderItemsFragment>()
+                .onAdapterChildThumbnailLoad(holder.displayArtView, it)
+        }
     }
 
 }

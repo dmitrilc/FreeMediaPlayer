@@ -1,5 +1,6 @@
 package com.example.freemediaplayer.room
 
+import android.provider.MediaStore
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.freemediaplayer.entities.MediaItem
@@ -25,9 +26,14 @@ interface MediaItemDao {
     @Query("SELECT * from media_items WHERE location=(SELECT fullPath from folderItemsUi LIMIT 1) AND isAudio=0")
     fun getCurrentVideoFolderItems(): LiveData<List<MediaItem>>
 
+    @Query("SELECT * FROM media_items WHERE id = :id")
+    suspend fun getById(id: Long): MediaItem
+
 //    @Query("SELECT DISTINCT location FROM media_items WHERE isAudio='true'")
 //    suspend fun getAudioLocations(): Flow<List<MediaItem>>
 //
 //    @Query("SELECT DISTINCT location FROM media_items WHERE isAudio='false'")
 //    suspend fun getVideoLocations(): List<MediaItem>
 }
+
+//TODO Convert nested query to Join

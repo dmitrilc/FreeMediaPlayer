@@ -64,13 +64,6 @@ class MainActivity : AppCompatActivity() {
 
         //navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
         navHostFragment.navController.addOnDestinationChangedListener { navController, dest, _ ->
-            val currentFolderFullPathObserver = object : Observer<String> {
-                override fun onChanged(t: String?) {
-                    binding.materialToolBarViewTopAppBar.title = t
-                    mediaItemsViewModel.currentFolderFullPathLiveData.removeObserver(this)
-                }
-            }
-
             when(dest.id){
                 R.id.audio_folders_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Audios"
@@ -85,12 +78,16 @@ class MainActivity : AppCompatActivity() {
                     binding.bottomNavViewBottomNav.visibility = View.VISIBLE
                 }
                 R.id.audio_folder_items_path -> {
-                    mediaItemsViewModel.currentFolderFullPathLiveData.observe(this, currentFolderFullPathObserver)
                     binding.bottomNavViewBottomNav.visibility = View.GONE
+                    lifecycleScope.launch {
+                        binding.materialToolBarViewTopAppBar.title = mediaItemsViewModel.getCurrentFolderFullPath().fullPath
+                    }
                 }
                 R.id.video_folder_items_path -> {
-                    mediaItemsViewModel.currentFolderFullPathLiveData.observe(this, currentFolderFullPathObserver)
                     binding.bottomNavViewBottomNav.visibility = View.GONE
+                    lifecycleScope.launch {
+                        binding.materialToolBarViewTopAppBar.title = mediaItemsViewModel.getCurrentFolderFullPath().fullPath
+                    }
                 }
                 R.id.audio_player_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Add file Path here"
@@ -122,10 +119,15 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestReadExternalStoragePerm(){
         if (!mainActivityViewModel.isReadExternalStoragePermGranted()) { //TODO Handle first launch where this is always false
-            registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-//                if (!isGranted) { //TODO Display some message to the user that the permission has not been granted
-//                }
-            }.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+                if (isGranted) {
+                    runQueries()
+                } else {
+                    //TODO Display some message to the user that the permission has not been granted
+                }
+            }
+
+            permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         } else {
             runQueries()
         }

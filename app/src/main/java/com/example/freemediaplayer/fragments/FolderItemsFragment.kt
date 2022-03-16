@@ -1,16 +1,14 @@
 package com.example.freemediaplayer.fragments
 
-import android.graphics.Bitmap
 import android.os.Bundle
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
 import com.example.freemediaplayer.adapter.MediaFolderItemAdapter
 import com.example.freemediaplayer.databinding.FolderItemsFragmentBinding
@@ -18,8 +16,8 @@ import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.viewmodel.FolderItemsViewModel
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 
 private const val TAG = "FOLDER_ITEMS_FRAGMENT"
@@ -53,28 +51,21 @@ abstract class FolderItemsFragment : Fragment() {
 
     fun onFolderItemClicked(position: Int) {
         itemsLiveData.value?.let {
-            folderItemsViewModel.updateGlobalPlayList(it)
-            folderItemsViewModel.updateGlobalActiveItem(it[position])
+            mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(it, it[position])
         }
 
         navigateToPlayer()
     }
 
-    fun onAdapterChildThumbnailLoad(v: ImageView, item: MediaItem) {
+    fun onAdapterChildThumbnailLoad(v: ImageView, albumArtUri: String) {
         lifecycleScope.launch {
-            val thumbnailObserver = object : Observer<Map<String, Bitmap?>> {
-                override fun onChanged(thumbnailMap: Map<String, Bitmap?>?) {
-                    thumbnailMap?.get(item.album)?.let {
-                        v.setImageBitmap(it)
-                        mediaItemsViewModel.loadedThumbnails.removeObserver(this)
-                    }
-                }
+            val bitmap = async(Dispatchers.IO) {
+                mediaItemsViewModel.getThumbnail(albumArtUri)
             }
 
-            mediaItemsViewModel.loadedThumbnails.observe(viewLifecycleOwner, thumbnailObserver)
-
-            mediaItemsViewModel.loadThumbnail(item)
+            v.setImageBitmap(bitmap.await())
         }
     }
-
 }
+
+//TODO Remove duplicate code from FolderItemsFragment. thumbnail load.

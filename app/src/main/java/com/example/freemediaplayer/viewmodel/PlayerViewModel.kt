@@ -1,17 +1,24 @@
 package com.example.freemediaplayer.viewmodel
 
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+private const val TAG = "PLAYER_VIEW_MODEL"
+
 @HiltViewModel
-class PlayerViewModel @Inject constructor() : ViewModel()  {
-    //val playerPosition = MutableLiveData(0)
+class PlayerViewModel @Inject constructor(
+    private val appDb: AppDatabase
+): ViewModel() {
+/*    val playerUi = appDb.playerUiDao().get()
 
-    //val maxPlayerDuration = MutableLiveData(0)
-
-    //val isGlobalSelfLooping = MutableLiveData(false)
-
-    //val isPlaying = MutableLiveData(false)
+    fun updatePlayerUi(value: PlayerUi){
+        viewModelScope.launch(Dispatchers.IO){
+            appDb.playerUiDao().insert(value)
+        }
+    }*/
 }

@@ -12,12 +12,10 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import com.example.freemediaplayer.R
+import androidx.lifecycle.observe
 import com.example.freemediaplayer.fragments.PlayerFragment
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 // TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
@@ -31,7 +29,6 @@ private const val TAG = "PLAYER_VIDEO"
  * Use the [VideoPlayerFragment.newInstance] factory method to
  * create an instance of this fragment.
  */
-//@AndroidEntryPoint
 class VideoPlayerFragment : PlayerFragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
@@ -44,11 +41,97 @@ class VideoPlayerFragment : PlayerFragment() {
     //Used for Video player only
     private var videoMediaSessionCompat: MediaSessionCompat? = null
 
+    override fun adaptChildPlayer() {
+        setupVideoMediaSessionCompat()
+        setupVideoMediaControllerCompat()
+        syncButtonsToController()
+        syncActiveVideoToController()
+        bindVideoError()
+
+        bindPlayerUiChangeListeners()
+        bindPlayerCompletionListener()
+    }
+
+    private fun bindPlayerCompletionListener(){
+        //TODO Update PlayerUI only
+        binding.videoViewPlayer.setOnCompletionListener {
+/*            val item = mediaItemsViewModel.activeMedia.value!!
+
+            when(item.repeatMode){
+                REPEAT_MODE_ONE -> {
+                    videoMediaSessionCallback.onPlayFromUri(item.mediaItem.uri, null)
+                }
+                else -> {
+                    videoMediaSessionCallback.onSkipToNext()
+                }
+            }*/
+        }
+
+/*        val listener = MediaPlayer.OnPreparedListener { player ->
+            val item = mediaItemsViewModel.activeMedia.value!!
+
+            val newItem = item.copy(
+                maxDuration = player.duration.toLong(),
+                state = STATE_PLAYING
+            )
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                //mediaItemsViewModel.updateActiveItem(newItem)
+            }
+        }*/
+
+        //binding.videoViewPlayer.setOnPreparedListener(listener)
+    }
+
+    private fun bindPlayerUiChangeListeners() {
+/*        mediaItemsViewModel.activeMedia.observe(this) {
+            when (it.state) {
+                STATE_PLAYING -> {
+                    if (!binding.videoViewPlayer.isPlaying) {
+                        videoMediaSessionCallback.onPlay()
+                    }
+                }
+                STATE_PAUSED -> {
+                    if (binding.videoViewPlayer.isPlaying) {
+                        videoMediaSessionCallback.onPause()
+                    }
+                }
+                STATE_SKIPPING_TO_QUEUE_ITEM -> {
+                    videoMediaSessionCallback.onPlayFromUri(it.mediaItem.uri, null)
+                }
+                STATE_CONNECTING -> {
+*//*                    mediaPlayer.reset()
+                    mediaPlayer.setDataSource(applicationContext, it.mediaItem.uri)
+                    mediaPlayer.prepare()
+                    mediaPlayer.seekTo(it.progress.toInt())*//*
+                }
+            }
+        }*/
+
+        mediaItemsViewModel.globalPlaylist.observe(this) {
+
+        }
+    }
+
     private val videoMediaSessionCallback = object : MediaSessionCompat.Callback() {
         var syncJob: Job? = null
 
-        private fun startProgressBroadCastLoop() {
-            val listener = MediaPlayer.OnPreparedListener {
+        private fun startProgressLoop() {
+/*            val activeId = mediaItemsViewModel.activeMedia.value!!.mediaItem.id
+
+            syncJob = lifecycleScope.launch {
+                while (videoMediaSessionCompat!!.isActive
+                    && binding.videoViewPlayer.isPlaying
+                    && activeId == mediaItemsViewModel.activeMedia.value!!.mediaItem.id) {
+                        lifecycleScope.launch(Dispatchers.IO){
+                            Log.d(TAG, "looping")
+                            //mediaItemsViewModel.updateActiveItemProgress(binding.videoViewPlayer.currentPosition.toLong())
+                        }
+                    delay(1000)
+                }
+            }*/
+
+/*            val listener = MediaPlayer.OnPreparedListener {
                 val metaData = metadataBuilder
                     .putLong(
                         MediaMetadataCompat.METADATA_KEY_DURATION,
@@ -77,11 +160,11 @@ class VideoPlayerFragment : PlayerFragment() {
                         delay(1000)
                     }
                 }
-            }
+            }*/
         }
 
-        private fun endProgressBroadCastLoop() {
-            val state = stateBuilder
+        private fun endProgressLoop() {
+/*            val state = stateBuilder
                 .setState(
                     STATE_PAUSED,
                     binding.videoViewPlayer.currentPosition.toLong(),
@@ -89,7 +172,7 @@ class VideoPlayerFragment : PlayerFragment() {
                 )
                 .build()
 
-            videoMediaSessionCompat?.setPlaybackState(state)
+            videoMediaSessionCompat?.setPlaybackState(state)*/
 
             syncJob?.cancel()
             syncJob = null
@@ -98,57 +181,72 @@ class VideoPlayerFragment : PlayerFragment() {
         override fun onPlay() {
             super.onPlay()
             binding.videoViewPlayer.start()
-            startProgressBroadCastLoop()
+
+/*            val activeMedia = mediaItemsViewModel.activeMedia.value!!.copy(
+                state = STATE_PLAYING
+            )*/
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                //mediaItemsViewModel.updateActiveItem(activeMedia)
+            }
+
+            startProgressLoop()
         }
 
         override fun onPause() {
             super.onPause()
+            endProgressLoop()
             binding.videoViewPlayer.pause()
-            endProgressBroadCastLoop()
+
+/*            val activeMedia = mediaItemsViewModel.activeMedia.value!!.copy(
+                state = STATE_PAUSED
+            )*/
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                //mediaItemsViewModel.updateActiveItem(activeMedia)
+            }
         }
 
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
             super.onPlayFromUri(uri, extras)
+            endProgressLoop()
 
-            uri?.let {
-                binding.videoViewPlayer.setVideoURI(it)
-            }
+            binding.videoViewPlayer.setVideoURI(uri!!)
 
-            endProgressBroadCastLoop()
             onPlay()
         }
 
         override fun onSkipToNext() {
             super.onSkipToNext()
 
-            if (mediaItemsViewModel.activeMedia.value === mediaItemsViewModel.globalPlaylist.value?.last()) {
-                mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.value?.first())
+/*            if (mediaItemsViewModel.activeMedia.value?.mediaItem === mediaItemsViewModel.globalPlaylist.value?.last()) {
+                //mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.value?.first())
             } else {
                 val currentAudioIndex =
-                    mediaItemsViewModel.globalPlaylist.value?.indexOf(mediaItemsViewModel.activeMedia.value)
+                    mediaItemsViewModel.globalPlaylist.value?.indexOf(mediaItemsViewModel.activeMedia.value?.mediaItem)
 
                 currentAudioIndex?.let {
-                    mediaItemsViewModel.activeMedia
-                        .postValue(mediaItemsViewModel.globalPlaylist.value?.get(it + 1))
+//                    mediaItemsViewModel.activeMedia
+//                        .postValue(mediaItemsViewModel.globalPlaylist.value?.get(it + 1))
                 }
-            }
+            }*/
             //TODO Handle playlist repeat mode
         }
 
         override fun onSkipToPrevious() {
             super.onSkipToPrevious()
 
-            if (mediaItemsViewModel.activeMedia.value === mediaItemsViewModel.globalPlaylist.value?.first()) {
-                mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.value?.last())
+/*            if (mediaItemsViewModel.activeMedia.value?.mediaItem === mediaItemsViewModel.globalPlaylist.value?.first()) {
+                //mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.value?.last())
             } else {
                 val currentAudioIndex =
-                    mediaItemsViewModel.globalPlaylist.value?.indexOf(mediaItemsViewModel.activeMedia.value)
+                    mediaItemsViewModel.globalPlaylist.value?.indexOf(mediaItemsViewModel.activeMedia.value?.mediaItem)
 
                 currentAudioIndex?.let {
-                    mediaItemsViewModel.activeMedia
-                        .postValue(mediaItemsViewModel.globalPlaylist.value?.get(it - 1))
+*//*                    mediaItemsViewModel.activeMedia
+                        .postValue(mediaItemsViewModel.globalPlaylist.value?.get(it - 1))*//*
                 }
-            }
+            }*/
         }
 
         override fun onSeekTo(pos: Long) {
@@ -212,28 +310,28 @@ class VideoPlayerFragment : PlayerFragment() {
             super.onSetShuffleMode(shuffleMode)
 
             mediaItemsViewModel.globalPlaylist.value?.shuffled()?.let {
-                mediaItemsViewModel.globalPlaylist.postValue(it.toMutableList())
+                //mediaItemsViewModel.globalPlaylist.postValue(it.toMutableList())
             }
         }
 
         override fun onStop() {
             super.onStop()
-            endProgressBroadCastLoop()
-        }
-    }
+            endProgressLoop()
 
-    override fun adaptChildPlayer() {
-        setupVideoMediaSessionCompat()
-        setupVideoMediaControllerCompat()
-        syncButtonsToController()
-        syncActiveVideoToController()
-        bindVideoError()
+/*            val activeMedia = mediaItemsViewModel.activeMedia.value!!.copy(
+                state = STATE_PAUSED
+            )*/
+
+            lifecycleScope.launch(Dispatchers.IO) {
+                //mediaItemsViewModel.updateActiveItem(activeMedia)
+            }
+        }
     }
 
     private fun syncActiveVideoToController(){
-        mediaItemsViewModel.activeMedia.observe(viewLifecycleOwner) { mediaItem ->
-            mediaControllerCompat?.transportControls?.playFromUri(mediaItem.uri, Bundle())
-        }
+/*        mediaItemsViewModel.activeMedia.observe(viewLifecycleOwner) { activeMedia ->
+            mediaControllerCompat?.transportControls?.playFromUri(activeMedia.mediaItem.uri, Bundle())
+        }*/
     }
 
     private fun setupVideoMediaControllerCompat() {
@@ -307,6 +405,7 @@ class VideoPlayerFragment : PlayerFragment() {
 
     override fun onStop() {
         super.onStop()
+        videoMediaSessionCallback.onStop()
         binding.videoViewPlayer.stopPlayback()
         videoMediaSessionCompat?.release()
     }

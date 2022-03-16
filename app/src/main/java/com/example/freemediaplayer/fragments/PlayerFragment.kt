@@ -4,9 +4,9 @@ import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaControllerCompat
+import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -14,11 +14,15 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.databinding.FragmentPlayerBinding
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
 
 private const val TAG = "PLAYER_ABSTRACT"
 
@@ -28,6 +32,7 @@ abstract class PlayerFragment : Fragment() {
     private var _binding: FragmentPlayerBinding? = null
     protected val binding get() = _binding!!
 
+    //protected val playerViewModel: PlayerViewModel by viewModels()
     protected val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
     protected var mediaControllerCompat: MediaControllerCompat? = null
 
@@ -36,12 +41,13 @@ abstract class PlayerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
+        adaptChildPlayer()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        adaptChildPlayer()
+        //adaptChildPlayer()
     }
 
     abstract fun adaptChildPlayer()
@@ -52,13 +58,9 @@ abstract class PlayerFragment : Fragment() {
         }
     }
 
-    private fun bindMediaControllerCallback(controller: MediaControllerCompat) {
-        controller.registerCallback(mediaControllerCallbacks)
-    }
-
     private fun bindPlayPauseButtonToController(controller: MediaControllerCompat) {
         binding.imageButtonPlayerPlayPause.setOnClickListener {
-            if (controller.playbackState.state == STATE_PLAYING) {
+            if (controller.playbackState.state == STATE_PLAYING){
                 controller.transportControls.pause()
             } else {
                 controller.transportControls.play()
@@ -114,13 +116,12 @@ abstract class PlayerFragment : Fragment() {
 
     private fun bindReplayButtonToController(controller: MediaControllerCompat) {
         binding.imageButtonPlayerReplayInfinite.setOnClickListener {
-            when (controller.repeatMode) {
-                REPEAT_MODE_NONE -> {
-                    controller.transportControls.setRepeatMode(REPEAT_MODE_ONE)
-                }
-                REPEAT_MODE_ONE -> {
-                    controller.transportControls.setRepeatMode(REPEAT_MODE_NONE)
-                }
+            val repeatMode = controller.repeatMode
+
+            if (repeatMode == REPEAT_MODE_NONE){
+                controller.transportControls.setRepeatMode(REPEAT_MODE_ONE)
+            } else {
+                controller.transportControls.setRepeatMode(REPEAT_MODE_NONE)
             }
         }
     }
@@ -133,7 +134,7 @@ abstract class PlayerFragment : Fragment() {
 
     private fun bindForward30ButtonToController(controller: MediaControllerCompat) {
         binding.imageButtonPlayerForward30.setOnClickListener {
-            controller.transportControls.fastForward()
+            controller.transportControls?.fastForward()
         }
     }
 
@@ -149,6 +150,10 @@ abstract class PlayerFragment : Fragment() {
         bindForward30ButtonToController(controller)
 
         bindMediaControllerCallback(controller)
+    }
+
+    private fun bindMediaControllerCallback(controller: MediaControllerCompat) {
+        controller.registerCallback(mediaControllerCallbacks)
     }
 
     protected val mediaControllerCallbacks = object : MediaControllerCompat.Callback() {
@@ -185,10 +190,10 @@ abstract class PlayerFragment : Fragment() {
             }
 
             metadata?.getString(METADATA_KEY_ALBUM)?.let {
-                val thumbnail = mediaItemsViewModel.loadedThumbnails.value?.get(it)
+/*                val thumbnail = mediaItemsViewModel.loadedThumbnails.value?.get(it)
                 val drawable = thumbnail?.toDrawable(resources)
 
-                binding.videoViewPlayer.background = drawable
+                binding.videoViewPlayer.background = drawable*/
             }
 
             metadata?.getString(METADATA_KEY_TITLE)?.let {
@@ -198,13 +203,26 @@ abstract class PlayerFragment : Fragment() {
                     item.title == it
                 }
 
-                mediaItemsViewModel.activeMedia.postValue(item)
+                //mediaItemsViewModel.activeMedia.postValue(item)
+            }
+
+            metadata?.getString(METADATA_KEY_ALBUM_ART_URI)?.let {
+                lifecycleScope.launch {
+                    val drawable = async(Dispatchers.IO) {
+                        mediaItemsViewModel.getThumbnail(it)?.toDrawable(resources)
+                    }
+
+                    binding.videoViewPlayer.background = drawable.await()
+
+                    if (binding.videoViewPlayer.background != null){
+                        binding.videoViewPlayer.visibility = View.VISIBLE
+                    }
+                }
             }
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {
             super.onRepeatModeChanged(repeatMode)
-
             if (repeatMode == REPEAT_MODE_NONE) {
                 binding.imageButtonPlayerReplayInfinite.setImageResource(R.drawable.ic_baseline_repeat_24)
             } else {
@@ -218,4 +236,7 @@ abstract class PlayerFragment : Fragment() {
         }
     }
 
+    override fun onStop() {
+        super.onStop()
+    }
 }

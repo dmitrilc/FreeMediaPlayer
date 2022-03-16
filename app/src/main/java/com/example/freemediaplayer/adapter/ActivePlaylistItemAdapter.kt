@@ -45,11 +45,15 @@ class ActivePlaylistItemAdapter(private val dataSet: MutableList<MediaItem>) :
 
     override fun getItemCount() = dataSet.size
 
-    override fun onViewAttachedToWindow(holderActive: ActivePlaylistItemViewHolder) {
-        super.onViewAttachedToWindow(holderActive)
+    override fun onViewAttachedToWindow(holder: ActivePlaylistItemViewHolder) {
+        super.onViewAttachedToWindow(holder)
 
-        holderActive.displayArtView.findFragment<ActivePlaylistFragment>()
-            .onAdapterChildThumbnailLoad(holderActive.displayArtView, dataSet[holderActive.bindingAdapterPosition])
+        dataSet[holder.bindingAdapterPosition].albumArtUri?.let {
+            holder.displayArtView.findFragment<ActivePlaylistFragment>()
+                .onAdapterChildThumbnailLoad(holder.displayArtView, it)
+        }
     }
 
 }
+
+//TODO Remove duplicate code between this Adapter and FolderItems

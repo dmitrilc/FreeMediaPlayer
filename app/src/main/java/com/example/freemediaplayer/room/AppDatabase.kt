@@ -3,7 +3,7 @@ package com.example.freemediaplayer.room
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.example.freemediaplayer.entities.ActiveMediaItem
-import com.example.freemediaplayer.entities.GlobalPlaylist
+import com.example.freemediaplayer.entities.GlobalPlaylistItem
 import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.entities.ui.FolderItemsUi
 import com.example.freemediaplayer.entities.ui.ParentPath
@@ -13,7 +13,7 @@ import com.example.freemediaplayer.entities.ui.RelativePath
         MediaItem::class,
         ParentPath::class,
         RelativePath::class,
-        GlobalPlaylist::class,
+        GlobalPlaylistItem::class,
         ActiveMediaItem::class,
         FolderItemsUi::class],
     version = 1)

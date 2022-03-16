@@ -1,5 +1,6 @@
 package com.example.freemediaplayer.room
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.freemediaplayer.entities.ui.ParentPath
 import com.example.freemediaplayer.entities.ui.ParentPathWithRelativePaths
@@ -9,21 +10,20 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ParentPathWithRelativePathsDao {
 
-    //TODO Distinguish between audio and video
     @Transaction
     @Query("SELECT * FROM parentPath WHERE parentPath.isAudio=1")
-    fun getAudioParentPathWithRelativePaths(): Flow<List<ParentPathWithRelativePaths>>
+    fun getAudioParentPathWithRelativePaths(): LiveData<List<ParentPathWithRelativePaths>>
 
     @Transaction
     @Query("SELECT * FROM parentPath WHERE parentPath.isAudio=0")
-    fun getVideoParentPathWithRelativePaths(): Flow<List<ParentPathWithRelativePaths>>
+    fun getVideoParentPathWithRelativePaths(): LiveData<List<ParentPathWithRelativePaths>>
 
     @Transaction
-    suspend fun insertAudioParentPathsWithRelativePaths(map: Map<String, List<String>>){
+    suspend fun insertAudioParentPathsWithRelativePaths(map: Map<String, List<String>>) {
         map.forEach {
             val tmpId = insertParentPath(ParentPath(isAudio = true, parentPath = it.key))
 
-            val id = if (tmpId == -1L){
+            val id = if (tmpId == -1L) {
                 getParentPathId(isAudio = true, it.key)
             } else {
                 tmpId
@@ -63,7 +63,7 @@ interface ParentPathWithRelativePathsDao {
     }
 
     @Query("SELECT id FROM parentPath WHERE isAudio=:isAudio AND parentPath=:parentPath")
-    suspend fun getParentPathId(isAudio: Boolean, parentPath: String): Long
+    suspend fun getParentPathId(isAudio: Boolean, parentPath: String): Long //TODO Return flow?
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertParentPath(parentPath: ParentPath): Long
