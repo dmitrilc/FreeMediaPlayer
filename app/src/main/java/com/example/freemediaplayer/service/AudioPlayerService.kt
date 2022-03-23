@@ -12,20 +12,14 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
-import androidx.room.withTransaction
 import com.example.freemediaplayer.entities.ActiveMediaItem
 import com.example.freemediaplayer.entities.GlobalPlaylistItem
 import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.single
 import javax.inject.Inject
 
 private const val TAG = "PLAYER_SERVICE"
@@ -43,19 +37,12 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private val mediaDescBuilder = MediaDescriptionCompat.Builder()
     //private var mediaPlayer: MediaPlayer? = null
 
+    private var mRepeatMode = REPEAT_MODE_NONE
 
     private val mediaSessionCompat: MediaSessionCompat by lazy {
         MediaSessionCompat(applicationContext, TAG)
     }
     private val mediaPlayer: MediaPlayer = MediaPlayer()
-
-    private val mPlaylist by lazy {
-        appDb.globalPlaylistDao().getGlobalPlaylist()
-    }
-
-    private val mActiveItem by lazy {
-        appDb.activeMediaItemDao().getMediaItemLiveData()
-    }
 
     override fun onBind(intent: Intent?): IBinder? {
         mLifecycleDispatcher.onServicePreSuperOnBind()
@@ -63,10 +50,9 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }
 
     override fun onCreate() {
-        super.onCreate()
         mLifecycleDispatcher.onServicePreSuperOnCreate()
+        super.onCreate()
 
-        bindPlayerUiChangeListeners()
         bindPlayerCompletionListener()
 
         mediaSessionCompat.apply {
@@ -105,10 +91,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         mediaPlayer.setOnCompletionListener {
             when(mediaSessionCompat.controller.repeatMode){
                 REPEAT_MODE_ONE -> {
-                    lifecycleScope.launch(Dispatchers.IO){
-                        val uri = appDb.activeMediaItemDao().getMediaItemOnce().uri
-                        audioMediaSessionCallback.onPlayFromUri(uri, null)
-                    }
+                    audioMediaSessionCallback.repeat()
                 }
                 else -> {
                     audioMediaSessionCallback.onSkipToNext()
@@ -132,21 +115,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         mediaPlayer.setOnPreparedListener(listener)
     }
 
-    private fun bindPlayerUiChangeListeners() {
-/*        appDb.activeMediaItemDao().getObservable().observe(this) {
-            val desc = mediaDescBuilder
-                .setMediaId(it.mediaItem.id.toString())
-                .setMediaUri(it.mediaItem.uri)
-                .setTitle(it.mediaItem.title)
-                .build()
-
-
-        }*/
-
-        mPlaylist.observe(this){}
-        mActiveItem.observe(this){}
-    }
-
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         mLifecycleDispatcher.onServicePreSuperOnStart()
         return super.onStartCommand(intent, flags, startId)
@@ -155,10 +123,10 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     override fun getLifecycle(): Lifecycle = mLifecycleDispatcher.lifecycle
 
     override fun onDestroy() {
-        super.onDestroy()
         mLifecycleDispatcher.onServicePreSuperOnDestroy()
+        super.onDestroy()
 
-        mediaPlayer.release()
+        mediaSessionCompat.controller.transportControls.stop()
         mediaSessionCompat.release()
         stopSelf()
     }
@@ -185,21 +153,15 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             }
         }
 
-        private fun endProgressBroadCastLoop(){
+        fun endProgressBroadCastLoop(){
             syncJob?.cancel()
             syncJob = null
+        }
 
-/*            val state = mediaPlayer?.currentPosition?.let {
-                stateBuilder
-                    .setState(
-                        STATE_PAUSED,
-                        it.toLong(),
-                        1.0f
-                    )
-                    .build()
-            }
-
-            mediaSessionCompat.setPlaybackState(state)*/
+        fun repeat(){
+            onSeekTo(0)
+            endProgressBroadCastLoop()
+            onPlay()
         }
 
         override fun onPlay() {
@@ -243,144 +205,94 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             mediaPlayer.reset()
             mediaPlayer.setDataSource(applicationContext, uri!!)
             mediaPlayer.prepare()
-
-            setActiveMediaItem(uri)
         }
 
-        private fun setActiveMediaItem(uri: Uri){
-            lifecycleScope.launch(Dispatchers.IO){
-                appDb.withTransaction {
-                    val playlist = getPlaylistOnce()
-                    val item = playlist.find {
-                        it.uri == uri
-                    }
-
-                    appDb.activeMediaItemDao().insert(
-                        ActiveMediaItem(
-                            globalPlaylistPosition = playlist.indexOf(item).toLong(),
-                            mediaItemId = item!!.id
-                        )
+        private fun setActiveMediaMetaData(playlistPos: Long, id: Long){
+            lifecycleScope.launch(Dispatchers.IO) {
+                appDb.activeMediaItemDao().insert(
+                    ActiveMediaItem(
+                        globalPlaylistPosition = playlistPos,
+                        mediaItemId = id
                     )
-
-                    val metaData = metadataBuilder
-                        .putString(
-                            MediaMetadataCompat.METADATA_KEY_TITLE,
-                            item.title
-                        )
-                        .putString(
-                            MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
-                            item.albumArtUri
-                        )
-                        .build()
-
-                    mediaSessionCompat.setMetadata(metaData)
-                }
+                )
             }
         }
 
-        override fun onSkipToQueueItem(id: Long) {
-            super.onSkipToQueueItem(id)
-            val nextItem = mPlaylist.value!![id.toInt()]
+        override fun onSkipToQueueItem(playlistPos: Long) {
+            super.onSkipToQueueItem(playlistPos)
+            lifecycleScope.launch(Dispatchers.IO){
+                val playlist = getPlaylistOnce()
+                val nextItem = playlist[playlistPos.toInt()]
 
-            onPlayFromUri(nextItem.uri, null)
+                onMediaChanged(nextItem, playlistPos, true)
+            }
         }
 
         override fun onSkipToNext() {
             super.onSkipToNext()
-            val currentItemIndex = mPlaylist.value!!.indexOf(mActiveItem.value)
+            lifecycleScope.launch(Dispatchers.IO){
+                val currentItem = getActiveOnce()
+                val playlist = getPlaylistOnce()
+                val currentItemPos = playlist.indexOf(currentItem)
 
-            val nextIndex = if (currentItemIndex == mPlaylist.value!!.lastIndex){
-                0
-            } else {
-                currentItemIndex + 1
+                val nextItemPos = if (currentItemPos == playlist.lastIndex){
+                    0
+                } else {
+                    currentItemPos + 1
+                }
+
+                val nextItem = playlist[nextItemPos]
+
+                onMediaChanged(nextItem, nextItemPos.toLong(), true)
             }
 
-            onSkipToQueueItem(nextIndex.toLong())
-
-            //Log.d(TAG, "Received command to skip to next")
-
-            //val currentMediaPos = playlist.indexOf()
-            //val nextItem: MediaSessionCompat.QueueItem
-
-/*            activeQueueItem = if (activeQueueItem === playlist.last()) {
-                playlist.first()
-            } else {
-                val currentAudioIndex = playlist.indexOf(activeQueueItem)
-                playlist[currentAudioIndex + 1]
-            }
-            //TODO Handle playlist repeat mode
-
-            onPlayFromUri(activeQueueItem?.description?.mediaUri, Bundle())*/
-
-//                if (mediaItemsViewModel.activeMedia.value === mediaItemsViewModel.globalPlaylist.last()){
-//                    mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.first())
-//                } else {
-//                    val currentAudioIndex = mediaItemsViewModel.globalPlaylist.indexOf(mediaItemsViewModel.activeMedia.value)
-//                    mediaItemsViewModel.activeMedia
-//                        .postValue(mediaItemsViewModel.globalPlaylist[currentAudioIndex + 1])
-//                }
             //TODO Handle playlist repeat mode
         }
 
         override fun onSkipToPrevious() {
             super.onSkipToPrevious()
+            lifecycleScope.launch(Dispatchers.IO){
+                val currentItem = getActiveOnce()
+                val playlist = getPlaylistOnce()
+                val currentItemPos = playlist.indexOf(currentItem)
 
-            val currentItemIndex = mPlaylist.value!!.indexOf(mActiveItem.value)
+                val nextItemPos = if (currentItemPos == 0){
+                    playlist.lastIndex
+                } else {
+                    currentItemPos - 1
+                }
 
-            val nextIndex = if (currentItemIndex == 0){
-                mPlaylist.value!!.lastIndex
-            } else {
-                currentItemIndex - 1
+                val nextItem = playlist[nextItemPos]
+
+                onMediaChanged(nextItem, nextItemPos.toLong(), true)
             }
 
-            onSkipToQueueItem(nextIndex.toLong())
-
-//                if (mediaItemsViewModel.activeMedia.value === mediaItemsViewModel.globalPlaylist.first()){
-//                    mediaItemsViewModel.globalPlaylist.lastIndex.let {
-//                        mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist[it])
-//                    }
-//                } else {
-//                    val currentAudioIndex = mediaItemsViewModel.globalPlaylist.indexOf(mediaItemsViewModel.activeMedia.value)
-//                    mediaItemsViewModel.activeMedia
-//                        .postValue(mediaItemsViewModel.globalPlaylist[currentAudioIndex - 1])
-//                }
-
-/*            activeQueueItem = if (activeQueueItem === playlist.first()) {
-                playlist.last()
-            } else {
-                val currentAudioIndex = playlist.indexOf(activeQueueItem)
-                playlist[currentAudioIndex - 1]
-            }
             //TODO Handle playlist repeat mode
-
-            onPlayFromUri(activeQueueItem?.description?.mediaUri, Bundle())*/
         }
 
         override fun onSeekTo(pos: Long) {
             super.onSeekTo(pos)
-            if (mediaSessionCompat.controller.playbackState.state == STATE_PLAYING){
-                mediaPlayer.seekTo(pos.toInt())
+            mediaPlayer.seekTo(pos.toInt())
 
-                val state = stateBuilder
+            val state = if (mediaSessionCompat.controller.playbackState.state == STATE_PLAYING){
+                stateBuilder
                     .setState(
                         STATE_PLAYING,
                         pos,
                         1.0f
                     )
                     .build()
-
-                mediaSessionCompat.setPlaybackState(state)
             } else {
-                val state = stateBuilder
+                stateBuilder
                     .setState(
                         STATE_PAUSED,
                         pos,
                         1.0f
                     )
                     .build()
-
-                mediaSessionCompat.setPlaybackState(state)
             }
+
+            mediaSessionCompat.setPlaybackState(state)
         }
 
         override fun onRewind() {
@@ -396,12 +308,26 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         override fun onSetRepeatMode(repeatMode: Int) {
             super.onSetRepeatMode(repeatMode)
             mediaSessionCompat.setRepeatMode(repeatMode)
+            mRepeatMode = repeatMode
         }
 
+        //TODO Query directly from Playlist table
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
+            lifecycleScope.launch(Dispatchers.IO){
+                val playlist = getPlaylistOnce()
 
-            val shuffled = mPlaylist.value!!.shuffled().mapIndexed { index, item ->
+                val shuffled = playlist.shuffled().mapIndexed { index, item ->
+                    GlobalPlaylistItem(
+                        mId = index.toLong(),
+                        mediaItemId = item.id
+                    )
+                }
+
+                appDb.globalPlaylistDao().replacePlaylist(shuffled)
+            }
+
+/*            val shuffled = mPlaylist.value!!.shuffled().mapIndexed { index, item ->
                 GlobalPlaylistItem(
                     mId = index.toLong(),
                     mediaItemId = item.id
@@ -410,7 +336,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
             lifecycleScope.launch(Dispatchers.IO){
                 appDb.globalPlaylistDao().replacePlaylist(shuffled)
-            }
+            }*/
         }
 
         override fun onAddQueueItem(description: MediaDescriptionCompat?) {
@@ -435,18 +361,48 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
             super.onCommand(command, extras, cb)
-            if (command == PLAY_SELECTED){
-                onPlayFromUri(mActiveItem.value!!.uri, null)
+            if (command == PLAY_SELECTED) {
+                lifecycleScope.launch(Dispatchers.IO){
+                    val item = getActiveOnce()
+                    val playlist = getPlaylistOnce()
+                    val metadata = mediaSessionCompat.controller.metadata
+                    val currentItemPos = playlist.indexOf(item).toLong()
+
+                    //TODO Remove duplicate code for the 3 functions that change queue item
+
+                    if (metadata != null){ //not first launch of player fragment
+                        val currentItemId = metadata.getLong(CUSTOM_MEDIA_ID)
+                        if (currentItemId != item.id){ //if service is not playing same song
+                            onMediaChanged(item, currentItemPos, true)
+                        } else { //if already playing same song, publishes metadata anyways for player fragment
+                            onMediaChanged(item, currentItemPos, false)
+                        }
+                    } else { //first launch of player fragment
+                        onMediaChanged(item, currentItemPos, true)
+                    }
+                }
+                //TODO Race condition
             }
+        }
+
+        fun onMediaChanged(item: MediaItem, currentItemPos: Long, isPlayingNew: Boolean){
+            if (isPlayingNew){
+                onPlayFromUri(item.uri, null)
+            }
+
+            setActiveMediaMetaData(currentItemPos, item.id)
+            setSessionMetadata(item.title, item.id, item.albumArtUri.toString())
+            mediaSessionCompat.setRepeatMode(mRepeatMode)
         }
 
         override fun onStop() {
             super.onStop()
             endProgressBroadCastLoop()
+            mediaPlayer.release()
         }
     }
 
-    private suspend fun getMediaItemOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
+    private suspend fun getActiveOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
     private suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
 
     override fun onGetRoot(
@@ -480,6 +436,25 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         result.sendResult(mediaItems)
     }
 
+    private fun setSessionMetadata(title: String, id: Long, artUri: String){
+        val metaData = metadataBuilder
+            .putString(
+                MediaMetadataCompat.METADATA_KEY_TITLE,
+                title
+            )
+            .putString(
+                MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+                artUri
+            )
+            .build()
+
+        mediaSessionCompat.setMetadata(metaData)
+    }
+
 }
 
+//TODO Organize these consts
 const val PLAY_SELECTED = "PLAY_SELECTED"
+const val CUSTOM_MEDIA_ID = "custom.media.id"
+
+//TODO Release more resources

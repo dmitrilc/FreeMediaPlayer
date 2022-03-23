@@ -6,6 +6,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
 import android.provider.MediaStore
+import android.provider.MediaStore.Video.Thumbnails.MINI_KIND
 import android.support.v4.media.MediaBrowserCompat
 import android.util.Log
 import android.util.Size
@@ -18,9 +19,12 @@ import com.example.freemediaplayer.entities.ui.FolderItemsUi
 import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
+import java.lang.Exception
 import javax.inject.Inject
 
 private const val TAG = "MEDIA_ITEMS_VIEW_MODEL"
@@ -33,21 +37,23 @@ class MediaItemsViewModel @Inject constructor(
 
     val audioBrowser = MutableLiveData<MediaBrowserCompat>()
     val globalPlaylist = appDb.globalPlaylistDao().getGlobalPlaylist() //TODO Transform in Repository
+    val globalPlaylistCache = MutableLiveData<List<MediaItem>>()
     //val activeMedia = appDb.activeMediaItemDao().getObservable() //TODO Transform in Repository
 
-    val activeMedia = appDb.activeMediaItemDao().getMediaItemLiveData()
+    val activeMediaLiveData = appDb.activeMediaItemDao().getMediaItemLiveData()
+    val activeMediaCache = MutableLiveData<MediaItem>()
 
     suspend fun getCurrentFolderFullPath() = appDb.folderItemsUiDao().getCurrentFolderItemsUi()
 
     //suspend fun setActiveMedia(item: MediaItem) = appDb.activeMediaItemDao().insert(ActiveMedia(activeItemId = item.id))
 
-    fun getThumbnail(uri: String): Bitmap? {
+    fun getThumbnail(artUri: String, videoId: Long?): Bitmap? {
         var thumbnail: Bitmap? = null
 
         if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
             try {
                 thumbnail = app.contentResolver.loadThumbnail(
-                    Uri.parse(uri),
+                    Uri.parse(artUri),
                     Size(300, 300),
                     null
                 )
@@ -56,10 +62,23 @@ class MediaItemsViewModel @Inject constructor(
                 Log.d(TAG, e.toString())
             }
         } else {
-            thumbnail = BitmapFactory.decodeFile(uri)
+            thumbnail = if (videoId == null){
+                BitmapFactory.decodeFile(artUri)
+            } else {
+                getVideoThumbBeforeQ(videoId)
+            }
         }
 
         return thumbnail
+    }
+
+    private fun getVideoThumbBeforeQ(videoId: Long): Bitmap? {
+        return MediaStore.Video.Thumbnails.getThumbnail(
+            app.contentResolver,
+            videoId,
+            MINI_KIND,
+            null
+        )
     }
 
     fun queryAudios(): List<MediaItem> {
@@ -199,7 +218,7 @@ class MediaItemsViewModel @Inject constructor(
             MediaStore.Video.Media._ID,
             MediaStore.Video.Media.TITLE,
             MediaStore.Video.Media.ALBUM,
-            MediaStore.Video.Media.DATA,
+            MediaStore.Video.Media.DATA
         )
 
         val selection = null
@@ -240,7 +259,7 @@ class MediaItemsViewModel @Inject constructor(
                     isAudio = false,
                     album = cursor.getString(albumColIndex),
                     albumId = -1,
-                    albumArtUri = null
+                    albumArtUri = uri.toString()
                 )
                 allVideos.add(video)
             }
@@ -281,55 +300,42 @@ class MediaItemsViewModel @Inject constructor(
     }
 
     fun updateGlobalPlaylistAndActiveItem(list: List<MediaItem>, mediaItem: MediaItem) {
-        viewModelScope.launch(Dispatchers.IO) {
+        viewModelScope.launch(Dispatchers.IO){
             appDb.withTransaction {
                 //Needs to run sequentially because of foreign key constraint
                 appDb.globalPlaylistDao().replacePlaylist(list.mapIndexed { index, item ->
                     GlobalPlaylistItem(mId = index.toLong(), mediaItemId = item.id)
                 })
-
                 appDb.activeMediaItemDao().insert(ActiveMediaItem(
                     globalPlaylistPosition = list.indexOf(mediaItem).toLong(),
                     mediaItemId = mediaItem.id
                 ))
-
-                //val activeMedia = appDb.activeMediaItemDao().getOnce()
-
-/*                if (mediaItem.isAudio){
-                    if (activeMedia == null){ //first boot
-                        appDb.activeMediaItemDao().insert(PlayerState(
-                            mediaItem = mediaItem,
-                            state = PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM
-                        ))
-                    } else if (activeMedia.mediaItem != mediaItem){ //user selects new song
-                        appDb.activeMediaItemDao().insert(PlayerState(
-                            mediaItem = mediaItem,
-                            state = PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM,
-                            repeatMode = activeMedia.repeatMode,
-                            shuffleMode = activeMedia.shuffleMode
-                        ))
-                    } else if (audioBrowser.value == null
-                        && activeMedia.mediaItem.id == mediaItem.id){ //new session, user selects same song
-                        appDb.activeMediaItemDao().update(
-                            activeMedia.copy(
-                                state = PlaybackStateCompat.STATE_CONNECTING
-                            )
-                        )
-                    }
-                } else {
-                    if (activeMedia == null){ //first boot
-                        appDb.activeMediaItemDao().insert(PlayerState(
-                            mediaItem = mediaItem,
-                            state = PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM
-                        ))
-                    } else {
-                        appDb.activeMediaItemDao().update(PlayerState(
-                            mediaItem = mediaItem,
-                            state = PlaybackStateCompat.STATE_SKIPPING_TO_QUEUE_ITEM,
-                        ))
-                    }
-                }*/
             }
+        }
+    }
+
+    suspend fun insertActiveMedia(currentItemPos: Long, id: Long) {
+        viewModelScope.launch(Dispatchers.IO) {
+            appDb.activeMediaItemDao().insert(
+                ActiveMediaItem(
+                    globalPlaylistPosition = currentItemPos,
+                    mediaItemId = id
+                )
+            )
+        }
+    }
+
+    fun replacePlaylist(playlist: List<MediaItem>){
+        viewModelScope.launch(Dispatchers.IO){
+            val globalPlaylist = playlist.mapIndexed { index, item ->
+                GlobalPlaylistItem(
+                    index.toLong(), item.id
+                )
+            }
+
+            appDb.globalPlaylistDao().replacePlaylist(
+                globalPlaylist
+            )
         }
     }
 
@@ -338,6 +344,10 @@ class MediaItemsViewModel @Inject constructor(
     suspend fun getActiveMedia() = appDb.activeMediaItemDao().getOnce()
 
     suspend fun getMediaItemById(id: Long) = appDb.mediaItemDao().getById(id)
+
+
+    suspend fun getActiveOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
+    suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
 
 /*    fun insertActiveItem(value: PlayerState){
         viewModelScope.launch(Dispatchers.IO){

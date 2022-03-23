@@ -48,10 +48,10 @@ class ActivePlaylistItemAdapter(private val dataSet: MutableList<MediaItem>) :
     override fun onViewAttachedToWindow(holder: ActivePlaylistItemViewHolder) {
         super.onViewAttachedToWindow(holder)
 
-        dataSet[holder.bindingAdapterPosition].albumArtUri?.let {
-            holder.displayArtView.findFragment<ActivePlaylistFragment>()
-                .onAdapterChildThumbnailLoad(holder.displayArtView, it)
-        }
+        val item = dataSet[holder.bindingAdapterPosition]
+
+        holder.displayArtView.findFragment<ActivePlaylistFragment>()
+            .onAdapterChildThumbnailLoad(holder.displayArtView, item.albumArtUri!!, item.id)
     }
 
 }

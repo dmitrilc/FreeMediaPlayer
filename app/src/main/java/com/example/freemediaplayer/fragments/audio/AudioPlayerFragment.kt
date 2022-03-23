@@ -1,29 +1,33 @@
 package com.example.freemediaplayer.fragments.audio
 
 import android.content.ComponentName
+import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.MediaBrowserCompat.ConnectionCallback
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.lifecycle.lifecycleScope
 import com.example.freemediaplayer.fragments.PlayerFragment
 import com.example.freemediaplayer.service.AudioPlayerService
 import com.example.freemediaplayer.service.PLAY_SELECTED
+import kotlinx.coroutines.launch
 
 private const val TAG = "PLAYER_AUDIO"
 
 class AudioPlayerFragment : PlayerFragment() {
 
-    override fun adaptChildPlayer() {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         binding.videoViewPlayer.visibility = View.INVISIBLE
 
         if (!isAudioBrowserActive()){
             createAudioBrowser()
         } else {
-            createAudioMediaControllerCompat()
-            addMediaControllerToContext()
-            syncButtonsToController()
             audioBrowserConnectionCallback.onConnected()
         }
+
+        super.onViewCreated(view, savedInstanceState)
     }
 
     private fun playSelected(){
@@ -51,7 +55,7 @@ class AudioPlayerFragment : PlayerFragment() {
         override fun onConnected() {
             super.onConnected()
 
-            createAudioMediaControllerCompat()
+            //createAudioMediaControllerCompat()
             addMediaControllerToContext()
             syncButtonsToController()
 
@@ -59,18 +63,22 @@ class AudioPlayerFragment : PlayerFragment() {
         }
     }
 
-    private fun createAudioMediaControllerCompat() {
+    override fun getMediaController(): MediaControllerCompat {
+        val token = mediaItemsViewModel.audioBrowser.value!!.sessionToken
+        return MediaControllerCompat(context, token)
+    }
+
+/*    private fun createAudioMediaControllerCompat() {
         mediaItemsViewModel.audioBrowser.value?.sessionToken?.let {
             mediaControllerCompat = MediaControllerCompat(
                 context,
                 it
             )
         }
-    }
+    }*/
 
     private fun addMediaControllerToContext(){
-        activity?.let {
-            MediaControllerCompat.setMediaController(it, mediaControllerCompat)
-        }
+        val activity = requireActivity()
+        MediaControllerCompat.setMediaController(activity, mediaControllerCompat)
     }
 }

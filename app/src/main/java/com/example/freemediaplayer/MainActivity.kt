@@ -99,6 +99,7 @@ class MainActivity : AppCompatActivity() {
                     mediaController?.transportControls?.stop()
                     mediaItemsViewModel.audioBrowser.value?.disconnect()
                     mediaItemsViewModel.audioBrowser.postValue(null)
+                    mediaController = null
                 }
                 R.id.active_playlist_path -> {
                     binding.materialToolBarViewTopAppBar.title = "Playlist"
@@ -155,3 +156,5 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
+
+//TODO Implement LifecycleOwner correctly like Daniweb tutorial

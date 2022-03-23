@@ -4,16 +4,24 @@ import android.media.MediaPlayer
 import android.media.MediaPlayer.MEDIA_ERROR_UNKNOWN
 import android.net.Uri
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
+import com.example.freemediaplayer.entities.ActiveMediaItem
+import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.fragments.PlayerFragment
+import com.example.freemediaplayer.service.CUSTOM_MEDIA_ID
+import com.example.freemediaplayer.service.PLAY_SELECTED
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 
@@ -39,141 +47,79 @@ class VideoPlayerFragment : PlayerFragment() {
     private val metadataBuilder = MediaMetadataCompat.Builder()
 
     //Used for Video player only
-    private var videoMediaSessionCompat: MediaSessionCompat? = null
+    //private var videoMediaSessionCompat: MediaSessionCompat? = null
 
-    override fun adaptChildPlayer() {
+    private val videoMediaSessionCompat: MediaSessionCompat by lazy {
+        MediaSessionCompat(context, TAG)
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupVideoMediaSessionCompat()
-        setupVideoMediaControllerCompat()
+        //setupVideoMediaControllerCompat()
+        Log.d(TAG, "onViewCreated")
         syncButtonsToController()
         syncActiveVideoToController()
         bindVideoError()
 
-        bindPlayerUiChangeListeners()
+        //bindPlayerUiChangeListeners()
         bindPlayerCompletionListener()
+        playSelected()
+
+        super.onViewCreated(view, savedInstanceState)
     }
 
     private fun bindPlayerCompletionListener(){
         //TODO Update PlayerUI only
         binding.videoViewPlayer.setOnCompletionListener {
-/*            val item = mediaItemsViewModel.activeMedia.value!!
-
-            when(item.repeatMode){
+            when(mediaControllerCompat!!.repeatMode){
                 REPEAT_MODE_ONE -> {
-                    videoMediaSessionCallback.onPlayFromUri(item.mediaItem.uri, null)
+                    videoMediaSessionCallback.repeat()
                 }
                 else -> {
                     videoMediaSessionCallback.onSkipToNext()
                 }
-            }*/
+            }
         }
 
-/*        val listener = MediaPlayer.OnPreparedListener { player ->
-            val item = mediaItemsViewModel.activeMedia.value!!
+        val listener = MediaPlayer.OnPreparedListener { player ->
+            val metaData = metadataBuilder
+                .putLong(
+                    MediaMetadataCompat.METADATA_KEY_DURATION,
+                    player.duration.toLong()
+                )
+                .build()
 
-            val newItem = item.copy(
-                maxDuration = player.duration.toLong(),
-                state = STATE_PLAYING
-            )
+            videoMediaSessionCompat!!.setMetadata(metaData)
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                //mediaItemsViewModel.updateActiveItem(newItem)
-            }
-        }*/
-
-        //binding.videoViewPlayer.setOnPreparedListener(listener)
-    }
-
-    private fun bindPlayerUiChangeListeners() {
-/*        mediaItemsViewModel.activeMedia.observe(this) {
-            when (it.state) {
-                STATE_PLAYING -> {
-                    if (!binding.videoViewPlayer.isPlaying) {
-                        videoMediaSessionCallback.onPlay()
-                    }
-                }
-                STATE_PAUSED -> {
-                    if (binding.videoViewPlayer.isPlaying) {
-                        videoMediaSessionCallback.onPause()
-                    }
-                }
-                STATE_SKIPPING_TO_QUEUE_ITEM -> {
-                    videoMediaSessionCallback.onPlayFromUri(it.mediaItem.uri, null)
-                }
-                STATE_CONNECTING -> {
-*//*                    mediaPlayer.reset()
-                    mediaPlayer.setDataSource(applicationContext, it.mediaItem.uri)
-                    mediaPlayer.prepare()
-                    mediaPlayer.seekTo(it.progress.toInt())*//*
-                }
-            }
-        }*/
-
-        mediaItemsViewModel.globalPlaylist.observe(this) {
-
+            videoMediaSessionCallback.onPlay()
         }
+
+        binding.videoViewPlayer.setOnPreparedListener(listener)
     }
 
     private val videoMediaSessionCallback = object : MediaSessionCompat.Callback() {
         var syncJob: Job? = null
 
         private fun startProgressLoop() {
-/*            val activeId = mediaItemsViewModel.activeMedia.value!!.mediaItem.id
-
             syncJob = lifecycleScope.launch {
                 while (videoMediaSessionCompat!!.isActive
-                    && binding.videoViewPlayer.isPlaying
-                    && activeId == mediaItemsViewModel.activeMedia.value!!.mediaItem.id) {
-                        lifecycleScope.launch(Dispatchers.IO){
-                            Log.d(TAG, "looping")
-                            //mediaItemsViewModel.updateActiveItemProgress(binding.videoViewPlayer.currentPosition.toLong())
-                        }
+                    && mediaControllerCompat!!.playbackState.state == STATE_PLAYING) {
+                    val state = stateBuilder
+                        .setState(
+                            STATE_PLAYING,
+                            binding.videoViewPlayer.currentPosition.toLong(),
+                            1.0f
+                        )
+                        .build()
+
+                    videoMediaSessionCompat!!.setPlaybackState(state)
+
                     delay(1000)
                 }
-            }*/
-
-/*            val listener = MediaPlayer.OnPreparedListener {
-                val metaData = metadataBuilder
-                    .putLong(
-                        MediaMetadataCompat.METADATA_KEY_DURATION,
-                        it.duration.toLong()
-                    )
-                    .build()
-
-                videoMediaSessionCompat?.setMetadata(metaData)
             }
-
-            binding.videoViewPlayer.setOnPreparedListener(listener)
-
-            syncJob = lifecycleScope.launch {
-                videoMediaSessionCompat?.let { mediaSessionCompat ->
-                    while (mediaSessionCompat.isActive) {
-                        val state = stateBuilder
-                            .setState(
-                                STATE_PLAYING,
-                                binding.videoViewPlayer.currentPosition.toLong(),
-                                1.0f
-                            )
-                            .build()
-
-                        mediaSessionCompat.setPlaybackState(state)
-
-                        delay(1000)
-                    }
-                }
-            }*/
         }
 
         private fun endProgressLoop() {
-/*            val state = stateBuilder
-                .setState(
-                    STATE_PAUSED,
-                    binding.videoViewPlayer.currentPosition.toLong(),
-                    1.0f
-                )
-                .build()
-
-            videoMediaSessionCompat?.setPlaybackState(state)*/
-
             syncJob?.cancel()
             syncJob = null
         }
@@ -182,13 +128,15 @@ class VideoPlayerFragment : PlayerFragment() {
             super.onPlay()
             binding.videoViewPlayer.start()
 
-/*            val activeMedia = mediaItemsViewModel.activeMedia.value!!.copy(
-                state = STATE_PLAYING
-            )*/
+            val state = stateBuilder
+                .setState(
+                    STATE_PLAYING,
+                    binding.videoViewPlayer.currentPosition.toLong(),
+                    1.0f
+                )
+                .build()
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                //mediaItemsViewModel.updateActiveItem(activeMedia)
-            }
+            videoMediaSessionCompat!!.setPlaybackState(state)
 
             startProgressLoop()
         }
@@ -198,13 +146,17 @@ class VideoPlayerFragment : PlayerFragment() {
             endProgressLoop()
             binding.videoViewPlayer.pause()
 
-/*            val activeMedia = mediaItemsViewModel.activeMedia.value!!.copy(
-                state = STATE_PAUSED
-            )*/
+            val state = stateBuilder
+                .setState(
+                    STATE_PAUSED,
+                    binding.videoViewPlayer.currentPosition.toLong(),
+                    1.0f
+                )
+                .build()
 
-            lifecycleScope.launch(Dispatchers.IO) {
-                //mediaItemsViewModel.updateActiveItem(activeMedia)
-            }
+            videoMediaSessionCompat!!.setPlaybackState(state)
+
+            endProgressLoop()
         }
 
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
@@ -213,141 +165,228 @@ class VideoPlayerFragment : PlayerFragment() {
 
             binding.videoViewPlayer.setVideoURI(uri!!)
 
-            onPlay()
+            //onPlay()
+        }
+
+        override fun onSkipToQueueItem(playlistPos: Long) {
+            super.onSkipToQueueItem(playlistPos)
+            lifecycleScope.launch {
+                val playlist = mediaItemsViewModel.getPlaylistOnce()
+                val nextItem = playlist[playlistPos.toInt()]
+
+                onMediaChanged(nextItem, playlistPos, true)
+            }
+        }
+
+        private fun onMediaChanged(item: MediaItem, currentItemPos: Long, isPlayingNew: Boolean) {
+            if (isPlayingNew){
+                onPlayFromUri(item.uri, null)
+            }
+
+            setActiveMediaMetaData(currentItemPos, item.id)
+            setSessionMetadata(item.title, item.id, item.albumArtUri.toString())
+            //videoMediaSessionCompat!!.setRepeatMode(mRepeatMode)
+        }
+
+        private fun setSessionMetadata(title: String, id: Long, artUri: String) {
+            val metaData = metadataBuilder
+                .putString(
+                    MediaMetadataCompat.METADATA_KEY_TITLE,
+                    title
+                )
+                .putLong(
+                    CUSTOM_MEDIA_ID,
+                    id
+                )
+                .putString(
+                    MediaMetadataCompat.METADATA_KEY_ALBUM_ART_URI,
+                    artUri
+                )
+                .build()
+
+            videoMediaSessionCompat.setMetadata(metaData)
+        }
+
+        private fun setActiveMediaMetaData(currentItemPos: Long, id: Long) {
+            lifecycleScope.launch(Dispatchers.IO){
+                mediaItemsViewModel.insertActiveMedia(currentItemPos, id)
+            }
         }
 
         override fun onSkipToNext() {
             super.onSkipToNext()
+            lifecycleScope.launch{
+                val currentItem = mediaItemsViewModel.getActiveOnce()
+                val playlist = mediaItemsViewModel.getPlaylistOnce()
+                val currentItemPos = playlist.indexOf(currentItem)
 
-/*            if (mediaItemsViewModel.activeMedia.value?.mediaItem === mediaItemsViewModel.globalPlaylist.value?.last()) {
-                //mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.value?.first())
-            } else {
-                val currentAudioIndex =
-                    mediaItemsViewModel.globalPlaylist.value?.indexOf(mediaItemsViewModel.activeMedia.value?.mediaItem)
-
-                currentAudioIndex?.let {
-//                    mediaItemsViewModel.activeMedia
-//                        .postValue(mediaItemsViewModel.globalPlaylist.value?.get(it + 1))
+                val nextItemPos = if (currentItemPos == playlist.lastIndex){
+                    0
+                } else {
+                    currentItemPos + 1
                 }
-            }*/
+
+                val nextItem = playlist[nextItemPos]
+
+                onMediaChanged(nextItem, nextItemPos.toLong(), true)
+            }
             //TODO Handle playlist repeat mode
         }
 
         override fun onSkipToPrevious() {
             super.onSkipToPrevious()
+            lifecycleScope.launch{
+                val currentItem = mediaItemsViewModel.getActiveOnce()
+                val playlist = mediaItemsViewModel.getPlaylistOnce()
+                val currentItemPos = playlist.indexOf(currentItem)
 
-/*            if (mediaItemsViewModel.activeMedia.value?.mediaItem === mediaItemsViewModel.globalPlaylist.value?.first()) {
-                //mediaItemsViewModel.activeMedia.postValue(mediaItemsViewModel.globalPlaylist.value?.last())
-            } else {
-                val currentAudioIndex =
-                    mediaItemsViewModel.globalPlaylist.value?.indexOf(mediaItemsViewModel.activeMedia.value?.mediaItem)
-
-                currentAudioIndex?.let {
-*//*                    mediaItemsViewModel.activeMedia
-                        .postValue(mediaItemsViewModel.globalPlaylist.value?.get(it - 1))*//*
+                val nextItemPos = if (currentItemPos == 0){
+                    playlist.lastIndex
+                } else {
+                    currentItemPos - 1
                 }
-            }*/
+
+                val nextItem = playlist[nextItemPos]
+
+                onMediaChanged(nextItem, nextItemPos.toLong(), true)
+            }
         }
 
         override fun onSeekTo(pos: Long) {
             super.onSeekTo(pos)
-
             binding.videoViewPlayer.seekTo(pos.toInt())
 
-            val state = stateBuilder
-                .setState(
-                    STATE_BUFFERING,
-                    pos,
-                    1.0f
-                )
-                .build()
+            val state = if (mediaControllerCompat!!.playbackState.state == STATE_PLAYING){
+                stateBuilder
+                    .setState(
+                        STATE_PLAYING,
+                        pos,
+                        1.0f
+                    )
+                    .build()
+            } else {
+                stateBuilder
+                    .setState(
+                        STATE_PAUSED,
+                        pos,
+                        1.0f
+                    )
+                    .build()
+            }
 
-            videoMediaSessionCompat?.setPlaybackState(state)
+            videoMediaSessionCompat!!.setPlaybackState(state)
         }
 
         override fun onRewind() {
             super.onRewind()
-
-            val newPos = binding.videoViewPlayer.currentPosition - 10_000
-
-            binding.videoViewPlayer.seekTo(newPos)
-
-            val state = stateBuilder
-                .setState(
-                    STATE_REWINDING,
-                    newPos.toLong(),
-                    1.0f
-                )
-                .build()
-
-            videoMediaSessionCompat?.setPlaybackState(state)
+            onSeekTo(videoMediaSessionCompat!!.controller.playbackState.position - 10_000)
         }
 
         override fun onFastForward() {
             super.onFastForward()
-
-            val newPos = binding.videoViewPlayer.currentPosition + 30_000
-
-            binding.videoViewPlayer.seekTo(newPos)
-
-            val state = stateBuilder
-                .setState(
-                    STATE_FAST_FORWARDING,
-                    newPos.toLong(),
-                    1.0f
-                )
-                .build()
-
-            videoMediaSessionCompat?.setPlaybackState(state)
+            onSeekTo(videoMediaSessionCompat!!.controller.playbackState.position + 30_000)
         }
 
         override fun onSetRepeatMode(repeatMode: Int) {
             super.onSetRepeatMode(repeatMode)
-            videoMediaSessionCompat?.setRepeatMode(repeatMode)
+            videoMediaSessionCompat!!.setRepeatMode(repeatMode)
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
+        }
 
-            mediaItemsViewModel.globalPlaylist.value?.shuffled()?.let {
-                //mediaItemsViewModel.globalPlaylist.postValue(it.toMutableList())
+        override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+            if (command == PLAY_SELECTED) {
+                lifecycleScope.launch {
+                    val item = mediaItemsViewModel.getActiveOnce()
+                    val playlist = mediaItemsViewModel.getPlaylistOnce()
+                    val metadata = mediaControllerCompat.metadata
+                    val currentItemPos = playlist.indexOf(item).toLong()
+
+                    onMediaChanged(item, currentItemPos, true)
+
+                    //TODO Remove duplicate code for the 3 functions that change queue item
+
+/*                    if (metadata != null){ //not first launch of player fragment
+                        val currentItemId = metadata.getLong(CUSTOM_MEDIA_ID)
+                        if (currentItemId != item.id){ //if service is not playing same song
+                            onMediaChanged(item, currentItemPos, true)
+                        } else { //if already playing same song, publishes metadata anyways for player fragment
+                            onMediaChanged(item, currentItemPos, false)
+                        }
+                    } else { //first launch of player fragment
+                        onMediaChanged(item, currentItemPos, true)
+                    }*/
+                }
+                //TODO Race condition
             }
+        }
+
+        fun repeat(){
+            onSeekTo(0)
+            endProgressLoop()
+            onPlay()
         }
 
         override fun onStop() {
             super.onStop()
             endProgressLoop()
-
-/*            val activeMedia = mediaItemsViewModel.activeMedia.value!!.copy(
-                state = STATE_PAUSED
-            )*/
-
-            lifecycleScope.launch(Dispatchers.IO) {
-                //mediaItemsViewModel.updateActiveItem(activeMedia)
-            }
+            binding.videoViewPlayer.stopPlayback()
         }
+    }
+
+    private fun playSelected(){
+        mediaControllerCompat.sendCommand(PLAY_SELECTED, null, null)
     }
 
     private fun syncActiveVideoToController(){
 /*        mediaItemsViewModel.activeMedia.observe(viewLifecycleOwner) { activeMedia ->
             mediaControllerCompat?.transportControls?.playFromUri(activeMedia.mediaItem.uri, Bundle())
         }*/
+        //TODO Video Player resumes playback differently
     }
 
-    private fun setupVideoMediaControllerCompat() {
+/*    private fun setupVideoMediaControllerCompat() {
         videoMediaSessionCompat?.let {
             mediaControllerCompat = MediaControllerCompat(context, it).also { controller ->
-                bindVideoPlayingCompletion(controller)
+                //bindVideoPlayingCompletion(controller)
             }
         }
-    }
+    }*/
 
     private fun setupVideoMediaSessionCompat() {
-        videoMediaSessionCompat = MediaSessionCompat(
+/*        videoMediaSessionCompat = MediaSessionCompat(
             context,
             TAG
         ).apply {
-            //mediaSessionCompat = MediaSessionCompat(applicationContext, TAG).apply {
+            val initialState = stateBuilder
+                .setActions(
+                    ACTION_SKIP_TO_PREVIOUS
+                            or ACTION_SKIP_TO_NEXT
+                            or ACTION_PLAY
+                            or ACTION_PLAY_FROM_URI
+                            or ACTION_PAUSE
+                            or ACTION_REWIND
+                            or ACTION_FAST_FORWARD //30 seconds
+                            or ACTION_SEEK_TO
+                            or ACTION_SET_REPEAT_MODE
+                            or ACTION_SET_SHUFFLE_MODE
+                )
+                .setState(
+                    STATE_NONE,
+                    0,
+                    1.0f
+                )
+                .build()
+
+            //Setting callback
+            setPlaybackState(initialState)
+            setCallback(videoMediaSessionCallback)
+            isActive = true
+        }*/
+
+        videoMediaSessionCompat.apply {
             val initialState = stateBuilder
                 .setActions(
                     ACTION_SKIP_TO_PREVIOUS
@@ -375,7 +414,7 @@ class VideoPlayerFragment : PlayerFragment() {
         }
     }
 
-    private fun bindVideoPlayingCompletion(controller: MediaControllerCompat) {
+/*    private fun bindVideoPlayingCompletion(controller: MediaControllerCompat) {
         binding.videoViewPlayer.setOnCompletionListener {
             if (controller.repeatMode == REPEAT_MODE_ONE) {
                 controller.transportControls.seekTo(0)
@@ -384,7 +423,7 @@ class VideoPlayerFragment : PlayerFragment() {
                 controller.transportControls.skipToNext()
             }
         }
-    }
+    }*/
 
     private fun bindVideoError(){
         binding.videoViewPlayer.setOnErrorListener { _, what, extra ->
@@ -403,11 +442,21 @@ class VideoPlayerFragment : PlayerFragment() {
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun getMediaController(): MediaControllerCompat {
+        //return MediaControllerCompat(context, videoMediaSessionCompat)
+        return videoMediaSessionCompat.controller
+    }
+
+    override fun onDestroyView() {
         videoMediaSessionCallback.onStop()
         binding.videoViewPlayer.stopPlayback()
-        videoMediaSessionCompat?.release()
+        mediaControllerCompat.unregisterCallback(mediaControllerCallbacks)
+        super.onDestroyView()
+    }
+
+    override fun onDestroy() {
+        videoMediaSessionCompat.release()
+        super.onDestroy()
     }
 
     companion object {
@@ -433,3 +482,5 @@ class VideoPlayerFragment : PlayerFragment() {
 }
 
 //TODO Kill the audio service on resume if playing when get to this fragment
+
+//TODO Reduce code dup between video and audio service

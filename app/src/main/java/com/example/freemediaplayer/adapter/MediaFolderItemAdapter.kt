@@ -6,7 +6,9 @@ import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderItemViewBinding
 import com.example.freemediaplayer.entities.MediaItem
+import com.example.freemediaplayer.fragments.ActivePlaylistFragment
 import com.example.freemediaplayer.fragments.FolderItemsFragment
+import com.example.freemediaplayer.isSameOrAfterQ
 
 
 private const val TAG = "FILE_ADAPTER"
@@ -49,10 +51,14 @@ class MediaFolderItemAdapter(private val dataSet: List<MediaItem>) :
 
     override fun onViewAttachedToWindow(holder: FolderItemViewHolder) {
         super.onViewAttachedToWindow(holder)
+        val item = dataSet[holder.bindingAdapterPosition]
 
-        dataSet[holder.bindingAdapterPosition].albumArtUri?.let {
+        if (item.isAudio && item.albumArtUri != null){
             holder.displayArtView.findFragment<FolderItemsFragment>()
-                .onAdapterChildThumbnailLoad(holder.displayArtView, it)
+                .onAdapterChildThumbnailLoad(holder.displayArtView, item.albumArtUri, null)
+        } else if (!item.isAudio && item.albumArtUri != null){
+            holder.displayArtView.findFragment<FolderItemsFragment>()
+                .onAdapterChildThumbnailLoad(holder.displayArtView, item.albumArtUri, item.id)
         }
     }
 

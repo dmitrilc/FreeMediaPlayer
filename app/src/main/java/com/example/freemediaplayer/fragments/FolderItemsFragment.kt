@@ -1,6 +1,7 @@
 package com.example.freemediaplayer.fragments
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,7 @@ import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.viewmodel.FolderItemsViewModel
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 
 private const val TAG = "FOLDER_ITEMS_FRAGMENT"
 
@@ -43,6 +42,9 @@ abstract class FolderItemsFragment : Fragment() {
 
     private fun prepareRecycler(){
         itemsLiveData.observe(viewLifecycleOwner){
+            it.forEach {
+                Log.d(TAG, it.toString())
+            }
             binding.recyclerFolderItems.adapter = MediaFolderItemAdapter(it)
         }
     }
@@ -50,17 +52,23 @@ abstract class FolderItemsFragment : Fragment() {
     abstract fun navigateToPlayer()
 
     fun onFolderItemClicked(position: Int) {
-        itemsLiveData.value?.let {
-            mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(it, it[position])
-        }
+        val items = itemsLiveData.value!!
 
-        navigateToPlayer()
+        lifecycleScope.launch {
+            withContext(Dispatchers.Main){
+                mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(items, items[position])
+            }
+
+            withContext(Dispatchers.Main){
+                navigateToPlayer()
+            }
+        }
     }
 
-    fun onAdapterChildThumbnailLoad(v: ImageView, albumArtUri: String) {
+    fun onAdapterChildThumbnailLoad(v: ImageView, artUri: String, videoId: Long?) {
         lifecycleScope.launch {
             val bitmap = async(Dispatchers.IO) {
-                mediaItemsViewModel.getThumbnail(albumArtUri)
+                mediaItemsViewModel.getThumbnail(artUri, videoId)
             }
 
             v.setImageBitmap(bitmap.await())

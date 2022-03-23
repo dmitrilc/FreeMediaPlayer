@@ -7,6 +7,7 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -18,6 +19,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.example.freemediaplayer.R
 import com.example.freemediaplayer.databinding.FragmentPlayerBinding
+import com.example.freemediaplayer.service.CUSTOM_MEDIA_ID
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
@@ -34,23 +36,20 @@ abstract class PlayerFragment : Fragment() {
 
     //protected val playerViewModel: PlayerViewModel by viewModels()
     protected val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
-    protected var mediaControllerCompat: MediaControllerCompat? = null
+    protected val mediaControllerCompat: MediaControllerCompat by lazy {
+        getMediaController()
+    }
+
+    abstract fun getMediaController(): MediaControllerCompat
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
-        adaptChildPlayer()
+        //TODO Restore progress bar from saved state
         return binding.root
     }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        //adaptChildPlayer()
-    }
-
-    abstract fun adaptChildPlayer()
 
     protected fun syncButtonsToController(){
         mediaControllerCompat?.let { controller ->
@@ -206,10 +205,15 @@ abstract class PlayerFragment : Fragment() {
                 //mediaItemsViewModel.activeMedia.postValue(item)
             }
 
-            metadata?.getString(METADATA_KEY_ALBUM_ART_URI)?.let {
+            val albumArtUri = metadata?.getString(METADATA_KEY_ALBUM_ART_URI)
+            val videoId = metadata?.getLong(CUSTOM_MEDIA_ID)
+
+            if (albumArtUri != null && videoId == null){
                 lifecycleScope.launch {
                     val drawable = async(Dispatchers.IO) {
-                        mediaItemsViewModel.getThumbnail(it)?.toDrawable(resources)
+                        mediaItemsViewModel
+                            .getThumbnail(albumArtUri, null)
+                            ?.toDrawable(resources)
                     }
 
                     binding.videoViewPlayer.background = drawable.await()
