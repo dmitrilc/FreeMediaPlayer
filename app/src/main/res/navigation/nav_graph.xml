@@ -40,15 +40,6 @@
             android:id="@+id/action_videoFolderItemsFragment_to_player_path"
             app:destination="@id/video_player_path" />
     </fragment>
-<!--    <fragment
-        android:id="@+id/audio_player_path"
-        android:name="com.example.freemediaplayer.fragments.AudioPlayerFragment"
-        android:label="fragment_audio_player"
-        tools:layout="@layout/fragment_audio_player" >
-        <action
-            android:id="@+id/action_audio_player_path_to_active_playlist_path"
-            app:destination="@id/active_playlist_path" />
-    </fragment>-->
     <fragment
         android:id="@+id/audio_player_path"
         android:name="com.example.freemediaplayer.fragments.player.AudioPlayerFragment"
@@ -77,8 +68,5 @@
         android:name="com.example.freemediaplayer.fragments.PlaylistsFragment"
         android:label="fragment_playlists"
         tools:layout="@layout/fragment_playlists" >
-<!--        <action-->
-<!--            android:id="@+id/action_playlists_path_to_player_path"-->
-<!--            app:destination="@id/player_path" />-->
     </fragment>
 </navigation>
