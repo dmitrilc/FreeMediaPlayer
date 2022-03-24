@@ -71,5 +71,3 @@ abstract class FolderItemsFragment : Fragment() {
         }
     }
 }
-
-//TODO Remove duplicate code from FolderItemsFragment. thumbnail load.
