@@ -1,7 +1,6 @@
 package com.example.freemediaplayer.fragments.folderitems
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -42,9 +41,6 @@ abstract class FolderItemsFragment : Fragment() {
 
     private fun prepareRecycler(){
         itemsLiveData.observe(viewLifecycleOwner){
-            it.forEach {
-                Log.d(TAG, it.toString())
-            }
             binding.recyclerFolderItems.adapter = MediaFolderItemAdapter(it)
         }
     }
