@@ -32,7 +32,7 @@ class MediaItemsViewModel @Inject constructor(
 ): ViewModel() {
 
     val audioBrowser = MutableLiveData<MediaBrowserCompat>()
-    val globalPlaylist = appDb.globalPlaylistDao().getGlobalPlaylist() //TODO Transform in Repository
+    val globalPlaylist = appDb.globalPlaylistDao().getGlobalPlaylist()
     val activeMediaLiveData = appDb.activeMediaItemDao().getMediaItemLiveData()
 
     suspend fun getCurrentFolderFullPath() = appDb.folderItemsUiDao().getCurrentFolderItemsUi()
