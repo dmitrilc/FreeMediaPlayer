@@ -295,7 +295,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             mRepeatMode = repeatMode
         }
 
-        //TODO Query directly from Playlist table
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
             lifecycleScope.launch(Dispatchers.IO){
