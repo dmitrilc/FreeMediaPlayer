@@ -41,7 +41,6 @@ class FoldersRelativeAdapter(private val dataSet: List<RelativePath>,
     }
 
     override fun onBindViewHolder(viewHolder: FolderRelativeViewHolder, position: Int) {
-        //viewHolder.fullPath.text = dataSet[position].fullPath
         viewHolder.relativePath.text = dataSet[position].relativePath
     }
 
