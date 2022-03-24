@@ -1,4 +1,4 @@
-package com.example.freemediaplayer.fragments.audio
+package com.example.freemediaplayer.fragments.player
 
 import android.content.ComponentName
 import android.os.Bundle
@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.lifecycle.lifecycleScope
-import com.example.freemediaplayer.fragments.PlayerFragment
 import com.example.freemediaplayer.service.AudioPlayerService
 import com.example.freemediaplayer.service.PLAY_SELECTED
 import kotlinx.coroutines.launch

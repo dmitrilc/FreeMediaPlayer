@@ -13,9 +13,13 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+import androidx.work.WorkRequest
 import com.example.freemediaplayer.databinding.ActivityMainBinding
 import com.example.freemediaplayer.viewmodel.MainActivityViewModel
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
+import com.example.freemediaplayer.worker.MediaScanWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -113,16 +117,16 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun runQueries(){
-        mediaItemsViewModel.queryAudios()
-        mediaItemsViewModel.queryVideos()
+    private fun activateMediaScanWorker(){
+        val mediaScanWorkRequest = OneTimeWorkRequestBuilder<MediaScanWorker>().build()
+        WorkManager.getInstance(applicationContext).enqueue(mediaScanWorkRequest)
     }
 
     private fun requestReadExternalStoragePerm(){
         if (!mainActivityViewModel.isReadExternalStoragePermGranted()) { //TODO Handle first launch where this is always false
             val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    runQueries()
+                    activateMediaScanWorker()
                 } else {
                     //TODO Display some message to the user that the permission has not been granted
                 }
@@ -130,7 +134,7 @@ class MainActivity : AppCompatActivity() {
 
             permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         } else {
-            runQueries()
+            activateMediaScanWorker()
         }
     }
 

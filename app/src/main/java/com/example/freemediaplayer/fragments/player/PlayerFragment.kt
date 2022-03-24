@@ -1,4 +1,4 @@
-package com.example.freemediaplayer.fragments
+package com.example.freemediaplayer.fragments.player
 
 import android.os.Bundle
 import android.support.v4.media.MediaMetadataCompat
@@ -208,7 +208,7 @@ abstract class PlayerFragment : Fragment() {
             val albumArtUri = metadata?.getString(METADATA_KEY_ALBUM_ART_URI)
             val videoId = metadata?.getLong(CUSTOM_MEDIA_ID)
 
-            if (albumArtUri != null && videoId == null){
+            if (albumArtUri != null && videoId == 0L){
                 lifecycleScope.launch {
                     val drawable = async(Dispatchers.IO) {
                         mediaItemsViewModel

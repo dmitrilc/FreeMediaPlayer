@@ -1,4 +1,4 @@
-package com.example.freemediaplayer.fragments.video
+package com.example.freemediaplayer.fragments.player
 
 import android.media.MediaPlayer
 import android.media.MediaPlayer.MEDIA_ERROR_UNKNOWN
@@ -19,7 +19,6 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.observe
 import com.example.freemediaplayer.entities.ActiveMediaItem
 import com.example.freemediaplayer.entities.MediaItem
-import com.example.freemediaplayer.fragments.PlayerFragment
 import com.example.freemediaplayer.service.CUSTOM_MEDIA_ID
 import com.example.freemediaplayer.service.PLAY_SELECTED
 import com.google.android.material.dialog.MaterialAlertDialogBuilder

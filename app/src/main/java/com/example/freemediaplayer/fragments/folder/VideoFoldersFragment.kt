@@ -1,8 +1,7 @@
-package com.example.freemediaplayer.fragments.video
+package com.example.freemediaplayer.fragments.folder
 
 import androidx.navigation.fragment.findNavController
 import com.example.freemediaplayer.R
-import com.example.freemediaplayer.fragments.FoldersFragment
 
 class VideoFoldersFragment : FoldersFragment() {
 

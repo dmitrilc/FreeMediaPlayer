@@ -7,7 +7,7 @@ import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderRelativeViewBinding
 import com.example.freemediaplayer.entities.ui.RelativePath
-import com.example.freemediaplayer.fragments.FoldersFragment
+import com.example.freemediaplayer.fragments.folder.FoldersFragment
 
 private const val TAG = "FOLDERS_RELATIVE_ADAPTER"
 

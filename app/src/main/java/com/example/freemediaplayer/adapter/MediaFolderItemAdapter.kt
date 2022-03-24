@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderItemViewBinding
 import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.fragments.ActivePlaylistFragment
-import com.example.freemediaplayer.fragments.FolderItemsFragment
+import com.example.freemediaplayer.fragments.folderitems.FolderItemsFragment
 import com.example.freemediaplayer.isSameOrAfterQ
 
 

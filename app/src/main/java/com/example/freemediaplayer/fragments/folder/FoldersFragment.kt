@@ -1,4 +1,4 @@
-package com.example.freemediaplayer.fragments
+package com.example.freemediaplayer.fragments.folder
 
 import android.os.Bundle
 import androidx.fragment.app.Fragment

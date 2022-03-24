@@ -1,8 +1,7 @@
-package com.example.freemediaplayer.fragments.video
+package com.example.freemediaplayer.fragments.folderitems
 
 import androidx.navigation.fragment.findNavController
 import com.example.freemediaplayer.R
-import com.example.freemediaplayer.fragments.FolderItemsFragment
 
 class VideoFolderItemsFragment : FolderItemsFragment() {
     override val itemsLiveData by lazy {

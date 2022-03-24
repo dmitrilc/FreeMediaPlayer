@@ -6,7 +6,7 @@
     app:startDestination="@id/audio_folders_path">
     <fragment
         android:id="@id/audio_folders_path"
-        android:name="com.example.freemediaplayer.fragments.audio.AudioFoldersFragment"
+        android:name="com.example.freemediaplayer.fragments.folder.AudioFoldersFragment"
         tools:layout="@layout/fragment_folders_full"
         android:label="Audio Location">
         <action
@@ -15,7 +15,7 @@
     </fragment>
     <fragment
         android:id="@id/video_folders_path"
-        android:name="com.example.freemediaplayer.fragments.video.VideoFoldersFragment"
+        android:name="com.example.freemediaplayer.fragments.folder.VideoFoldersFragment"
         android:label="Video Location"
         tools:layout="@layout/fragment_folders_full" >
         <action
@@ -24,7 +24,7 @@
     </fragment>
     <fragment
         android:id="@+id/audio_folder_items_path"
-        android:name="com.example.freemediaplayer.fragments.audio.AudioFolderItemsFragment"
+        android:name="com.example.freemediaplayer.fragments.folderitems.AudioFolderItemsFragment"
         tools:layout="@layout/folder_items_fragment"
         android:label="AudioFolderItemsFragment" >
         <action
@@ -33,7 +33,7 @@
     </fragment>
     <fragment
         android:id="@+id/video_folder_items_path"
-        android:name="com.example.freemediaplayer.fragments.video.VideoFolderItemsFragment"
+        android:name="com.example.freemediaplayer.fragments.folderitems.VideoFolderItemsFragment"
         tools:layout="@layout/folder_items_fragment"
         android:label="VideoFolderItemsFragment" >
         <action
@@ -51,7 +51,7 @@
     </fragment>-->
     <fragment
         android:id="@+id/audio_player_path"
-        android:name="com.example.freemediaplayer.fragments.audio.AudioPlayerFragment"
+        android:name="com.example.freemediaplayer.fragments.player.AudioPlayerFragment"
         android:label="fragment_audio_player"
         tools:layout="@layout/fragment_player" >
         <action
@@ -60,7 +60,7 @@
     </fragment>
     <fragment
         android:id="@+id/video_player_path"
-        android:name="com.example.freemediaplayer.fragments.video.VideoPlayerFragment"
+        android:name="com.example.freemediaplayer.fragments.player.VideoPlayerFragment"
         android:label="fragment_video_player"
         tools:layout="@layout/fragment_player" >
         <action
