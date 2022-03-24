@@ -20,19 +20,4 @@ interface ActiveMediaItemDao {
     @Query("SELECT * FROM media_items WHERE id = (SELECT mediaItemId FROM active_item)")
     fun getMediaItemLiveData(): LiveData<MediaItem>
 
-/*    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(item: PlayerState)
-
-    @Update
-    suspend fun update(copy: PlayerState)
-
-    @Query("UPDATE active_media SET progress = :progress")
-    suspend fun updateProgress(progress: Long)
-
-    @Query("SELECT * FROM active_media")
-    fun getObservable(): LiveData<PlayerState>
-
-    @Query("SELECT * FROM active_media")
-    suspend fun getOnce(): PlayerState?*/
-
 }

@@ -1,10 +1,8 @@
 package com.example.freemediaplayer.room
 
-import android.provider.MediaStore
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.freemediaplayer.entities.MediaItem
-import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface MediaItemDao {
@@ -29,11 +27,6 @@ interface MediaItemDao {
     @Query("SELECT * FROM media_items WHERE id = :id")
     suspend fun getById(id: Long): MediaItem
 
-//    @Query("SELECT DISTINCT location FROM media_items WHERE isAudio='true'")
-//    suspend fun getAudioLocations(): Flow<List<MediaItem>>
-//
-//    @Query("SELECT DISTINCT location FROM media_items WHERE isAudio='false'")
-//    suspend fun getVideoLocations(): List<MediaItem>
 }
 
 //TODO Convert nested query to Join

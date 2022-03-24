@@ -7,9 +7,4 @@ import com.example.freemediaplayer.entities.ui.ParentPath
 import com.example.freemediaplayer.entities.ui.RelativePath
 
 @Dao
-interface RelativePathDao {
-
-/*    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertRelativePaths(relativePaths: Collection<RelativePath>)*/
-
-}
+interface RelativePathDao
