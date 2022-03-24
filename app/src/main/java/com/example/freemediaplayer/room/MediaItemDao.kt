@@ -28,5 +28,3 @@ interface MediaItemDao {
     suspend fun getById(id: Long): MediaItem
 
 }
-
-//TODO Convert nested query to Join
