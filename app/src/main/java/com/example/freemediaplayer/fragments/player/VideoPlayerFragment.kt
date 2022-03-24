@@ -10,14 +10,8 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.util.Log
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.observe
-import com.example.freemediaplayer.entities.ActiveMediaItem
 import com.example.freemediaplayer.entities.MediaItem
 import com.example.freemediaplayer.service.CUSTOM_MEDIA_ID
 import com.example.freemediaplayer.service.PLAY_SELECTED
@@ -31,22 +25,13 @@ private const val ARG_PARAM2 = "param2"
 
 private const val TAG = "PLAYER_VIDEO"
 
-/**
- * A simple [Fragment] subclass.
- * Use the [VideoPlayerFragment.newInstance] factory method to
- * create an instance of this fragment.
- */
 class VideoPlayerFragment : PlayerFragment() {
     // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
-    //private val mediaDescBuilder = MediaDescriptionCompat.Builder()
     private val stateBuilder = PlaybackStateCompat.Builder()
     private val metadataBuilder = MediaMetadataCompat.Builder()
-
-    //Used for Video player only
-    //private var videoMediaSessionCompat: MediaSessionCompat? = null
 
     private val videoMediaSessionCompat: MediaSessionCompat by lazy {
         MediaSessionCompat(context, TAG)
@@ -54,13 +39,8 @@ class VideoPlayerFragment : PlayerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         setupVideoMediaSessionCompat()
-        //setupVideoMediaControllerCompat()
-        Log.d(TAG, "onViewCreated")
         syncButtonsToController()
-        syncActiveVideoToController()
         bindVideoError()
-
-        //bindPlayerUiChangeListeners()
         bindPlayerCompletionListener()
         playSelected()
 
@@ -70,7 +50,7 @@ class VideoPlayerFragment : PlayerFragment() {
     private fun bindPlayerCompletionListener(){
         //TODO Update PlayerUI only
         binding.videoViewPlayer.setOnCompletionListener {
-            when(mediaControllerCompat!!.repeatMode){
+            when(mediaControllerCompat.repeatMode){
                 REPEAT_MODE_ONE -> {
                     videoMediaSessionCallback.repeat()
                 }
@@ -88,7 +68,7 @@ class VideoPlayerFragment : PlayerFragment() {
                 )
                 .build()
 
-            videoMediaSessionCompat!!.setMetadata(metaData)
+            videoMediaSessionCompat.setMetadata(metaData)
 
             videoMediaSessionCallback.onPlay()
         }
@@ -101,8 +81,8 @@ class VideoPlayerFragment : PlayerFragment() {
 
         private fun startProgressLoop() {
             syncJob = lifecycleScope.launch {
-                while (videoMediaSessionCompat!!.isActive
-                    && mediaControllerCompat!!.playbackState.state == STATE_PLAYING) {
+                while (videoMediaSessionCompat.isActive
+                    && mediaControllerCompat.playbackState.state == STATE_PLAYING) {
                     val state = stateBuilder
                         .setState(
                             STATE_PLAYING,
@@ -111,7 +91,7 @@ class VideoPlayerFragment : PlayerFragment() {
                         )
                         .build()
 
-                    videoMediaSessionCompat!!.setPlaybackState(state)
+                    videoMediaSessionCompat.setPlaybackState(state)
 
                     delay(1000)
                 }
@@ -153,7 +133,7 @@ class VideoPlayerFragment : PlayerFragment() {
                 )
                 .build()
 
-            videoMediaSessionCompat!!.setPlaybackState(state)
+            videoMediaSessionCompat.setPlaybackState(state)
 
             endProgressLoop()
         }
@@ -300,23 +280,10 @@ class VideoPlayerFragment : PlayerFragment() {
                 lifecycleScope.launch {
                     val item = mediaItemsViewModel.getActiveOnce()
                     val playlist = mediaItemsViewModel.getPlaylistOnce()
-                    val metadata = mediaControllerCompat.metadata
                     val currentItemPos = playlist.indexOf(item).toLong()
 
                     onMediaChanged(item, currentItemPos, true)
-
                     //TODO Remove duplicate code for the 3 functions that change queue item
-
-/*                    if (metadata != null){ //not first launch of player fragment
-                        val currentItemId = metadata.getLong(CUSTOM_MEDIA_ID)
-                        if (currentItemId != item.id){ //if service is not playing same song
-                            onMediaChanged(item, currentItemPos, true)
-                        } else { //if already playing same song, publishes metadata anyways for player fragment
-                            onMediaChanged(item, currentItemPos, false)
-                        }
-                    } else { //first launch of player fragment
-                        onMediaChanged(item, currentItemPos, true)
-                    }*/
                 }
                 //TODO Race condition
             }
@@ -339,52 +306,7 @@ class VideoPlayerFragment : PlayerFragment() {
         mediaControllerCompat.sendCommand(PLAY_SELECTED, null, null)
     }
 
-    private fun syncActiveVideoToController(){
-/*        mediaItemsViewModel.activeMedia.observe(viewLifecycleOwner) { activeMedia ->
-            mediaControllerCompat?.transportControls?.playFromUri(activeMedia.mediaItem.uri, Bundle())
-        }*/
-        //TODO Video Player resumes playback differently
-    }
-
-/*    private fun setupVideoMediaControllerCompat() {
-        videoMediaSessionCompat?.let {
-            mediaControllerCompat = MediaControllerCompat(context, it).also { controller ->
-                //bindVideoPlayingCompletion(controller)
-            }
-        }
-    }*/
-
     private fun setupVideoMediaSessionCompat() {
-/*        videoMediaSessionCompat = MediaSessionCompat(
-            context,
-            TAG
-        ).apply {
-            val initialState = stateBuilder
-                .setActions(
-                    ACTION_SKIP_TO_PREVIOUS
-                            or ACTION_SKIP_TO_NEXT
-                            or ACTION_PLAY
-                            or ACTION_PLAY_FROM_URI
-                            or ACTION_PAUSE
-                            or ACTION_REWIND
-                            or ACTION_FAST_FORWARD //30 seconds
-                            or ACTION_SEEK_TO
-                            or ACTION_SET_REPEAT_MODE
-                            or ACTION_SET_SHUFFLE_MODE
-                )
-                .setState(
-                    STATE_NONE,
-                    0,
-                    1.0f
-                )
-                .build()
-
-            //Setting callback
-            setPlaybackState(initialState)
-            setCallback(videoMediaSessionCallback)
-            isActive = true
-        }*/
-
         videoMediaSessionCompat.apply {
             val initialState = stateBuilder
                 .setActions(
@@ -413,17 +335,6 @@ class VideoPlayerFragment : PlayerFragment() {
         }
     }
 
-/*    private fun bindVideoPlayingCompletion(controller: MediaControllerCompat) {
-        binding.videoViewPlayer.setOnCompletionListener {
-            if (controller.repeatMode == REPEAT_MODE_ONE) {
-                controller.transportControls.seekTo(0)
-                controller.transportControls.play()
-            } else {
-                controller.transportControls.skipToNext()
-            }
-        }
-    }*/
-
     private fun bindVideoError(){
         binding.videoViewPlayer.setOnErrorListener { _, what, extra ->
             if (what == MEDIA_ERROR_UNKNOWN && extra == -2147483648){
@@ -442,7 +353,6 @@ class VideoPlayerFragment : PlayerFragment() {
     }
 
     override fun getMediaController(): MediaControllerCompat {
-        //return MediaControllerCompat(context, videoMediaSessionCompat)
         return videoMediaSessionCompat.controller
     }
 
