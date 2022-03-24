@@ -1,7 +1,6 @@
 package com.example.freemediaplayer.viewmodel
 
 import android.app.Application
-import android.content.ContentUris
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.net.Uri
@@ -19,12 +18,9 @@ import com.example.freemediaplayer.entities.ui.FolderItemsUi
 import com.example.freemediaplayer.isSameOrAfterQ
 import com.example.freemediaplayer.room.AppDatabase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import java.io.FileNotFoundException
-import java.lang.Exception
 import javax.inject.Inject
 
 private const val TAG = "MEDIA_ITEMS_VIEW_MODEL"
@@ -37,15 +33,9 @@ class MediaItemsViewModel @Inject constructor(
 
     val audioBrowser = MutableLiveData<MediaBrowserCompat>()
     val globalPlaylist = appDb.globalPlaylistDao().getGlobalPlaylist() //TODO Transform in Repository
-    val globalPlaylistCache = MutableLiveData<List<MediaItem>>()
-    //val activeMedia = appDb.activeMediaItemDao().getObservable() //TODO Transform in Repository
-
     val activeMediaLiveData = appDb.activeMediaItemDao().getMediaItemLiveData()
-    val activeMediaCache = MutableLiveData<MediaItem>()
 
     suspend fun getCurrentFolderFullPath() = appDb.folderItemsUiDao().getCurrentFolderItemsUi()
-
-    //suspend fun setActiveMedia(item: MediaItem) = appDb.activeMediaItemDao().insert(ActiveMedia(activeItemId = item.id))
 
     fun getThumbnail(artUri: String, videoId: Long?): Bitmap? {
         var thumbnail: Bitmap? = null
@@ -129,13 +119,6 @@ class MediaItemsViewModel @Inject constructor(
             )
         }
     }
-
-    suspend fun getActiveMediaItem() = appDb.activeMediaItemDao().getMediaItemOnce()
-
-    suspend fun getActiveMedia() = appDb.activeMediaItemDao().getOnce()
-
-    suspend fun getMediaItemById(id: Long) = appDb.mediaItemDao().getById(id)
-
 
     suspend fun getActiveOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
     suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
