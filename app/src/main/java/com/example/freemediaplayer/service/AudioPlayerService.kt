@@ -443,5 +443,3 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
 const val PLAY_SELECTED = "PLAY_SELECTED"
 const val CUSTOM_MEDIA_ID = "custom.media.id"
-
-//TODO Release more resources
