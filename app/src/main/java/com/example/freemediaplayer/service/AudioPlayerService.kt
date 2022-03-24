@@ -359,7 +359,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                         onMediaChanged(item, currentItemPos, true)
                     }
                 }
-                //TODO Race condition
             }
         }
 
