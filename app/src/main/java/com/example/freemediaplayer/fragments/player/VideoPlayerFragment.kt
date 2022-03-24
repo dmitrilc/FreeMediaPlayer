@@ -382,5 +382,3 @@ class VideoPlayerFragment : PlayerFragment() {
     }
 
 }
-
-//TODO Reduce code dup between video and audio service
