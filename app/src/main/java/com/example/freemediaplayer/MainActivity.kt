@@ -62,7 +62,6 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        //TODO fix awkward animation of titles
         binding.materialToolBarViewTopAppBar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
 
         //navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
