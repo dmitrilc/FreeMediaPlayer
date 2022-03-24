@@ -121,5 +121,3 @@ class MediaItemsViewModel @Inject constructor(
     suspend fun getActiveOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
     suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
 }
-
-//TODO Move media scan functions to Service and use coroutine for queries
