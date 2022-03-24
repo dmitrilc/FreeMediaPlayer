@@ -27,5 +27,3 @@ interface GlobalPlaylistDao {
     fun deleteAll()
 
 }
-
-//TODO Check null for all queries
