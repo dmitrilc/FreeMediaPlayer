@@ -24,5 +24,3 @@ object AppDatabaseModule {
     }
 
 }
-
-//TODO Make nested and dup DAO calls runInTransaction
