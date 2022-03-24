@@ -69,7 +69,6 @@ class ActivePlaylistFragment : Fragment() {
         return binding.root
     }
 
-    //TODO Remove duplicate code from FolderItemsFragment
     fun onAdapterChildThumbnailLoad(v: ImageView, artUri: String, videoId: Long?) {
         lifecycleScope.launch {
             val bitmap = async(Dispatchers.IO) {
