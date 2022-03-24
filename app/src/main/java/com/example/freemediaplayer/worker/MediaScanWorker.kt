@@ -224,5 +224,3 @@ class MediaScanWorker
         appDb.mediaItemDao().insertAll(items)
     }
 }
-
-//TODO Add button in UI to allow the end user to trigger scan
