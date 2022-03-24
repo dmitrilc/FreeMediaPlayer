@@ -63,7 +63,7 @@ class ActivePlaylistFragment : Fragment() {
         }
 
         mActiveMediaCache.observe(viewLifecycleOwner){
-            //TODO Update UI. Displaying animation for active item, etc.
+
         }
 
         return binding.root
