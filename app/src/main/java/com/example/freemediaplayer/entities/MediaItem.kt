@@ -24,5 +24,3 @@ data class MediaItem(
     val albumId: Int,
     val albumArtUri: String? //Q or above. Same as uri. Below Q, query album_art in deprecated DB.
 )
-
-//TODO optimize bitmap loading https://developer.android.com/topic/performance/graphics/cache-bitmap?hl=en
