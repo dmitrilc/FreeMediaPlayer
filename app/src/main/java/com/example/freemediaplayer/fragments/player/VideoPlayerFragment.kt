@@ -18,7 +18,6 @@ import com.example.freemediaplayer.service.PLAY_SELECTED
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 
-// TODO: Rename parameter arguments, choose names that match
 // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 private const val ARG_PARAM1 = "param1"
 private const val ARG_PARAM2 = "param2"
@@ -26,7 +25,6 @@ private const val ARG_PARAM2 = "param2"
 private const val TAG = "PLAYER_VIDEO"
 
 class VideoPlayerFragment : PlayerFragment() {
-    // TODO: Rename and change types of parameters
     private var param1: String? = null
     private var param2: String? = null
 
@@ -48,7 +46,6 @@ class VideoPlayerFragment : PlayerFragment() {
     }
 
     private fun bindPlayerCompletionListener(){
-        //TODO Update PlayerUI only
         binding.videoViewPlayer.setOnCompletionListener {
             when(mediaControllerCompat.repeatMode){
                 REPEAT_MODE_ONE -> {
@@ -209,7 +206,6 @@ class VideoPlayerFragment : PlayerFragment() {
 
                 onMediaChanged(nextItem, nextItemPos.toLong(), true)
             }
-            //TODO Handle playlist repeat mode
         }
 
         override fun onSkipToPrevious() {
@@ -283,9 +279,7 @@ class VideoPlayerFragment : PlayerFragment() {
                     val currentItemPos = playlist.indexOf(item).toLong()
 
                     onMediaChanged(item, currentItemPos, true)
-                    //TODO Remove duplicate code for the 3 functions that change queue item
                 }
-                //TODO Race condition
             }
         }
 
@@ -377,7 +371,6 @@ class VideoPlayerFragment : PlayerFragment() {
          * @param param2 Parameter 2.
          * @return A new instance of fragment PlayerFragment.
          */
-        // TODO: Rename and change types and number of parameters
         @JvmStatic
         fun newInstance(param1: String, param2: String) =
             VideoPlayerFragment().apply {
@@ -389,7 +382,5 @@ class VideoPlayerFragment : PlayerFragment() {
     }
 
 }
-
-//TODO Kill the audio service on resume if playing when get to this fragment
 
 //TODO Reduce code dup between video and audio service
