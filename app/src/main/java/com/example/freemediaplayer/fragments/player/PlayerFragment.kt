@@ -34,7 +34,6 @@ abstract class PlayerFragment : Fragment() {
     private var _binding: FragmentPlayerBinding? = null
     protected val binding get() = _binding!!
 
-    //protected val playerViewModel: PlayerViewModel by viewModels()
     protected val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
     protected val mediaControllerCompat: MediaControllerCompat by lazy {
         getMediaController()
@@ -188,21 +187,8 @@ abstract class PlayerFragment : Fragment() {
                 binding.seekBarPlayerSeekBar.max = it.toInt()
             }
 
-            metadata?.getString(METADATA_KEY_ALBUM)?.let {
-/*                val thumbnail = mediaItemsViewModel.loadedThumbnails.value?.get(it)
-                val drawable = thumbnail?.toDrawable(resources)
-
-                binding.videoViewPlayer.background = drawable*/
-            }
-
             metadata?.getString(METADATA_KEY_TITLE)?.let {
                 binding.textViewPlayerTitle.text = it
-
-                val item = mediaItemsViewModel.globalPlaylist.value?.find { item ->
-                    item.title == it
-                }
-
-                //mediaItemsViewModel.activeMedia.postValue(item)
             }
 
             val albumArtUri = metadata?.getString(METADATA_KEY_ALBUM_ART_URI)
@@ -238,9 +224,5 @@ abstract class PlayerFragment : Fragment() {
             super.onShuffleModeChanged(shuffleMode)
             mediaControllerCompat?.transportControls?.setShuffleMode(SHUFFLE_MODE_ALL)
         }
-    }
-
-    override fun onStop() {
-        super.onStop()
     }
 }
