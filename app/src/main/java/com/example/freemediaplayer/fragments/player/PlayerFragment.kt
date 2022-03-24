@@ -78,7 +78,6 @@ abstract class PlayerFragment : Fragment() {
     }
 
     private fun bindShuffleButtonToController(controller: MediaControllerCompat) {
-        //TODO Test if need to post value to livedata
         binding.imageButtonPlayerShuffle.setOnClickListener {
             controller.transportControls.setShuffleMode(SHUFFLE_MODE_ALL)
         }
