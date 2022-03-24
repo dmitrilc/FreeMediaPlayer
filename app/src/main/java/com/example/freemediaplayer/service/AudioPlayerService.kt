@@ -233,8 +233,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
                 onMediaChanged(nextItem, nextItemPos.toLong(), true)
             }
-
-            //TODO Handle playlist repeat mode
         }
 
         override fun onSkipToPrevious() {
