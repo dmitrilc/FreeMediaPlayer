@@ -128,7 +128,6 @@ class MainActivity : AppCompatActivity() {
                 if (isGranted) {
                     activateMediaScanWorker()
                 } else {
-                    //TODO Display some message to the user that the permission has not been granted
                 }
             }
 
