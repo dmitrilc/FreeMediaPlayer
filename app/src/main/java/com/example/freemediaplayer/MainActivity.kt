@@ -39,7 +39,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //TODO Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
+        //Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
         navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView_navHostFragment) as NavHostFragment
 
         bindNavElementsToNav()
