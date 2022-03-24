@@ -24,8 +24,6 @@ class MainActivityViewModel @Inject constructor(
     //@Inject
     //lateinit var bottomNavDataStore: DataStore<BottomNavProto>
 
-    //TODO Test when permission is denied
-    //TODO Move to Activity/Fragment
     fun isReadExternalStoragePermGranted() =
         ContextCompat.checkSelfPermission(
             app.applicationContext,
