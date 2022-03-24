@@ -160,5 +160,3 @@ class MainActivity : AppCompatActivity() {
     }
 
 }
-
-//TODO Implement LifecycleOwner correctly like Daniweb tutorial
