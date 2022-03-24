@@ -340,8 +340,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                     val metadata = mediaSessionCompat.controller.metadata
                     val currentItemPos = playlist.indexOf(item).toLong()
 
-                    //TODO Remove duplicate code for the 3 functions that change queue item
-
                     if (metadata != null){ //not first launch of player fragment
                         val currentItemId = metadata.getLong(CUSTOM_MEDIA_ID)
                         if (currentItemId != item.id){ //if service is not playing same song
