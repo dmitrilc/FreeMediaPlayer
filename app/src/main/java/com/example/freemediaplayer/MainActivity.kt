@@ -121,7 +121,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestReadExternalStoragePerm(){
-        if (!mainActivityViewModel.isReadExternalStoragePermGranted()) { //TODO Handle first launch where this is always false
+        if (!mainActivityViewModel.isReadExternalStoragePermGranted()) {
             val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
                     activateMediaScanWorker()
