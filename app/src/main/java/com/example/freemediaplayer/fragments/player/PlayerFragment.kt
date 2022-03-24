@@ -44,7 +44,6 @@ abstract class PlayerFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         _binding = FragmentPlayerBinding.inflate(inflater, container, false)
-        //TODO Restore progress bar from saved state
         return binding.root
     }
 
