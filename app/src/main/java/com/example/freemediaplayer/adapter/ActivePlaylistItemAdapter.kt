@@ -55,5 +55,3 @@ class ActivePlaylistItemAdapter(private val dataSet: MutableList<MediaItem>) :
     }
 
 }
-
-//TODO Remove duplicate code between this Adapter and FolderItems
