@@ -15,11 +15,5 @@ private const val TAG = "PLAYER_VIEW_MODEL"
 class PlayerViewModel @Inject constructor(
     private val appDb: AppDatabase
 ): ViewModel() {
-/*    val playerUi = appDb.playerUiDao().get()
 
-    fun updatePlayerUi(value: PlayerUi){
-        viewModelScope.launch(Dispatchers.IO){
-            appDb.playerUiDao().insert(value)
-        }
-    }*/
 }
