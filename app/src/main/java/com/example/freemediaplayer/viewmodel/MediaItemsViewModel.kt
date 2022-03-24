@@ -40,7 +40,7 @@ class MediaItemsViewModel @Inject constructor(
     fun getThumbnail(artUri: String, videoId: Long?): Bitmap? {
         var thumbnail: Bitmap? = null
 
-        if (isSameOrAfterQ()) { //TODO check if thumbnail exists before querying
+        if (isSameOrAfterQ()) {
             try {
                 thumbnail = app.contentResolver.loadThumbnail(
                     Uri.parse(artUri),
@@ -48,8 +48,6 @@ class MediaItemsViewModel @Inject constructor(
                     null
                 )
             } catch (e: FileNotFoundException) {
-                //TODO Implement default thumb
-                Log.d(TAG, e.toString())
             }
         } else {
             thumbnail = if (videoId == null){
