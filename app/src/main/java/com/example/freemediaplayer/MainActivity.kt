@@ -54,7 +54,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindNavElementsToNav(){
-        //TODO Clean up
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.audio_folders_path,
