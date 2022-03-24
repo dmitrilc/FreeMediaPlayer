@@ -16,5 +16,3 @@ data class GlobalPlaylistItem(
     @PrimaryKey val mId: Long,
     val mediaItemId: Long
 )
-
-//TODO Rename entity tables to use underscore to match SQL conventions
