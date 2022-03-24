@@ -113,7 +113,6 @@ class ActivePlaylistFragment : Fragment() {
                 mPlaylist.add(toPos, movedItem)
             }*/
 
-            //TODO Update datbase playlist here using ViewModel. Do not run in Main scope.
             mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, movedItem)
 
             binding.recyclerActivePlaylist.adapter!!.notifyItemMoved(fromPos, toPos)
