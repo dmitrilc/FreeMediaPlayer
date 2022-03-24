@@ -398,7 +398,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 //            // so onLoadChildren returns nothing. This disables the ability to browse for content.
 //            MediaBrowserServiceCompat.BrowserRoot(MY_EMPTY_MEDIA_ROOT_ID, null)
 //        }
-        //TODO Filter out who can access
 
         return MediaBrowserServiceCompat.BrowserRoot("MY_MEDIA_ROOT_ID", null)
 
