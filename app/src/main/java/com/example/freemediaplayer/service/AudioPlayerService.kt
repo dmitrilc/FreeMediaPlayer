@@ -64,7 +64,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         sessionToken = mediaSessionCompat.sessionToken
     }
 
-    private fun getInitialState(): PlaybackStateCompat { //TODO Remove uneeded states
+    private fun getInitialState(): PlaybackStateCompat {
         return stateBuilder
             .setActions(
                 ACTION_SKIP_TO_PREVIOUS
