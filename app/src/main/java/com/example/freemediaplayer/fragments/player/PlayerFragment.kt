@@ -63,7 +63,6 @@ abstract class PlayerFragment : Fragment() {
         }
     }
 
-    //TODO Fix glitch where progress bar does not resync automatically
     private fun bindSeekNextButtonToController(controller: MediaControllerCompat) {
         binding.imageButtonPlayerSeekForward.setOnClickListener {
             controller.transportControls.skipToNext()
