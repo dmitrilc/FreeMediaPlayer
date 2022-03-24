@@ -207,17 +207,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             mediaPlayer.prepare()
         }
 
-        private fun setActiveMediaMetaData(playlistPos: Long, id: Long){
-            lifecycleScope.launch(Dispatchers.IO) {
-                appDb.activeMediaItemDao().insert(
-                    ActiveMediaItem(
-                        globalPlaylistPosition = playlistPos,
-                        mediaItemId = id
-                    )
-                )
-            }
-        }
-
         override fun onSkipToQueueItem(playlistPos: Long) {
             super.onSkipToQueueItem(playlistPos)
             lifecycleScope.launch(Dispatchers.IO){
@@ -326,17 +315,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
                 appDb.globalPlaylistDao().replacePlaylist(shuffled)
             }
-
-/*            val shuffled = mPlaylist.value!!.shuffled().mapIndexed { index, item ->
-                GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id
-                )
-            }
-
-            lifecycleScope.launch(Dispatchers.IO){
-                appDb.globalPlaylistDao().replacePlaylist(shuffled)
-            }*/
         }
 
         override fun onAddQueueItem(description: MediaDescriptionCompat?) {
@@ -449,6 +427,17 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             .build()
 
         mediaSessionCompat.setMetadata(metaData)
+    }
+
+    private fun setActiveMediaMetaData(playlistPos: Long, id: Long){
+        lifecycleScope.launch(Dispatchers.IO) {
+            appDb.activeMediaItemDao().insert(
+                ActiveMediaItem(
+                    globalPlaylistPosition = playlistPos,
+                    mediaItemId = id
+                )
+            )
+        }
     }
 
 }
