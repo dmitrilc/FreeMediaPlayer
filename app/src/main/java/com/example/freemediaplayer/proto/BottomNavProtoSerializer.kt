@@ -28,7 +28,6 @@ object BottomNavProtoSerializer: Serializer<BottomNavProto> {
 
 }
 
-//TODO Extension property. Consider using Hilt
 val Context.bottomNavProtoDataStore: DataStore<BottomNavProto> by dataStore(
     fileName = "bottom_nav.pb",
     serializer = BottomNavProtoSerializer
