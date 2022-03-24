@@ -7,7 +7,6 @@ import android.widget.TextView
 import androidx.cardview.widget.CardView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.freemediaplayer.databinding.FolderFullViewBinding
-import com.example.freemediaplayer.entities.ui.ParentPath
 import com.example.freemediaplayer.entities.ui.ParentPathWithRelativePaths
 
 private const val TAG = "FOLDERS_FULL_ADAPTER"
