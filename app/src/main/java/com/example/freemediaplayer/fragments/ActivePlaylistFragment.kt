@@ -131,7 +131,6 @@ class ActivePlaylistFragment : Fragment() {
             val removedItem = mPlaylistCache.removeAt(position)
 
             if (mPlaylistCache.isEmpty()){ //list is empty
-                //TODO DO something if list is empty
                 return
             }
 
