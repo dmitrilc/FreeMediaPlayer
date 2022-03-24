@@ -21,7 +21,6 @@ class FoldersRelativeAdapter(private val dataSet: List<RelativePath>,
         RecyclerView.ViewHolder(folderRelativeViewBinding.root) {
         val relativePath: TextView = folderRelativeViewBinding.textViewFolderRelativePath
 
-        //TODO Make sure to unbind onclicklistener
         init {
             folderRelativeViewBinding.root.setOnClickListener {
                 //DON'T hold a reference to the fragment
