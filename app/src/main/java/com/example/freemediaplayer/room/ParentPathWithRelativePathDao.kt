@@ -63,7 +63,7 @@ interface ParentPathWithRelativePathsDao {
     }
 
     @Query("SELECT id FROM parentPath WHERE isAudio=:isAudio AND parentPath=:parentPath")
-    suspend fun getParentPathId(isAudio: Boolean, parentPath: String): Long //TODO Return flow?
+    suspend fun getParentPathId(isAudio: Boolean, parentPath: String): Long
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertParentPath(parentPath: ParentPath): Long
