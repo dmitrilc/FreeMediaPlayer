@@ -10,7 +10,6 @@ import com.example.freemediaplayer.fragments.folderitems.FolderItemsFragment
 
 private const val TAG = "FILE_ADAPTER"
 
-//TODO Remove content resolver dep
 class MediaFolderItemAdapter(private val dataSet: List<MediaItem>) :
     RecyclerView.Adapter<MediaFolderItemAdapter.FolderItemViewHolder>() {
 
