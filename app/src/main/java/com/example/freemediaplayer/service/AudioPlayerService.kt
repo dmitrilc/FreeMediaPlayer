@@ -87,7 +87,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }
 
     private fun bindPlayerCompletionListener(){
-        //TODO Update PlayerUI only
         mediaPlayer.setOnCompletionListener {
             when(mediaSessionCompat.controller.repeatMode){
                 REPEAT_MODE_ONE -> {
