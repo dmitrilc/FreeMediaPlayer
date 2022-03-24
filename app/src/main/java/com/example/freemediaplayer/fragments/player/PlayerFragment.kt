@@ -69,7 +69,6 @@ abstract class PlayerFragment : Fragment() {
         }
     }
 
-    //TODO Remove duplicate code from this and seeknext
     private fun bindSeekPreviousButtonToController(controller: MediaControllerCompat) {
         binding.imageButtonPlayerSeekBackward.setOnClickListener {
             controller.transportControls.skipToPrevious()
