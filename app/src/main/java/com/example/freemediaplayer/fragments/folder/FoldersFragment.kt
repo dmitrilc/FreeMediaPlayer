@@ -16,8 +16,6 @@ import com.example.freemediaplayer.entities.ui.ParentPathWithRelativePaths
 import com.example.freemediaplayer.viewmodel.FoldersViewModel
 import com.example.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 private const val TAG = "FOLDERS_FRAGMENT"
