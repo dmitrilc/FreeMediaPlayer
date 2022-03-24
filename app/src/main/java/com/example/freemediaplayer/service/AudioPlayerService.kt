@@ -441,7 +441,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
 }
 
-//TODO Organize these consts
 const val PLAY_SELECTED = "PLAY_SELECTED"
 const val CUSTOM_MEDIA_ID = "custom.media.id"
 
