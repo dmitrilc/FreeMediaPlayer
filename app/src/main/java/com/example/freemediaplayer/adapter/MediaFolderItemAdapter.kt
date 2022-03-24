@@ -49,7 +49,6 @@ class MediaFolderItemAdapter(private val dataSet: List<MediaItem>) :
         super.onViewAttachedToWindow(holder)
         val item = dataSet[holder.bindingAdapterPosition]
 
-        //TODO Clean up and increase readability
         if (item.isAudio && item.albumArtUri != null){
             holder.displayArtView.findFragment<FolderItemsFragment>()
                 .onAdapterChildThumbnailLoad(holder.displayArtView, item.albumArtUri, null)
