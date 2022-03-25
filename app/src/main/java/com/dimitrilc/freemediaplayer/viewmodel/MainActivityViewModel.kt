@@ -16,13 +16,8 @@ import javax.inject.Inject
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
     private val app: Application,
-    private val bottomNavDataStore: DataStore<com.dimitrilc.freemediaplayer.proto.BottomNavProto>
+    private val bottomNavDataStore: DataStore<BottomNavProto>
     ): AndroidViewModel(app) {
-
-    //val folderType = MutableLiveData<FolderType>()
-
-    //@Inject
-    //lateinit var bottomNavDataStore: DataStore<BottomNavProto>
 
     fun isReadExternalStoragePermGranted() =
         ContextCompat.checkSelfPermission(
@@ -47,12 +42,12 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    private fun bottomNavStateToId(state: com.dimitrilc.freemediaplayer.proto.BottomNavProto.State) =
-        if (state == com.dimitrilc.freemediaplayer.proto.BottomNavProto.State.MUSIC) R.id.audio_folders_path
+    private fun bottomNavStateToId(state: BottomNavProto.State) =
+        if (state == BottomNavProto.State.MUSIC) R.id.audio_folders_path
         else R.id.video_folders_path
 
     private fun idToBottomNavState(id: Int) =
-        if (id == R.id.audio_folders_path) com.dimitrilc.freemediaplayer.proto.BottomNavProto.State.MUSIC
-        else com.dimitrilc.freemediaplayer.proto.BottomNavProto.State.VIDEOS
+        if (id == R.id.audio_folders_path) BottomNavProto.State.MUSIC
+        else BottomNavProto.State.VIDEOS
 
 }
