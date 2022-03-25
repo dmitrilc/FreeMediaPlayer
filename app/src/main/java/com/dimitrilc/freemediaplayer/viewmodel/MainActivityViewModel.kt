@@ -15,15 +15,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    private val app: Application,
+    app: Application,
     private val bottomNavDataStore: DataStore<BottomNavProto>
     ): AndroidViewModel(app) {
-
-    fun isReadExternalStoragePermGranted() =
-        ContextCompat.checkSelfPermission(
-            app.applicationContext,
-            Manifest.permission.READ_EXTERNAL_STORAGE
-        ) == PermissionChecker.PERMISSION_GRANTED
 
     fun getBottomNavState() = bottomNavDataStore.data
         .map { nav ->

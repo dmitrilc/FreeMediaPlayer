@@ -6,6 +6,8 @@ import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.core.content.ContextCompat
+import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -148,7 +150,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun requestReadExternalStoragePerm(){
-        if (!mainActivityViewModel.isReadExternalStoragePermGranted()) {
+        if (!isReadExternalStoragePermGranted()) {
             val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
                     activateMediaScanWorker()
@@ -160,6 +162,15 @@ class MainActivity : AppCompatActivity() {
         } else {
             activateMediaScanWorker()
         }
+    }
+
+    private fun isReadExternalStoragePermGranted(): Boolean {
+        val isGranted = ContextCompat.checkSelfPermission(
+            applicationContext,
+            Manifest.permission.READ_EXTERNAL_STORAGE
+        )
+
+        return isGranted == PermissionChecker.PERMISSION_GRANTED
     }
 
     override fun onPause() {
