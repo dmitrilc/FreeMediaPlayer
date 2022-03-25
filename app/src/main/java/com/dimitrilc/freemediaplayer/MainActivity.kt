@@ -120,7 +120,9 @@ class MainActivity : AppCompatActivity() {
         bindBottomNavToNavController()
         bindTopAppBarToNavController()
 
+        //Add onDestinationChangedListener to navController
         navController.addOnDestinationChangedListener(onDestinationChangedListener)
+
         requestReadExternalStoragePerm()
     }
 
