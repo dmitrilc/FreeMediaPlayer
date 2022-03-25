@@ -1,21 +1,19 @@
 package com.dimitrilc.freemediaplayer
 
 import android.Manifest
-import android.net.Uri
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.lifecycleScope
+import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import androidx.work.WorkRequest
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
 import com.dimitrilc.freemediaplayer.viewmodel.MainActivityViewModel
 import com.dimitrilc.freemediaplayer.viewmodel.MediaItemsViewModel
@@ -30,28 +28,104 @@ private const val TAG = "MAIN_ACTIVITY"
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    private lateinit var navHostFragment: NavHostFragment
+
+    //Can only access during onCreate().
+    //Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
+    private val navHostFragment by lazy {
+        supportFragmentManager.findFragmentById(R.id.fragmentContainerView_navHostFragment) as NavHostFragment
+    }
+
+    private val navController by lazy {
+        navHostFragment.navController
+    }
+
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
     private val mediaItemsViewModel: MediaItemsViewModel by viewModels()
+
+    private val onDestinationChangedListener = object : NavController.OnDestinationChangedListener {
+        override fun onDestinationChanged(
+            controller: NavController,
+            destination: NavDestination,
+            arguments: Bundle?
+        ) {
+            when(destination.id){
+                R.id.audio_folders_path -> {
+                    setTopAppBarTitle("Audios")
+                    setBottomNavVisible()
+                }
+                R.id.video_folders_path -> {
+                    setTopAppBarTitle("Videos")
+                    setBottomNavVisible()
+                }
+                R.id.playlists_path -> {
+                    setTopAppBarTitle("Playlists")
+                    setBottomNavVisible()
+                }
+                R.id.audio_folder_items_path -> {
+                    lifecycleScope.launch {
+                        setTopAppBarTitle(mediaItemsViewModel.getCurrentFolderFullPath().fullPath)
+                    }
+                    setBottomNavGone()
+                }
+                R.id.video_folder_items_path -> {
+                    lifecycleScope.launch {
+                        setTopAppBarTitle(mediaItemsViewModel.getCurrentFolderFullPath().fullPath)
+                    }
+                    setBottomNavGone()
+                }
+                R.id.audio_player_path -> {
+                    setTopAppBarTitle("Add file Path here")
+                    setBottomNavGone()
+                }
+                R.id.video_player_path -> {
+                    setTopAppBarTitle("Add file Path here")
+                    setBottomNavGone()
+                    mediaController?.transportControls?.stop()
+                    mediaItemsViewModel.audioBrowser.value?.disconnect()
+                    mediaItemsViewModel.audioBrowser.postValue(null)
+                    mediaController = null
+                }
+                R.id.active_playlist_path -> {
+                    setTopAppBarTitle("Playlist")
+                    setBottomNavGone()
+                }
+                else -> {
+                    binding.materialToolBarViewTopAppBar.title = "N/A"
+                    setBottomNavGone()
+                }
+            }
+        }
+
+        fun setBottomNavVisible(){
+            binding.bottomNavViewBottomNav.visibility = View.VISIBLE
+        }
+
+        fun setBottomNavGone(){
+            binding.bottomNavViewBottomNav.visibility = View.GONE
+        }
+
+        fun setTopAppBarTitle(value: String){
+            binding.materialToolBarViewTopAppBar.title = value
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        //Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
-        navHostFragment = supportFragmentManager.findFragmentById(R.id.fragmentContainerView_navHostFragment) as NavHostFragment
+        bindBottomNavToNavController()
+        bindTopAppBarToNavController()
 
-        bindNavElementsToNav()
-        initBottomNav()
+        navController.addOnDestinationChangedListener(onDestinationChangedListener)
         requestReadExternalStoragePerm()
     }
 
-    private fun initBottomNav(){
+    private fun bindBottomNavToNavController(){
         binding.bottomNavViewBottomNav.setupWithNavController(navHostFragment.navController)
     }
 
-    private fun bindNavElementsToNav(){
+    private fun bindTopAppBarToNavController(){
         val appBarConfiguration = AppBarConfiguration(
             setOf(
                 R.id.audio_folders_path,
@@ -61,56 +135,6 @@ class MainActivity : AppCompatActivity() {
         )
 
         binding.materialToolBarViewTopAppBar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
-
-        //navHostFragment = supportFragmentManager.findFragmentById(R.id.nav_host_fragment) as NavHostFragment
-        navHostFragment.navController.addOnDestinationChangedListener { navController, dest, _ ->
-            when(dest.id){
-                R.id.audio_folders_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Audios"
-                    binding.bottomNavViewBottomNav.visibility = View.VISIBLE
-                }
-                R.id.video_folders_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Videos"
-                    binding.bottomNavViewBottomNav.visibility = View.VISIBLE
-                }
-                R.id.playlists_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Playlists"
-                    binding.bottomNavViewBottomNav.visibility = View.VISIBLE
-                }
-                R.id.audio_folder_items_path -> {
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                    lifecycleScope.launch {
-                        binding.materialToolBarViewTopAppBar.title = mediaItemsViewModel.getCurrentFolderFullPath().fullPath
-                    }
-                }
-                R.id.video_folder_items_path -> {
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                    lifecycleScope.launch {
-                        binding.materialToolBarViewTopAppBar.title = mediaItemsViewModel.getCurrentFolderFullPath().fullPath
-                    }
-                }
-                R.id.audio_player_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Add file Path here"
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                }
-                R.id.video_player_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Add file Path here"
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                    mediaController?.transportControls?.stop()
-                    mediaItemsViewModel.audioBrowser.value?.disconnect()
-                    mediaItemsViewModel.audioBrowser.postValue(null)
-                    mediaController = null
-                }
-                R.id.active_playlist_path -> {
-                    binding.materialToolBarViewTopAppBar.title = "Playlist"
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                }
-                else -> {
-                    binding.materialToolBarViewTopAppBar.title = "N/A"
-                    binding.bottomNavViewBottomNav.visibility = View.GONE
-                }
-            }
-        }
     }
 
     private fun activateMediaScanWorker(){
