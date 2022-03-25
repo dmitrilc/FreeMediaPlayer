@@ -9,26 +9,26 @@ import com.google.protobuf.InvalidProtocolBufferException
 import java.io.InputStream
 import java.io.OutputStream
 
-object BottomNavProtoSerializer: Serializer<com.dimitrilc.freemediaplayer.proto.BottomNavProto> {
-    override val defaultValue: com.dimitrilc.freemediaplayer.proto.BottomNavProto
-        get() = com.dimitrilc.freemediaplayer.proto.BottomNavProto.getDefaultInstance()
+object BottomNavProtoSerializer: Serializer<BottomNavProto> {
+    override val defaultValue: BottomNavProto
+        get() = BottomNavProto.getDefaultInstance()
 
-    override suspend fun readFrom(input: InputStream): com.dimitrilc.freemediaplayer.proto.BottomNavProto {
+    override suspend fun readFrom(input: InputStream): BottomNavProto {
         try {
-            return com.dimitrilc.freemediaplayer.proto.BottomNavProto.parseFrom(input)
+            return BottomNavProto.parseFrom(input)
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", exception)
         }
 
     }
 
-    override suspend fun writeTo(t: com.dimitrilc.freemediaplayer.proto.BottomNavProto, output: OutputStream) {
+    override suspend fun writeTo(t: BottomNavProto, output: OutputStream) {
         t.writeTo(output)
     }
 
 }
 
-val Context.bottomNavProtoDataStore: DataStore<com.dimitrilc.freemediaplayer.proto.BottomNavProto> by dataStore(
+val Context.bottomNavProtoDataStore: DataStore<BottomNavProto> by dataStore(
     fileName = "bottom_nav.pb",
     serializer = BottomNavProtoSerializer
 )
