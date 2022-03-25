@@ -5,6 +5,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.LiveData
@@ -18,6 +19,7 @@ import com.dimitrilc.freemediaplayer.viewmodel.MediaItemsViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
+const val KEY_FULL_PATH = "key.full.path"
 private const val TAG = "FOLDERS_FRAGMENT"
 
 @AndroidEntryPoint
@@ -69,11 +71,12 @@ abstract class FoldersFragment : Fragment() {
                 val fullPath = "$pathParent/$pathRelative"
 
                 mediaItemsViewModel.updateCurrentFolderFullPath(fullPath)
+
+                val navArgs = bundleOf(KEY_FULL_PATH to fullPath)
+                navigateToFolderItems(fullPath, navArgs)
             }
         }
-
-        navigateToFolderItems()
     }
 
-    abstract fun navigateToFolderItems()
+    abstract fun navigateToFolderItems(fullPath: String, navArgs: Bundle)
 }

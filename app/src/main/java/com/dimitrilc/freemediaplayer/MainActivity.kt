@@ -15,6 +15,7 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
+import com.dimitrilc.freemediaplayer.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.viewmodel.MainActivityViewModel
 import com.dimitrilc.freemediaplayer.viewmodel.MediaItemsViewModel
 import com.dimitrilc.freemediaplayer.worker.MediaScanWorker
@@ -62,15 +63,13 @@ class MainActivity : AppCompatActivity() {
                     setBottomNavVisible()
                 }
                 R.id.audio_folder_items_path -> {
-                    lifecycleScope.launch {
-                        setTopAppBarTitle(mediaItemsViewModel.getCurrentFolderFullPath().fullPath)
-                    }
+                    val fullPath = arguments!!.getString(KEY_FULL_PATH)!!
+                    setTopAppBarTitle(fullPath)
                     setBottomNavGone()
                 }
                 R.id.video_folder_items_path -> {
-                    lifecycleScope.launch {
-                        setTopAppBarTitle(mediaItemsViewModel.getCurrentFolderFullPath().fullPath)
-                    }
+                    val fullPath = arguments!!.getString(KEY_FULL_PATH)!!
+                    setTopAppBarTitle(fullPath)
                     setBottomNavGone()
                 }
                 R.id.audio_player_path -> {
