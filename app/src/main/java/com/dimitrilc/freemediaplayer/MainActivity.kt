@@ -127,7 +127,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun bindBottomNavToNavController(){
-        binding.bottomNavViewBottomNav.setupWithNavController(navHostFragment.navController)
+        binding.bottomNavViewBottomNav.setupWithNavController(navController)
     }
 
     private fun bindTopAppBarToNavController(){
@@ -139,7 +139,7 @@ class MainActivity : AppCompatActivity() {
             )
         )
 
-        binding.materialToolBarViewTopAppBar.setupWithNavController(navHostFragment.navController, appBarConfiguration)
+        binding.materialToolBarViewTopAppBar.setupWithNavController(navController, appBarConfiguration)
     }
 
     private fun activateMediaScanWorker(){
@@ -163,12 +163,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        val currentDestination: NavDestination? = navHostFragment.navController.currentDestination
-
-        currentDestination?.run {
-            mainActivityViewModel.persistBottomNavState(currentDestination.id)
-        }
-
+        val currentDestination = navController.currentDestination!!
+        mainActivityViewModel.persistBottomNavState(currentDestination.id)
         super.onPause()
     }
 
@@ -177,7 +173,6 @@ class MainActivity : AppCompatActivity() {
 
         //query saved state from ViewModel
         lifecycleScope.launch {
-            val navController = navHostFragment.navController
             navController.popBackStack()
             navController.navigate(mainActivityViewModel.getBottomNavState().first())
         }
