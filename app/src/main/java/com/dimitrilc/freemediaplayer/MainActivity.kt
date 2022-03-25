@@ -45,8 +45,6 @@ class MainActivity : AppCompatActivity() {
         bindNavElementsToNav()
         initBottomNav()
         requestReadExternalStoragePerm()
-
-        contentResolver.getType(Uri.parse(""))
     }
 
     private fun initBottomNav(){
