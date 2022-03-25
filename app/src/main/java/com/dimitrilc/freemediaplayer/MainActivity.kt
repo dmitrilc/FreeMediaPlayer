@@ -79,17 +79,14 @@ class MainActivity : AppCompatActivity() {
                 R.id.video_player_path -> {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
-                    mediaController?.transportControls?.stop()
-                    mediaItemsViewModel.audioBrowser.value?.disconnect()
-                    mediaItemsViewModel.audioBrowser.postValue(null)
-                    mediaController = null
+                    closeAudioSession()
                 }
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")
                     setBottomNavGone()
                 }
                 else -> {
-                    binding.materialToolBarViewTopAppBar.title = "N/A"
+                    setTopAppBarTitle("N/A")
                     setBottomNavGone()
                 }
             }
@@ -105,6 +102,13 @@ class MainActivity : AppCompatActivity() {
 
         fun setTopAppBarTitle(value: String){
             binding.materialToolBarViewTopAppBar.title = value
+        }
+
+        fun closeAudioSession(){
+            mediaController?.transportControls?.stop()
+            mediaItemsViewModel.audioBrowser.value?.disconnect()
+            mediaItemsViewModel.audioBrowser.postValue(null)
+            mediaController = null
         }
     }
 
