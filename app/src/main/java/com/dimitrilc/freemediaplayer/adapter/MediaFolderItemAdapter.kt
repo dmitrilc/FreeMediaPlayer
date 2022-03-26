@@ -21,7 +21,7 @@ class MediaFolderItemAdapter(private val dataSet: List<MediaItem>) :
 
         init {
             folderItemViewBinding.root.setOnClickListener {
-                //DON'T holder a reference to the fragment
+                //DON'T hold a reference to the fragment
                 it.findFragment<FolderItemsFragment>()
                     .onFolderItemClicked(bindingAdapterPosition)
             }
