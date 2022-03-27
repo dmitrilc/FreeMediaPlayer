@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.hilt
 
 import android.content.Context
-import com.dimitrilc.freemediaplayer.proto.bottomNavProtoDataStore
+import com.dimitrilc.freemediaplayer.data.proto.bottomNavProtoDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

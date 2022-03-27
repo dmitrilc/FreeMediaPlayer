@@ -2,7 +2,7 @@ package com.dimitrilc.freemediaplayer.hilt
 
 import android.content.Context
 import androidx.room.Room
-import com.dimitrilc.freemediaplayer.room.AppDatabase
+import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

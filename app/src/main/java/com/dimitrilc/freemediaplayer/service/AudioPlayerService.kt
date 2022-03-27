@@ -14,10 +14,10 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
-import com.dimitrilc.freemediaplayer.entities.ActiveMediaItem
-import com.dimitrilc.freemediaplayer.entities.GlobalPlaylistItem
-import com.dimitrilc.freemediaplayer.entities.MediaItem
-import com.dimitrilc.freemediaplayer.room.AppDatabase
+import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
+import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
+import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject

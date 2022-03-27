@@ -1,0 +1,16 @@
+package com.dimitrilc.freemediaplayer.data.datasources
+
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
+import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
+import javax.inject.Inject
+
+class MediaItemRoomDataSourceImpl @Inject constructor(private val mediaItemDao: MediaItemDao) : MediaItemRoomDataSource {
+    override suspend fun getAllAudio() = mediaItemDao.getAllAudio()
+    override suspend fun getAllVideo() = mediaItemDao.getAllVideo()
+
+    override suspend fun getAllAudioByLocation(location: String): List<MediaItem> = mediaItemDao.getAllAudioByLocation(location)
+    override suspend fun getAllVideoByLocation(location: String): List<MediaItem> = mediaItemDao.getAllVideoByLocation(location)
+
+    override fun getAllAudioObservable() = mediaItemDao.getAllAudioObservable()
+    override fun getAllVideoObservable() = mediaItemDao.getAllVideObservable()
+}

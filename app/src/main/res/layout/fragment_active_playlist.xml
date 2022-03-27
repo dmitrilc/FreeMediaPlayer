@@ -7,7 +7,7 @@
         android:id="@+id/activePlaylistView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".fragments.ActivePlaylistFragment">
+        tools:context=".ui.fragments.ActivePlaylistFragment">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/recycler_activePlaylist"

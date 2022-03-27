@@ -1,0 +1,22 @@
+package com.dimitrilc.freemediaplayer.data.room.database
+
+import androidx.room.Database
+import androidx.room.RoomDatabase
+import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
+import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
+import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaItemDao
+import com.dimitrilc.freemediaplayer.data.room.dao.GlobalPlaylistDao
+import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
+
+@Database(
+    entities = [
+        MediaItem::class,
+        GlobalPlaylistItem::class,
+        ActiveMediaItem::class],
+    version = 1)
+abstract class AppDatabase : RoomDatabase() {
+    abstract fun mediaItemDao(): MediaItemDao
+    abstract fun globalPlaylistDao(): GlobalPlaylistDao
+    abstract fun activeMediaItemDao(): ActiveMediaItemDao
+}

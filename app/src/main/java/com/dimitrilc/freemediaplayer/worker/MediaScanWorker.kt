@@ -2,39 +2,31 @@ package com.dimitrilc.freemediaplayer.worker
 
 import android.content.ContentUris
 import android.content.Context
-import android.database.Cursor
 import android.provider.MediaStore
+import android.util.Log
 import androidx.hilt.work.HiltWorker
-import androidx.lifecycle.viewModelScope
 import androidx.work.CoroutineWorker
-import androidx.work.Worker
 import androidx.work.WorkerParameters
-import com.dimitrilc.freemediaplayer.entities.MediaItem
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.isSameOrAfterQ
-import com.dimitrilc.freemediaplayer.room.AppDatabase
+import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.launch
-import javax.inject.Inject
+import kotlinx.coroutines.*
+
+private const val TAG = "MEDIA_SCAN_WORKER"
 
 @HiltWorker
 class MediaScanWorker
 @AssistedInject constructor(
     @Assisted private val appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val appDb: AppDatabase) : CoroutineWorker(appContext, workerParams) {
+    private val appDb: AppDatabase
+) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
         val allAudios = queryAudios()
         val allVideos = queryVideos()
-
-        val audioPaths = toParentPathsWithRelativePaths(allAudios)
-        val videoPaths = toParentPathsWithRelativePaths(allVideos)
-
-        appDb.parentPathWithRelativePathDao().insertAudioParentPathsWithRelativePaths(audioPaths)
-        appDb.parentPathWithRelativePathDao().insertVideoParentPathsWithRelativePaths(videoPaths)
 
         insertMediaItems(allAudios.plus(allVideos))
 
@@ -211,16 +203,7 @@ class MediaScanWorker
         return albumArtUri
     }
 
-    private fun toParentPathsWithRelativePaths(list: List<MediaItem>): Map<String, List<String>> {
-        return list.asSequence()
-            .distinctBy { it.location }
-            .map { it.location }
-            .groupBy({ it.substringBeforeLast('/') }) {
-                it.substringAfterLast('/')
-            }
-    }
-
-    private suspend fun insertMediaItems(items: Collection<MediaItem>) {
+    private fun insertMediaItems(items: Collection<MediaItem>) {
         appDb.mediaItemDao().insertAll(items)
     }
 }
