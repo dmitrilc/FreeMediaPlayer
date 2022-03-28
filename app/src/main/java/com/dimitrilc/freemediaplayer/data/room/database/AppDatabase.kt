@@ -5,7 +5,7 @@ import androidx.room.RoomDatabase
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
-import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaItemDao
+import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaDao
 import com.dimitrilc.freemediaplayer.data.room.dao.GlobalPlaylistDao
 import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
 
@@ -18,5 +18,5 @@ import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
 abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun globalPlaylistDao(): GlobalPlaylistDao
-    abstract fun activeMediaItemDao(): ActiveMediaItemDao
+    abstract fun activeMediaItemDao(): ActiveMediaDao
 }

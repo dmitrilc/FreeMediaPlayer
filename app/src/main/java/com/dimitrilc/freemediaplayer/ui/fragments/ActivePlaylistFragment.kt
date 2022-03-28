@@ -20,6 +20,7 @@ import com.dimitrilc.freemediaplayer.ui.adapter.ActivePlaylistItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FragmentActivePlaylistBinding
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -55,7 +56,7 @@ class ActivePlaylistFragment : Fragment() {
         }
 
         //Functions in this class should not use this value. This is only to update the cache.
-        mediaItemsViewModel.activeMediaLiveData.observe(viewLifecycleOwner){
+        mediaItemsViewModel.activeMediaItemLiveData.observe(viewLifecycleOwner){
             mActiveMediaCache.value = it
         }
 
@@ -81,10 +82,18 @@ class ActivePlaylistFragment : Fragment() {
         val controller: MediaController? = requireActivity().mediaController
 
         if (controller != null){ //audio
-            controller.transportControls.skipToQueueItem(bindingAdapterPosition.toLong())
-            //mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+            lifecycleScope.launch {
+                withContext(Dispatchers.IO){
+                    mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+                }
+                withContext(Dispatchers.IO){
+                    controller.transportControls.skipToQueueItem(bindingAdapterPosition.toLong())
+                }
+            }
         } else { //video
-            //mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+            lifecycleScope.launch {
+                mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+            }
             val navController = findNavController()
             navController.popBackStack()
         }
@@ -110,7 +119,9 @@ class ActivePlaylistFragment : Fragment() {
                 mPlaylist.add(toPos, movedItem)
             }*/
 
-            //mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, movedItem)
+            lifecycleScope.launch(Dispatchers.IO){
+                mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, movedItem)
+            }
 
             binding.recyclerActivePlaylist.adapter!!.notifyItemMoved(fromPos, toPos)
 
@@ -130,19 +141,24 @@ class ActivePlaylistFragment : Fragment() {
             }
 
             if (isActiveRemoved(removedItem)){
-                val nextItemIndex =
-                    if (isEndItemRemoved(position)){
-                        0
-                    } else {
-                        position
+                val nextItemIndex = if (isEndItemRemoved(position)){
+                    0
+                } else {
+                    position
+                }
+
+                lifecycleScope.launch {
+                    withContext(Dispatchers.IO){
+                        mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[nextItemIndex])
                     }
-                activity
-                    ?.mediaController
-                    ?.transportControls
-                    ?.skipToQueueItem(nextItemIndex.toLong())
-                //mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[nextItemIndex])
+                    withContext(Dispatchers.IO){
+                        activity?.mediaController?.transportControls?.skipToQueueItem(nextItemIndex.toLong())
+                    }
+                }
             } else {
-                //mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mActiveMediaCache.value!!)
+                lifecycleScope.launch(Dispatchers.IO) {
+                    mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mActiveMediaCache.value!!)
+                }
             }
         }
 

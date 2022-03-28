@@ -6,9 +6,11 @@ import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import dagger.hilt.components.SingletonComponent
+import javax.inject.Singleton
 
 @Module
-@InstallIn(ViewModelComponent::class)
+@InstallIn(SingletonComponent::class)
 abstract class MediaItemRepositoryModule {
     @Binds
     abstract fun bindMediaItemRepository(mediaItemRepository: MediaItemRepositoryImpl): MediaItemRepository

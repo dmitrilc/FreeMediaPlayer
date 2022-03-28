@@ -9,39 +9,16 @@ import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import javax.inject.Inject
 
 class MediaItemRepositoryImpl @Inject constructor(
-    private val mediaItemRoomDataSource: MediaItemRoomDataSource,
-    private val globalPlaylistRepository: GlobalPlaylistRepository,
-    private val activeMediaRepository: ActiveMediaRepository,
-    private val appDb: AppDatabase
+    private val mediaItemRoomDataSource: MediaItemRoomDataSource
     ) : MediaItemRepository {
     override suspend fun getAllAudio() = mediaItemRoomDataSource.getAllAudio()
     override suspend fun getAllVideo() = mediaItemRoomDataSource.getAllVideo()
 
-    override suspend fun getAllAudioByLocation(location: String): List<MediaItem> = mediaItemRoomDataSource.getAllAudioByLocation(location)
-    override suspend fun getAllVideoByLocation(location: String): List<MediaItem> = mediaItemRoomDataSource.getAllVideoByLocation(location)
+    override suspend fun getAllAudioByLocation(location: String) = mediaItemRoomDataSource.getAllAudioByLocation(location)
+    override suspend fun getAllVideoByLocation(location: String) = mediaItemRoomDataSource.getAllVideoByLocation(location)
 
     override fun getAllAudioObservable() = mediaItemRoomDataSource.getAllAudioObservable()
     override fun getAllVideoObservable() = mediaItemRoomDataSource.getAllVideoObservable()
 
-    override suspend fun updateGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int) {
-        appDb.withTransaction {
-            val items = mediaItemRoomDataSource.getAllAudioByLocation(currentPath)
-            val playlist = items.mapIndexed { index, item ->
-                GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id)
-            }
-
-            //Needs to run sequentially because of foreign key constraint
-            globalPlaylistRepository.replacePlaylist(playlist)
-
-            val selectedItem = items[selectedIndex]
-            val activeItem = ActiveMediaItem(
-                globalPlaylistPosition = selectedIndex.toLong(),
-                mediaItemId = selectedItem.id
-            )
-
-            activeMediaRepository.insert(activeItem)
-        }
-    }
+    override suspend fun getById(id: Long) = mediaItemRoomDataSource.getById(id)
 }

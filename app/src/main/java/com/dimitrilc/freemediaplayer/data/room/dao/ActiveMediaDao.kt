@@ -4,9 +4,10 @@ import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
+import kotlinx.coroutines.flow.Flow
 
 @Dao
-interface ActiveMediaItemDao {
+interface ActiveMediaDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(value: ActiveMediaItem)
@@ -14,10 +15,13 @@ interface ActiveMediaItemDao {
     @Query("SELECT * FROM active_item")
     suspend fun getOnce(): ActiveMediaItem
 
-    @Query("SELECT * FROM media_items WHERE id = (SELECT mediaItemId FROM active_item)")
-    suspend fun getMediaItemOnce(): MediaItem
+    @Query("SELECT * FROM active_item")
+    fun getObservable(): Flow<ActiveMediaItem>
+
+/*    @Query("SELECT * FROM media_items WHERE id = (SELECT mediaItemId FROM active_item)")
+    suspend fun getActiveMediaItemOnce(): MediaItem
 
     @Query("SELECT * FROM media_items WHERE id = (SELECT mediaItemId FROM active_item)")
-    fun getMediaItemLiveData(): LiveData<MediaItem>
+    fun getMediaItemObservable(): LiveData<MediaItem>*/
 
 }

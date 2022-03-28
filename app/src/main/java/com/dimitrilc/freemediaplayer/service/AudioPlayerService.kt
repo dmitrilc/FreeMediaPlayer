@@ -12,12 +12,15 @@ import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import android.util.Log
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
-import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
+import com.dimitrilc.freemediaplayer.data.repos.ActiveMediaRepository
+import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepository
+import com.dimitrilc.freemediaplayer.data.repos.MediaManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import javax.inject.Inject
@@ -29,8 +32,17 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private val mLifecycleDispatcher = ServiceLifecycleDispatcher(this)
 
+    //@Inject
+    //lateinit var appDb: AppDatabase
+
     @Inject
-    lateinit var appDb: AppDatabase
+    lateinit var mediaManager: MediaManager
+
+    @Inject
+    lateinit var globalPlaylistRepository: GlobalPlaylistRepository
+
+    @Inject
+    lateinit var activeMediaItemRepository: ActiveMediaRepository
 
     private val stateBuilder = PlaybackStateCompat.Builder()
     private val metadataBuilder = MediaMetadataCompat.Builder()
@@ -307,7 +319,8 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                     )
                 }
 
-                appDb.globalPlaylistDao().replacePlaylist(shuffled)
+                globalPlaylistRepository.replacePlaylist(shuffled)
+                //TODO Fix crash
             }
         }
 
@@ -359,7 +372,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                 onPlayFromUri(item.uri, null)
             }
 
-            setActiveMediaMetaData(currentItemPos, item.id)
+            setActiveMedia(currentItemPos, item.id)
             setSessionMetadata(item.title, item.id, item.albumArtUri.toString())
             mediaSessionCompat.setRepeatMode(mRepeatMode)
         }
@@ -371,8 +384,9 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         }
     }
 
-    private suspend fun getActiveOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
-    private suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
+    private suspend fun getActiveOnce() = mediaManager.getActiveMediaItemOnce()
+    //private suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
+    private suspend fun getPlaylistOnce() = globalPlaylistRepository.getOnce()
 
     override fun onGetRoot(
         clientPackageName: String,
@@ -419,9 +433,15 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         mediaSessionCompat.setMetadata(metaData)
     }
 
-    private fun setActiveMediaMetaData(playlistPos: Long, id: Long){
+    private fun setActiveMedia(playlistPos: Long, id: Long){
         lifecycleScope.launch(Dispatchers.IO) {
-            appDb.activeMediaItemDao().insert(
+/*            appDb.activeMediaItemDao().insert(
+                ActiveMediaItem(
+                    globalPlaylistPosition = playlistPos,
+                    mediaItemId = id
+                )
+            )*/
+            activeMediaItemRepository.insert(
                 ActiveMediaItem(
                     globalPlaylistPosition = playlistPos,
                     mediaItemId = id

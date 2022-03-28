@@ -9,7 +9,7 @@ import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 interface GlobalPlaylistDao {
 
     @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
-    fun getGlobalPlaylist(): LiveData<List<MediaItem>>
+    fun getGlobalPlaylistObservable(): LiveData<List<MediaItem>>
 
     @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
     suspend fun getOnce(): List<MediaItem>

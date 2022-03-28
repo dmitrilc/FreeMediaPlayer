@@ -50,7 +50,7 @@ abstract class FolderItemsFragment : Fragment() {
     fun onFolderItemClicked(position: Int) {
         lifecycleScope.launch {
             withContext(Dispatchers.Main){
-                mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(currentPath, position)
+                mediaItemsViewModel.generateGlobalPlaylistAndActiveItem(currentPath, position, isAudio())
             }
 
             withContext(Dispatchers.Main){

@@ -1,6 +1,7 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
 import androidx.lifecycle.*
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
 import com.dimitrilc.freemediaplayer.ui.state.FoldersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -10,8 +11,9 @@ private const val TAG = "FOLDERS_VIEW_MODEL"
 
 @HiltViewModel
 class FoldersViewModel
-@Inject constructor(private val mediaItemRepository: MediaItemRepository)
-    : ViewModel() {
+@Inject constructor(
+    private val mediaItemRepository: MediaItemRepository
+    ) : ViewModel() {
 
     val foldersUiStateMutableCache = MutableLiveData<List<FoldersUiState>>()
 

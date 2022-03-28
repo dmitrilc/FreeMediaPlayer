@@ -13,12 +13,14 @@ import android.view.ViewGroup
 import android.widget.SeekBar
 import androidx.core.graphics.drawable.toDrawable
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.FragmentPlayerBinding
 import com.dimitrilc.freemediaplayer.service.CUSTOM_MEDIA_ID
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -33,6 +35,8 @@ abstract class PlayerFragment : Fragment() {
     protected val binding get() = _binding!!
 
     protected val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
+    private val playerViewModel: PlayerViewModel by viewModels()
+
     protected val mediaControllerCompat: MediaControllerCompat by lazy {
         getMediaController()
     }
@@ -188,12 +192,10 @@ abstract class PlayerFragment : Fragment() {
             val albumArtUri = metadata?.getString(METADATA_KEY_ALBUM_ART_URI)
             val videoId = metadata?.getLong(CUSTOM_MEDIA_ID)
 
-/*            if (albumArtUri != null && videoId == 0L){
+            if (albumArtUri != null && videoId == 0L){
                 lifecycleScope.launch {
-                    val drawable = async(Dispatchers.IO) {
-                        mediaItemsViewModel
-                            .getThumbnail(albumArtUri, null)
-                            ?.toDrawable(resources)
+                    val drawable = async {
+                        playerViewModel.getThumb(albumArtUri)?.toDrawable(resources)
                     }
 
                     binding.videoViewPlayer.background = drawable.await()
@@ -202,7 +204,7 @@ abstract class PlayerFragment : Fragment() {
                         binding.videoViewPlayer.visibility = View.VISIBLE
                     }
                 }
-            }*/
+            }
         }
 
         override fun onRepeatModeChanged(repeatMode: Int) {

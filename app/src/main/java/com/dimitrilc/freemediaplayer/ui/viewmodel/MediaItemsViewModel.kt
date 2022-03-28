@@ -1,82 +1,56 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
-import android.app.Application
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.*
-import androidx.room.withTransaction
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.ActiveMediaRepository
 import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepository
 import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
-import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
+import com.dimitrilc.freemediaplayer.data.repos.MediaManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val TAG = "MEDIA_ITEMS_VIEW_MODEL"
 
 @HiltViewModel
 class MediaItemsViewModel @Inject constructor(
-    private val appDb: AppDatabase,
-    private val mediaItemRepository: MediaItemRepository
+    private val globalPlaylistRepository: GlobalPlaylistRepository,
+    private val activeMediaRepository: ActiveMediaRepository,
+    //private val mediaItemRepository: MediaItemRepository,
+    private val mediaManager: MediaManager
 ): ViewModel() {
-
     val audioBrowser = MutableLiveData<MediaBrowserCompat>()
-    val globalPlaylist = appDb.globalPlaylistDao().getGlobalPlaylist()
-    val activeMediaLiveData = appDb.activeMediaItemDao().getMediaItemLiveData()
+    val activeMediaItemLiveData = mediaManager.getActiveMediaItemObservable()
 
-/*    fun updateCurrentFolderFullPath(fullPath: String){
+    suspend fun getActiveOnce() = mediaManager.getActiveMediaItemOnce()
+    suspend fun getPlaylistOnce() = globalPlaylistRepository.getOnce()
+
+    fun generateGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int, isAudio: Boolean) {
         viewModelScope.launch(Dispatchers.IO){
-            appDb.folderItemsUiDao()
-                .insertCurrentFolderItemsUi(
-                    FolderItemsUiState(fullPath = fullPath)
-                )
-        }
-    }*/
-
-    fun updateGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int) {
-/*        viewModelScope.launch(Dispatchers.IO){
-            appDb.withTransaction {
-                //Needs to run sequentially because of foreign key constraint
-                val items = appDb.mediaItemDao().getAllAudioByLocation(currentPath)
-                val playlist = items.mapIndexed { index, item ->
-                    GlobalPlaylistItem(
-                        mId = index.toLong(),
-                        mediaItemId = item.id)
-                }
-
-                appDb.globalPlaylistDao().replacePlaylist(playlist)
-
-                val selectedItem = items[selectedIndex]
-
-                val activeItem = ActiveMediaItem(
-                    globalPlaylistPosition = selectedIndex.toLong(),
-                    mediaItemId = selectedItem.id
-                )
-
-                appDb.activeMediaItemDao().insert(activeItem)
-            }
-        }*/
-        viewModelScope.launch(Dispatchers.IO){
-            mediaItemRepository.updateGlobalPlaylistAndActiveItem(currentPath, selectedIndex)
+            mediaManager.generateGlobalPlaylistAndActiveItem(currentPath, selectedIndex, isAudio)
         }
     }
 
-    suspend fun insertActiveMedia(currentItemPos: Long, id: Long) {
+    suspend fun updateGlobalPlaylistAndActiveItem(playlist: List<MediaItem>, activeItem: MediaItem) {
+        mediaManager.updateGlobalPlaylistAndActiveItem(playlist, activeItem)
+    }
+
+    fun insertActiveMedia(currentItemPos: Long, id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
-            appDb.activeMediaItemDao().insert(
+            activeMediaRepository.insert(
                 ActiveMediaItem(
-                    globalPlaylistPosition = currentItemPos,
-                    mediaItemId = id
-                )
-            )
+                globalPlaylistPosition = currentItemPos,
+                mediaItemId = id
+            ))
         }
     }
 
-    fun replacePlaylist(playlist: List<MediaItem>){
+/*    fun replacePlaylist(playlist: List<MediaItem>){
         viewModelScope.launch(Dispatchers.IO){
             val globalPlaylist = playlist.mapIndexed { index, item ->
                 GlobalPlaylistItem(
@@ -88,8 +62,5 @@ class MediaItemsViewModel @Inject constructor(
                 globalPlaylist
             )
         }
-    }
-
-    suspend fun getActiveOnce() = appDb.activeMediaItemDao().getMediaItemOnce()
-    suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
+    }*/
 }
