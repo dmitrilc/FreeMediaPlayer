@@ -120,4 +120,5 @@ dependencies {
     testImplementation "androidx.room:room-testing:$roomVersion"
     androidTestImplementation "androidx.work:work-testing:$work_version"
     testImplementation "org.mockito.kotlin:mockito-kotlin:$mockitoKotlinVersion"
+    testImplementation "org.robolectric:robolectric:4.6"
 }

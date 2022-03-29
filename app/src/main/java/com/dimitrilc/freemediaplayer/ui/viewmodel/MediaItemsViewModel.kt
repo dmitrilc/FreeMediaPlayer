@@ -2,8 +2,7 @@ package com.dimitrilc.freemediaplayer.ui.viewmodel
 
 import android.support.v4.media.MediaBrowserCompat
 import androidx.lifecycle.*
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
+import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.repos.ActiveMediaRepository
 import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
 import com.dimitrilc.freemediaplayer.data.repos.MediaManager
@@ -34,7 +33,7 @@ class MediaItemsViewModel @Inject constructor(
     fun insertActiveMedia(currentItemPos: Long, id: Long) {
         viewModelScope.launch(Dispatchers.IO) {
             activeMediaRepository.insert(
-                ActiveMediaItem(
+                ActiveMedia(
                 globalPlaylistPosition = currentItemPos,
                 mediaItemId = id
             ))

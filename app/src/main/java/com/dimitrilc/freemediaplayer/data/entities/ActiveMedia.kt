@@ -20,7 +20,7 @@ import androidx.room.PrimaryKey
         onUpdate = ForeignKey.CASCADE,
     )
 ])
-data class ActiveMediaItem(
+data class ActiveMedia(
     @PrimaryKey val mId: Int = 1,
     val globalPlaylistPosition: Long,
     val mediaItemId: Long

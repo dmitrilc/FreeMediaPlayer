@@ -13,7 +13,7 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
+import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.ActiveMediaRepository
 import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepository
@@ -401,7 +401,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private fun setActiveMedia(playlistPos: Long, id: Long){
         lifecycleScope.launch(Dispatchers.IO) {
             activeMediaItemRepository.insert(
-                ActiveMediaItem(
+                ActiveMedia(
                     globalPlaylistPosition = playlistPos,
                     mediaItemId = id
                 )

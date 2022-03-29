@@ -1,10 +1,10 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
+import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import kotlinx.coroutines.flow.Flow
 
 interface ActiveMediaRepository {
-    fun insert(activeMediaItem: ActiveMediaItem)
-    suspend fun getOnce(): ActiveMediaItem
-    fun getObservable(): Flow<ActiveMediaItem>
+    fun insert(activeMedia: ActiveMedia)
+    suspend fun getOnce(): ActiveMedia
+    fun getObservable(): Flow<ActiveMedia>
 }

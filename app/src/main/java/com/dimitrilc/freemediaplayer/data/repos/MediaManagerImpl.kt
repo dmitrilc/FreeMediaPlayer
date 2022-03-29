@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
 import androidx.room.withTransaction
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
+import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
@@ -32,7 +32,7 @@ class MediaManagerImpl @Inject constructor(
             globalPlaylistRepository.replacePlaylist(playlist)
 
             val selectedItem = items[selectedIndex]
-            val activeItem = ActiveMediaItem(
+            val activeItem = ActiveMedia(
                 globalPlaylistPosition = selectedIndex.toLong(),
                 mediaItemId = selectedItem.id
             )
@@ -54,7 +54,7 @@ class MediaManagerImpl @Inject constructor(
 
             val index = playlist.indexOf(activeItem)
 
-            val newActiveItem = ActiveMediaItem(
+            val newActiveItem = ActiveMedia(
                 globalPlaylistPosition = index.toLong(),
                 mediaItemId = activeItem.id
             )
