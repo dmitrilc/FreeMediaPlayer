@@ -8,7 +8,7 @@ class FoldersRelativeAdapterTest {
 
     @Test
     fun getItemCount() {
-        val dataSet = emptyList<RelativePath>()
+        val dataSet = emptyList<String>()
         val foldersRelativeAdapter = FoldersRelativeAdapter(dataSet, 0)
 
         assertEquals(dataSet.size, foldersRelativeAdapter.itemCount)

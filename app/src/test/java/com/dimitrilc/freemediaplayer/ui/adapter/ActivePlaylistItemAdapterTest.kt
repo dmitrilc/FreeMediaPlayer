@@ -10,6 +10,7 @@ class ActivePlaylistItemAdapterTest {
     fun getItemCount() {
         val dataset = mutableListOf<MediaItem>()
         val activePlaylistItemAdapter = ActivePlaylistItemAdapter(dataset)
+
         assertEquals(dataset.size, activePlaylistItemAdapter.itemCount)
     }
 }
