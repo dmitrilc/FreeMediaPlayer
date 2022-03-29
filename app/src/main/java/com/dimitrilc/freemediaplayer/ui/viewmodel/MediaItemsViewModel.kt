@@ -21,7 +21,6 @@ class MediaItemsViewModel @Inject constructor(
     private val mediaManager: MediaManager
 ): ViewModel() {
     val audioBrowser = MutableLiveData<MediaBrowserCompat>()
-    val activeMediaItemLiveData = mediaItemRepository.getActiveMediaItemObservable()
 
     suspend fun getActiveMediaItemOnce() = mediaItemRepository.getActiveMediaItemOnce()
     suspend fun getPlaylistOnce() = mediaItemRepository.getMediaItemsInGlobalPlaylistOnce()
@@ -30,10 +29,6 @@ class MediaItemsViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO){
             mediaManager.generateGlobalPlaylistAndActiveItem(currentPath, selectedIndex, isAudio)
         }
-    }
-
-    suspend fun updateGlobalPlaylistAndActiveItem(playlist: List<MediaItem>, activeItem: MediaItem) {
-        mediaManager.updateGlobalPlaylistAndActiveItem(playlist, activeItem)
     }
 
     fun insertActiveMedia(currentItemPos: Long, id: Long) {

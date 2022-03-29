@@ -10,6 +10,7 @@ import android.widget.ImageView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.viewModels
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
@@ -19,18 +20,22 @@ import androidx.recyclerview.widget.RecyclerView
 import com.dimitrilc.freemediaplayer.ui.adapter.ActivePlaylistItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FragmentActivePlaylistBinding
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
+import com.dimitrilc.freemediaplayer.ui.viewmodel.ActivePlaylistViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
+import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 private const val TAG = "ACTIVE_PLAYLIST"
 
+@AndroidEntryPoint
 class ActivePlaylistFragment : Fragment() {
 
     private var _binding: FragmentActivePlaylistBinding? = null
     private val binding get() = _binding!!
 
+    private val activePlaylistViewModel: ActivePlaylistViewModel by viewModels()
     private val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
 
     private val mPlaylistCache = mutableListOf<MediaItem>()
@@ -56,7 +61,7 @@ class ActivePlaylistFragment : Fragment() {
         }
 
         //Functions in this class should not use this value. This is only to update the cache.
-        mediaItemsViewModel.activeMediaItemLiveData.observe(viewLifecycleOwner){
+        activePlaylistViewModel.activeMediaItemLiveData.observe(viewLifecycleOwner){
             mActiveMediaCache.value = it
         }
 
@@ -84,7 +89,7 @@ class ActivePlaylistFragment : Fragment() {
         if (controller != null){ //audio
             lifecycleScope.launch {
                 withContext(Dispatchers.IO){
-                    mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+                    activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
                 }
                 withContext(Dispatchers.IO){
                     controller.transportControls.skipToQueueItem(bindingAdapterPosition.toLong())
@@ -92,7 +97,7 @@ class ActivePlaylistFragment : Fragment() {
             }
         } else { //video
             lifecycleScope.launch {
-                mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+                activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
             }
             val navController = findNavController()
             navController.popBackStack()
@@ -120,7 +125,7 @@ class ActivePlaylistFragment : Fragment() {
             }*/
 
             lifecycleScope.launch(Dispatchers.IO){
-                mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, movedItem)
+                activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, movedItem)
             }
 
             binding.recyclerActivePlaylist.adapter!!.notifyItemMoved(fromPos, toPos)
@@ -149,7 +154,7 @@ class ActivePlaylistFragment : Fragment() {
 
                 lifecycleScope.launch {
                     withContext(Dispatchers.IO){
-                        mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[nextItemIndex])
+                        activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[nextItemIndex])
                     }
                     withContext(Dispatchers.IO){
                         activity?.mediaController?.transportControls?.skipToQueueItem(nextItemIndex.toLong())
@@ -157,7 +162,7 @@ class ActivePlaylistFragment : Fragment() {
                 }
             } else {
                 lifecycleScope.launch(Dispatchers.IO) {
-                    mediaItemsViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mActiveMediaCache.value!!)
+                    activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mActiveMediaCache.value!!)
                 }
             }
         }
