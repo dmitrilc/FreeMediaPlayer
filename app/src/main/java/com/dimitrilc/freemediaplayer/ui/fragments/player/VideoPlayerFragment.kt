@@ -192,7 +192,7 @@ class VideoPlayerFragment : PlayerFragment() {
         override fun onSkipToNext() {
             super.onSkipToNext()
             lifecycleScope.launch{
-                val currentItem = mediaItemsViewModel.getActiveOnce()
+                val currentItem = mediaItemsViewModel.getActiveMediaItemOnce()
                 val playlist = mediaItemsViewModel.getPlaylistOnce()
                 val currentItemPos = playlist.indexOf(currentItem)
 
@@ -211,7 +211,7 @@ class VideoPlayerFragment : PlayerFragment() {
         override fun onSkipToPrevious() {
             super.onSkipToPrevious()
             lifecycleScope.launch{
-                val currentItem = mediaItemsViewModel.getActiveOnce()
+                val currentItem = mediaItemsViewModel.getActiveMediaItemOnce()
                 val playlist = mediaItemsViewModel.getPlaylistOnce()
                 val currentItemPos = playlist.indexOf(currentItem)
 
@@ -274,7 +274,7 @@ class VideoPlayerFragment : PlayerFragment() {
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
             if (command == PLAY_SELECTED) {
                 lifecycleScope.launch {
-                    val item = mediaItemsViewModel.getActiveOnce()
+                    val item = mediaItemsViewModel.getActiveMediaItemOnce()
                     val playlist = mediaItemsViewModel.getPlaylistOnce()
                     val currentItemPos = playlist.indexOf(item).toLong()
 

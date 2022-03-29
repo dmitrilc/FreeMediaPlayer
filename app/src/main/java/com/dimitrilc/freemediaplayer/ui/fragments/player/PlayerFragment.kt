@@ -22,7 +22,6 @@ import com.dimitrilc.freemediaplayer.service.CUSTOM_MEDIA_ID
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 

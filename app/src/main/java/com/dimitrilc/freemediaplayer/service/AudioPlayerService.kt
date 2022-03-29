@@ -7,19 +7,17 @@ import android.os.Bundle
 import android.os.IBinder
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
-import android.support.v4.media.MediaDescriptionCompat
 import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
-import android.util.Log
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.ActiveMediaRepository
 import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepository
+import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
 import com.dimitrilc.freemediaplayer.data.repos.MediaManager
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
@@ -32,9 +30,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private val mLifecycleDispatcher = ServiceLifecycleDispatcher(this)
 
-    //@Inject
-    //lateinit var appDb: AppDatabase
-
     @Inject
     lateinit var mediaManager: MediaManager
 
@@ -44,10 +39,11 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     @Inject
     lateinit var activeMediaItemRepository: ActiveMediaRepository
 
+    @Inject
+    lateinit var mediaItemRepository: MediaItemRepository
+
     private val stateBuilder = PlaybackStateCompat.Builder()
     private val metadataBuilder = MediaMetadataCompat.Builder()
-    private val mediaDescBuilder = MediaDescriptionCompat.Builder()
-    //private var mediaPlayer: MediaPlayer? = null
 
     private var mRepeatMode = REPEAT_MODE_NONE
 
@@ -310,38 +306,8 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         override fun onSetShuffleMode(shuffleMode: Int) {
             super.onSetShuffleMode(shuffleMode)
             lifecycleScope.launch(Dispatchers.IO){
-                val playlist = getPlaylistOnce()
-
-                val shuffled = playlist.shuffled().mapIndexed { index, item ->
-                    GlobalPlaylistItem(
-                        mId = index.toLong(),
-                        mediaItemId = item.id
-                    )
-                }
-
-                globalPlaylistRepository.replacePlaylist(shuffled)
-                //TODO Fix crash
+                mediaManager.shuffleGlobalPlaylistAndActiveItem()
             }
-        }
-
-        override fun onAddQueueItem(description: MediaDescriptionCompat?) {
-            super.onAddQueueItem(description)
-
-/*            description?.mediaId?.toLong()?.let {
-                playlist.add(
-                    MediaSessionCompat.QueueItem(description, it)
-                )
-            }*/
-        }
-
-        override fun onRemoveQueueItem(description: MediaDescriptionCompat?) {
-            super.onRemoveQueueItem(description)
-
-/*            description?.mediaId?.toLong()?.let {
-                playlist.remove(
-                    MediaSessionCompat.QueueItem(description, it)
-                )
-            }*/
         }
 
         override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
@@ -384,9 +350,8 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         }
     }
 
-    private suspend fun getActiveOnce() = mediaManager.getActiveMediaItemOnce()
-    //private suspend fun getPlaylistOnce() = appDb.globalPlaylistDao().getOnce()
-    private suspend fun getPlaylistOnce() = globalPlaylistRepository.getOnce()
+    private suspend fun getActiveOnce() = mediaItemRepository.getActiveMediaItemOnce()
+    private suspend fun getPlaylistOnce() = mediaItemRepository.getMediaItemsInGlobalPlaylistOnce()
 
     override fun onGetRoot(
         clientPackageName: String,
@@ -435,12 +400,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun setActiveMedia(playlistPos: Long, id: Long){
         lifecycleScope.launch(Dispatchers.IO) {
-/*            appDb.activeMediaItemDao().insert(
-                ActiveMediaItem(
-                    globalPlaylistPosition = playlistPos,
-                    mediaItemId = id
-                )
-            )*/
             activeMediaItemRepository.insert(
                 ActiveMediaItem(
                     globalPlaylistPosition = playlistPos,

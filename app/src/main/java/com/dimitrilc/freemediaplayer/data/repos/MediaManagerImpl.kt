@@ -1,16 +1,10 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.asLiveData
 import androidx.room.withTransaction
-import com.dimitrilc.freemediaplayer.data.datasources.MediaItemRoomDataSource
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.*
 import javax.inject.Inject
 
 class MediaManagerImpl @Inject constructor(
@@ -69,22 +63,29 @@ class MediaManagerImpl @Inject constructor(
         }
     }
 
-    override suspend fun getActiveMediaItemOnce(): MediaItem {
-        return appDb.withTransaction {
-            val activeMedia = activeMediaRepository.getOnce()
+    override suspend fun shuffleGlobalPlaylistAndActiveItem() {
+        appDb.withTransaction {
+            val playlist = mediaItemRepository.getMediaItemsInGlobalPlaylistOnce()
+            val previousActive = activeMediaRepository.getOnce()
 
-            mediaItemRepository.getById(activeMedia.mediaItemId)
-        }
-    }
-
-    override fun getActiveMediaItemObservable(): LiveData<MediaItem> {
-        val flow = flow {
-            activeMediaRepository.getObservable().collect {
-                val mediaItem = mediaItemRepository.getById(it.mediaItemId)
-                emit(mediaItem)
+            val shuffled = playlist.shuffled().mapIndexed { index, item ->
+                GlobalPlaylistItem(
+                    mId = index.toLong(),
+                    mediaItemId = item.id
+                )
             }
-        }
 
-        return flow.asLiveData()
+            globalPlaylistRepository.replacePlaylist(shuffled)
+
+            val newIndexOfPreviousActive = shuffled.indexOfFirst {
+                it.mediaItemId == previousActive.mediaItemId
+            }
+
+            val newActive = previousActive.copy(
+                globalPlaylistPosition = newIndexOfPreviousActive.toLong()
+            )
+
+            activeMediaRepository.insert(newActive)
+        }
     }
 }

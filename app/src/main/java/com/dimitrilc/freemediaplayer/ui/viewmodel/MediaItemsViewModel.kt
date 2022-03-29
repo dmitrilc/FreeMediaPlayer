@@ -5,30 +5,26 @@ import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.ActiveMediaRepository
-import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepository
 import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
 import com.dimitrilc.freemediaplayer.data.repos.MediaManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 private const val TAG = "MEDIA_ITEMS_VIEW_MODEL"
 
 @HiltViewModel
 class MediaItemsViewModel @Inject constructor(
-    private val globalPlaylistRepository: GlobalPlaylistRepository,
     private val activeMediaRepository: ActiveMediaRepository,
-    //private val mediaItemRepository: MediaItemRepository,
+    private val mediaItemRepository: MediaItemRepository,
     private val mediaManager: MediaManager
 ): ViewModel() {
     val audioBrowser = MutableLiveData<MediaBrowserCompat>()
-    val activeMediaItemLiveData = mediaManager.getActiveMediaItemObservable()
+    val activeMediaItemLiveData = mediaItemRepository.getActiveMediaItemObservable()
 
-    suspend fun getActiveOnce() = mediaManager.getActiveMediaItemOnce()
-    suspend fun getPlaylistOnce() = globalPlaylistRepository.getOnce()
+    suspend fun getActiveMediaItemOnce() = mediaItemRepository.getActiveMediaItemOnce()
+    suspend fun getPlaylistOnce() = mediaItemRepository.getMediaItemsInGlobalPlaylistOnce()
 
     fun generateGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int, isAudio: Boolean) {
         viewModelScope.launch(Dispatchers.IO){
@@ -49,18 +45,4 @@ class MediaItemsViewModel @Inject constructor(
             ))
         }
     }
-
-/*    fun replacePlaylist(playlist: List<MediaItem>){
-        viewModelScope.launch(Dispatchers.IO){
-            val globalPlaylist = playlist.mapIndexed { index, item ->
-                GlobalPlaylistItem(
-                    index.toLong(), item.id
-                )
-            }
-
-            appDb.globalPlaylistDao().replacePlaylist(
-                globalPlaylist
-            )
-        }
-    }*/
 }

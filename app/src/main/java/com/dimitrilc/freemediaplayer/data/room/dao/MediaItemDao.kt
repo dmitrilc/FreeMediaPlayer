@@ -6,9 +6,6 @@ import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 
 @Dao
 interface MediaItemDao {
-    @Query("SELECT * FROM media_items")
-    suspend fun getAll(): List<MediaItem>
-
     @Query("SELECT * FROM media_items WHERE isAudio=1")
     suspend fun getAllAudio(): List<MediaItem>
 
@@ -27,22 +24,25 @@ interface MediaItemDao {
     @Query("SELECT * FROM media_items WHERE isAudio=0 AND location=:location")
     suspend fun getAllVideoByLocation(location: String): List<MediaItem>
 
-    @Query("SELECT DISTINCT uri FROM media_items")
-    suspend fun getUris(): List<String>
-
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: MediaItem)
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertAll(item: Collection<MediaItem>)
 
-/*    @Query("SELECT * from media_items WHERE location=(SELECT fullPath from folderItemsUiState LIMIT 1) AND isAudio=1")
-    fun getCurrentAudioFolderItems(): LiveData<List<MediaItem>>
-
-    @Query("SELECT * from media_items WHERE location=(SELECT fullPath from folderItemsUiState LIMIT 1) AND isAudio=0")
-    fun getCurrentVideoFolderItems(): LiveData<List<MediaItem>>*/
-
     @Query("SELECT * FROM media_items WHERE id = :id")
     suspend fun getById(id: Long): MediaItem
+
+    @Query("SELECT * FROM media_items WHERE id=(SELECT mediaItemId FROM active_item LIMIT 1)")
+    suspend fun getActiveMediaItemOnce(): MediaItem
+
+    @Query("SELECT * FROM media_items WHERE id=(SELECT mediaItemId FROM active_item LIMIT 1)")
+    fun getActiveMediaItemObservable(): LiveData<MediaItem>
+
+    @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
+    fun getMediaItemsInGlobalPlaylistObservable(): LiveData<List<MediaItem>>
+
+    @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
+    suspend fun getMediaItemsInGlobalPlaylistOnce(): List<MediaItem>
 
 }

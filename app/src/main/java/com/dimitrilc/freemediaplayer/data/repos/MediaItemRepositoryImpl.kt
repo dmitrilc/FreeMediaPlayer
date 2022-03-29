@@ -1,11 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
-import androidx.room.withTransaction
 import com.dimitrilc.freemediaplayer.data.datasources.MediaItemRoomDataSource
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMediaItem
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
-import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import javax.inject.Inject
 
 class MediaItemRepositoryImpl @Inject constructor(
@@ -21,4 +16,10 @@ class MediaItemRepositoryImpl @Inject constructor(
     override fun getAllVideoObservable() = mediaItemRoomDataSource.getAllVideoObservable()
 
     override suspend fun getById(id: Long) = mediaItemRoomDataSource.getById(id)
+
+    override suspend fun getActiveMediaItemOnce() = mediaItemRoomDataSource.getActiveMediaItemOnce()
+    override fun getActiveMediaItemObservable() = mediaItemRoomDataSource.getActiveMediaItemObservable()
+
+    override fun getMediaItemsInGlobalPlaylistObservable() = mediaItemRoomDataSource.getMediaItemsInGlobalPlaylistObservable()
+    override suspend fun getMediaItemsInGlobalPlaylistOnce() = mediaItemRoomDataSource.getMediaItemsInGlobalPlaylistOnce()
 }

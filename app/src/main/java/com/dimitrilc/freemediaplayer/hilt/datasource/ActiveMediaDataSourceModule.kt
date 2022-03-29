@@ -5,7 +5,6 @@ import com.dimitrilc.freemediaplayer.data.datasources.ActiveMediaRoomDataSourceI
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
-import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.components.SingletonComponent
 
 @Module

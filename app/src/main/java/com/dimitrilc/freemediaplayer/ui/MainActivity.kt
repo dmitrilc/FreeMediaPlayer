@@ -1,10 +1,8 @@
 package com.dimitrilc.freemediaplayer.ui
 
 import android.Manifest
-import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -27,7 +25,6 @@ import com.dimitrilc.freemediaplayer.worker.MediaScanWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 
 private const val TAG = "MAIN_ACTIVITY"
 

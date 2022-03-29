@@ -8,13 +8,6 @@ class ActiveMediaRoomDataSourceImpl
 @Inject constructor(private val activeMediaDao: ActiveMediaDao)
     : ActiveMediaRoomDataSource {
     override fun insert(activeMediaItem: ActiveMediaItem) = activeMediaDao.insert(activeMediaItem)
-
-    //override fun getMediaItemObservable(): LiveData<MediaItem> = activeMediaItemDao.getMediaItemObservable()
-
     override suspend fun getOnce() = activeMediaDao.getOnce()
-
     override fun getObservable() = activeMediaDao.getObservable()
-
-
-    //override suspend fun getActiveMediaItemOnce() = activeMediaItemDao.getActiveMediaItemOnce()
 }

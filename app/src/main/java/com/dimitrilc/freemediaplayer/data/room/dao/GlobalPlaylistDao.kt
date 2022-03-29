@@ -3,16 +3,15 @@ package com.dimitrilc.freemediaplayer.data.room.dao
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 
 @Dao
 interface GlobalPlaylistDao {
 
-    @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
-    fun getGlobalPlaylistObservable(): LiveData<List<MediaItem>>
+    @Query("SELECT * FROM global_playlist")
+    fun getAllObservable(): LiveData<List<GlobalPlaylistItem>>
 
-    @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
-    suspend fun getOnce(): List<MediaItem>
+    @Query("SELECT * FROM global_playlist")
+    suspend fun getAllOnce(): List<GlobalPlaylistItem>
 
     @Transaction
     fun replacePlaylist(playlist: List<GlobalPlaylistItem>){

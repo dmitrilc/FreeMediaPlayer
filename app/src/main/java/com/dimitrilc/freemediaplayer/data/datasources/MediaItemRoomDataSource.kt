@@ -14,4 +14,11 @@ interface MediaItemRoomDataSource {
     fun getAllVideoObservable(): LiveData<List<MediaItem>>
 
     suspend fun getById(id: Long): MediaItem
+
+    suspend fun getActiveMediaItemOnce(): MediaItem
+    fun getActiveMediaItemObservable(): LiveData<MediaItem>
+
+    fun getMediaItemsInGlobalPlaylistObservable(): LiveData<List<MediaItem>>
+    suspend fun getMediaItemsInGlobalPlaylistOnce(): List<MediaItem>
+
 }

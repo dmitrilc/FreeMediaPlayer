@@ -1,7 +1,6 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
 import androidx.lifecycle.*
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
 import com.dimitrilc.freemediaplayer.ui.state.FoldersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel

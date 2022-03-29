@@ -15,4 +15,10 @@ class MediaItemRoomDataSourceImpl @Inject constructor(private val mediaItemDao: 
     override fun getAllVideoObservable() = mediaItemDao.getAllVideObservable()
 
     override suspend fun getById(id: Long) = mediaItemDao.getById(id)
+
+    override suspend fun getActiveMediaItemOnce() = mediaItemDao.getActiveMediaItemOnce()
+    override fun getActiveMediaItemObservable() = mediaItemDao.getActiveMediaItemObservable()
+
+    override fun getMediaItemsInGlobalPlaylistObservable() = mediaItemDao.getMediaItemsInGlobalPlaylistObservable()
+    override suspend fun getMediaItemsInGlobalPlaylistOnce() = mediaItemDao.getMediaItemsInGlobalPlaylistOnce()
 }

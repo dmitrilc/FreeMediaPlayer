@@ -3,7 +3,6 @@ package com.dimitrilc.freemediaplayer.worker
 import android.content.ContentUris
 import android.content.Context
 import android.provider.MediaStore
-import android.util.Log
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
@@ -12,7 +11,6 @@ import com.dimitrilc.freemediaplayer.isSameOrAfterQ
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.*
 
 private const val TAG = "MEDIA_SCAN_WORKER"
 
