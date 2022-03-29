@@ -1,5 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.entities
 
+import android.net.Uri
 import org.junit.Assert.*
 
 import org.junit.Test
@@ -10,98 +11,106 @@ import org.robolectric.RobolectricTestRunner
 class MediaItemTest {
 
     @Test
-    fun getId() {
-    }
-
-    @Test
-    fun getUri() {
-    }
-
-    @Test
-    fun getData() {
-    }
-
-    @Test
-    fun getDisplayName() {
-    }
-
-    @Test
-    fun getTitle() {
-    }
-
-    @Test
-    fun isAudio() {
-    }
-
-    @Test
-    fun getLocation() {
-    }
-
-    @Test
-    fun getAlbum() {
-    }
-
-    @Test
-    fun getAlbumId() {
-    }
-
-    @Test
-    fun getAlbumArtUri() {
-    }
-
-    @Test
-    operator fun component1() {
-    }
-
-    @Test
-    operator fun component2() {
-    }
-
-    @Test
-    operator fun component3() {
-    }
-
-    @Test
-    operator fun component4() {
-    }
-
-    @Test
-    operator fun component5() {
-    }
-
-    @Test
-    operator fun component6() {
-    }
-
-    @Test
-    operator fun component7() {
-    }
-
-    @Test
-    operator fun component8() {
-    }
-
-    @Test
-    operator fun component9() {
-    }
-
-    @Test
-    operator fun component10() {
-    }
-
-    @Test
-    fun copy() {
-    }
-
-    @Test
     fun testToString() {
+        val id = 1L
+        val uri = Uri.parse("Uri")
+        val data = "data"
+        val displayName = "displayName"
+        val title = "title"
+        val isAudio = true
+        val location = "location"
+        val album = "album"
+        val albumId = 1
+        val albumArtUri = "albumArtUri"
+
+        val mediaItem = MediaItem(
+            id = id,
+            uri = uri,
+            data = data,
+            displayName = displayName,
+            title = title,
+            isAudio = isAudio,
+            location = location,
+            album = album,
+            albumId = albumId,
+            albumArtUri = albumArtUri
+        )
+
+        val sampleString = "MediaItem(id=1, uri=Uri, data=data, displayName=displayName, title=title, isAudio=true, location=location, album=album, albumId=1, albumArtUri=albumArtUri)"
+
+        assertEquals(mediaItem.toString(), sampleString)
     }
 
     @Test
     fun testHashCode() {
+        val id = 1L
+        val uri = Uri.parse("Uri")
+        val data = "data"
+        val displayName = "displayName"
+        val title = "title"
+        val isAudio = true
+        val location = "location"
+        val album = "album"
+        val albumId = 1
+        val albumArtUri = "albumArtUri"
+
+        val mediaItem = MediaItem(
+            id = id,
+            uri = uri,
+            data = data,
+            displayName = displayName,
+            title = title,
+            isAudio = isAudio,
+            location = location,
+            album = album,
+            albumId = albumId,
+            albumArtUri = albumArtUri
+        )
+
+        val sampleHash = 1125974696
+
+        assertEquals(mediaItem.hashCode(), sampleHash)
     }
 
     @Test
     fun testEquals() {
+        val id = 1L
+        val uri = Uri.parse("Uri")
+        val data = "data"
+        val displayName = "displayName"
+        val title = "title"
+        val isAudio = true
+        val location = "location"
+        val album = "album"
+        val albumId = 1
+        val albumArtUri = "albumArtUri"
+
+        val mediaItem = MediaItem(
+            id = id,
+            uri = uri,
+            data = data,
+            displayName = displayName,
+            title = title,
+            isAudio = isAudio,
+            location = location,
+            album = album,
+            albumId = albumId,
+            albumArtUri = albumArtUri
+        )
+
+        val mediaItem2 = MediaItem(
+            id = id,
+            uri = uri,
+            data = data,
+            displayName = displayName,
+            title = title,
+            isAudio = isAudio,
+            location = location,
+            album = album,
+            albumId = albumId,
+            albumArtUri = albumArtUri
+        )
+
+        assertEquals(mediaItem, mediaItem2)
     }
 }

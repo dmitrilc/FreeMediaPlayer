@@ -15,6 +15,6 @@ private const val TAG = "BottomNavHilt"
 object BottomNavProtoDataStoreModule {
 
     @Provides
-    fun provideABottomNavProtoDataStore(@ApplicationContext context: Context) = context.bottomNavProtoDataStore
+    fun provideBottomNavProtoDataStore(@ApplicationContext context: Context) = context.bottomNavProtoDataStore
 
 }

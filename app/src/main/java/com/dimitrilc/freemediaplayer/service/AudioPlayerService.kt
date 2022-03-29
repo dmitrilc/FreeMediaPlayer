@@ -24,6 +24,8 @@ import kotlinx.coroutines.*
 import javax.inject.Inject
 
 private const val TAG = "PLAYER_SERVICE"
+const val PLAY_SELECTED = "PLAY_SELECTED"
+const val CUSTOM_MEDIA_ID = "custom.media.id"
 
 @AndroidEntryPoint
 class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
@@ -410,6 +412,3 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }
 
 }
-
-const val PLAY_SELECTED = "PLAY_SELECTED"
-const val CUSTOM_MEDIA_ID = "custom.media.id"
