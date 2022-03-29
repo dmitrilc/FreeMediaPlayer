@@ -9,7 +9,9 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class GlobalPlaylistDataSourceModule {
+abstract class GlobalPlaylistRoomDataSourceModule {
     @Binds
-    abstract fun bindGlobalPlaylistDataSource(globalPlaylistDataSource: GlobalPlaylistRoomDataSourceImpl): GlobalPlaylistRoomDataSource
+    abstract fun bindGlobalPlaylistRoomDataSource(
+        globalPlaylistRoomDataSource: GlobalPlaylistRoomDataSourceImpl
+    ): GlobalPlaylistRoomDataSource
 }

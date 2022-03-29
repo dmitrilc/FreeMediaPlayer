@@ -1,9 +1,8 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
-import android.app.Application
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
-import com.dimitrilc.freemediaplayer.getThumbnail
+import com.dimitrilc.freemediaplayer.data.repos.MediaStoreRepository
 import com.dimitrilc.freemediaplayer.ui.state.FolderItemsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -13,7 +12,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderItemsViewModel @Inject constructor(
     private val mediaItemRepository: MediaItemRepository,
-    private val app: Application
+    private val mediaStoreRepository: MediaStoreRepository
     ) : ViewModel(){
     private val _folderItemsUiState = MutableLiveData<List<FolderItemsUiState>>()
     val folderItemsUiState = _folderItemsUiState as LiveData<List<FolderItemsUiState>>
@@ -30,7 +29,7 @@ class FolderItemsViewModel @Inject constructor(
                 FolderItemsUiState(
                     title = it.title,
                     album = it.album,
-                    thumbnail = app.getThumbnail(it.albumArtUri, if (isAudio) null else it.id)
+                    thumbnail = mediaStoreRepository.getThumbnail(it.albumArtUri, if (isAudio) null else it.id)
                 )
             }
 

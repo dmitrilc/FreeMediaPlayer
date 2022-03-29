@@ -20,4 +20,6 @@ interface MediaItemRepository {
 
     fun getMediaItemsInGlobalPlaylistObservable(): LiveData<List<MediaItem>>
     suspend fun getMediaItemsInGlobalPlaylistOnce(): List<MediaItem>
+
+    fun insertMediaItems(items: Collection<MediaItem>)
 }

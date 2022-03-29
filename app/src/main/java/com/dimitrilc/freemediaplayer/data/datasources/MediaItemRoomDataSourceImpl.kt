@@ -21,4 +21,6 @@ class MediaItemRoomDataSourceImpl @Inject constructor(private val mediaItemDao: 
 
     override fun getMediaItemsInGlobalPlaylistObservable() = mediaItemDao.getMediaItemsInGlobalPlaylistObservable()
     override suspend fun getMediaItemsInGlobalPlaylistOnce() = mediaItemDao.getMediaItemsInGlobalPlaylistOnce()
+
+    override fun insertMediaItems(items: Collection<MediaItem>) = mediaItemDao.insertAll(items)
 }

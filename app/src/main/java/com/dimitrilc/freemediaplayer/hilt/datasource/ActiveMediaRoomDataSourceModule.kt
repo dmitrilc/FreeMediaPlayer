@@ -9,7 +9,9 @@ import dagger.hilt.components.SingletonComponent
 
 @Module
 @InstallIn(SingletonComponent::class)
-abstract class ActiveMediaDataSourceModule {
+abstract class ActiveMediaRoomDataSourceModule {
     @Binds
-    abstract fun bindActiveMediaDataSource(activeMediaDataSource: ActiveMediaRoomDataSourceImpl): ActiveMediaRoomDataSource
+    abstract fun bindActiveMediaRoomDataSource(
+        activeMediaRoomDataSource: ActiveMediaRoomDataSourceImpl
+    ): ActiveMediaRoomDataSource
 }

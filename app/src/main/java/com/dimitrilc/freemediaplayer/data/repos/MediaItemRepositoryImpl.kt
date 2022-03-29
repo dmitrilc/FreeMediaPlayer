@@ -1,6 +1,7 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
 import com.dimitrilc.freemediaplayer.data.datasources.MediaItemRoomDataSource
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import javax.inject.Inject
 
 class MediaItemRepositoryImpl @Inject constructor(
@@ -22,4 +23,6 @@ class MediaItemRepositoryImpl @Inject constructor(
 
     override fun getMediaItemsInGlobalPlaylistObservable() = mediaItemRoomDataSource.getMediaItemsInGlobalPlaylistObservable()
     override suspend fun getMediaItemsInGlobalPlaylistOnce() = mediaItemRoomDataSource.getMediaItemsInGlobalPlaylistOnce()
+
+    override fun insertMediaItems(items: Collection<MediaItem>) = mediaItemRoomDataSource.insertMediaItems(items)
 }
