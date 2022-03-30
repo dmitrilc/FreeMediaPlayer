@@ -122,4 +122,9 @@ dependencies {
     testImplementation "com.google.dagger:hilt-android-testing:$hilt_version"
     kaptTest "com.google.dagger:hilt-compiler:$hilt_version"
     testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0'
+    //Espresso
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.4.0'
+    androidTestImplementation 'androidx.test:runner:1.4.0'
+    androidTestImplementation 'androidx.test:rules:1.4.0'
+
 }
