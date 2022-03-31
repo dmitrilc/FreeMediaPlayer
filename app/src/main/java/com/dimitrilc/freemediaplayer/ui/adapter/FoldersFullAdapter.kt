@@ -20,7 +20,7 @@ class FoldersFullAdapter(
         RecyclerView.ViewHolder(folderFullViewBinding.root) {
         private val cardView: CardView = folderFullViewBinding.cardViewFolderFullPath
         val fullPath: TextView = folderFullViewBinding.textViewFolderFullPath
-        val relativeRecyclerView: RecyclerView = folderFullViewBinding.recyclerAudioFoldersRelative
+        val relativeRecyclerView: RecyclerView = folderFullViewBinding.recyclerFoldersRelative
 
         init {
             cardView.setOnClickListener {
