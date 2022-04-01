@@ -24,7 +24,6 @@ import org.junit.runner.RunWith
 @RunWith(AndroidJUnit4::class)
 class AudioFolderItemsFragmentTest {
 
-    private val childCount = 6
     private val titles = listOf(
         "Night Owl",
         "My Always Mood",
@@ -33,6 +32,7 @@ class AudioFolderItemsFragmentTest {
         "Mell's Parade",
         "Only Instrumental"
     )
+    private val childCount = titles.size
 
     private val album = "Directionless EP"
 
@@ -67,6 +67,7 @@ class AudioFolderItemsFragmentTest {
         for(title in titles){
             onView(allOf(
                 withId(R.id.textView_folderItemAlbum),
+                withText(album),
                 hasSibling(allOf(
                     withId(R.id.textView_folderItemTitle),
                     withText(title)
