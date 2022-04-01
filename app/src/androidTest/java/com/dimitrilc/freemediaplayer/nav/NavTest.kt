@@ -1,80 +1,20 @@
-package com.dimitrilc.freemediaplayer.ui
+package com.dimitrilc.freemediaplayer.nav
 
 import androidx.navigation.findNavController
-import androidx.test.espresso.Espresso.*
-import androidx.test.espresso.action.ViewActions.*
-import androidx.test.espresso.contrib.RecyclerViewActions.actionOnItemAtPosition
-import androidx.test.espresso.matcher.ViewMatchers.*
 import androidx.test.ext.junit.rules.ActivityScenarioRule
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.dimitrilc.freemediaplayer.R
-import androidx.test.espresso.matcher.ViewMatchers.Visibility.*
+import com.dimitrilc.freemediaplayer.*
+import com.dimitrilc.freemediaplayer.ui.*
 import org.junit.Assert.*
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
-import com.dimitrilc.freemediaplayer.ui.adapter.FoldersFullAdapter.FolderFullViewHolder
-import com.dimitrilc.freemediaplayer.ui.adapter.FoldersRelativeAdapter.FolderRelativeViewHolder
-import com.dimitrilc.freemediaplayer.ui.adapter.MediaFolderItemAdapter
-import com.dimitrilc.freemediaplayer.ui.adapter.MediaFolderItemAdapter.FolderItemViewHolder
-import org.hamcrest.Matchers.allOf
 
 @RunWith(AndroidJUnit4::class)
 class NavTest {
 
     @get:Rule
     val activityRule = ActivityScenarioRule(MainActivity::class.java)
-
-    private fun clickBackButton(){
-        onView(withContentDescription("Navigate up"))
-            .perform(click())
-    }
-
-    private fun clickActivePlaylistButton(){
-        onView(withId(R.id.imageButton_playerPlaylist))
-            .perform(click())
-    }
-
-    private fun clickFirstFolderItem(){
-        onView(withId(R.id.recycler_folderItems))
-            .perform(actionOnItemAtPosition<FolderItemViewHolder>(
-                0,
-                click()
-            ))
-    }
-
-    private fun clickFirstFolderRelative(){
-        onView(allOf(
-            withId(R.id.recycler_foldersRelative),
-            withEffectiveVisibility(VISIBLE)
-        )).perform(actionOnItemAtPosition<FolderRelativeViewHolder>(
-            0,
-            click()
-        ))
-    }
-
-    private fun clickFirstFolderFull(){
-        onView(withId(R.id.recycler_FoldersFull))
-            .perform(actionOnItemAtPosition<FolderFullViewHolder>(
-                0,
-                click()
-            ))
-    }
-
-    private fun clickAudioButton(){
-        onView(withId(R.id.audio_folders_path))
-            .perform(click())
-    }
-
-    private fun clickVideoButton(){
-        onView(withId(R.id.video_folders_path))
-            .perform(click())
-    }
-
-    private fun clickPlaylistsButton(){
-        onView(withId(R.id.playlists_path))
-            .perform(click())
-    }
 
     private fun assertsCurrentPathIsSpecifiedPath(resId: Int){
         activityRule.scenario.onActivity {
