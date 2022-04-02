@@ -5,6 +5,7 @@ import androidx.datastore.core.DataStore
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.data.proto.BottomNavProto
+import com.dimitrilc.freemediaplayer.data.repos.MediaManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -12,8 +13,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainActivityViewModel @Inject constructor(
-    app: Application,
-    private val bottomNavDataStore: DataStore<BottomNavProto>
+    private val app: Application,
+    private val bottomNavDataStore: DataStore<BottomNavProto>,
+    private val mediaManager: MediaManager
     ): AndroidViewModel(app) {
 
     fun getBottomNavState() = bottomNavDataStore.data
@@ -40,5 +42,9 @@ class MainActivityViewModel @Inject constructor(
     private fun idToBottomNavState(id: Int) =
         if (id == R.id.audio_folders_path) BottomNavProto.State.MUSIC
         else BottomNavProto.State.VIDEOS
+
+    fun activateMediaScanWorker() {
+        mediaManager.activateMediaScanWorker()
+    }
 
 }

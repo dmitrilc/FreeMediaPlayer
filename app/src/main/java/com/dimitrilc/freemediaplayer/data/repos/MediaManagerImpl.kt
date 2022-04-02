@@ -1,17 +1,22 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
+import android.app.Application
 import androidx.room.withTransaction
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
+import com.dimitrilc.freemediaplayer.data.worker.MediaScanWorker
 import javax.inject.Inject
 
 class MediaManagerImpl @Inject constructor(
     private val mediaItemRepository: MediaItemRepository,
     private val globalPlaylistRepository: GlobalPlaylistRepository,
     private val activeMediaRepository: ActiveMediaRepository,
-    private val appDb: AppDatabase
+    private val appDb: AppDatabase,
+    private val app: Application
 ) : MediaManager {
 
     override suspend fun generateGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int, isAudio: Boolean) {
@@ -87,5 +92,10 @@ class MediaManagerImpl @Inject constructor(
 
             activeMediaRepository.insert(newActive)
         }
+    }
+
+    override fun activateMediaScanWorker() {
+        val mediaScanWorkRequest = OneTimeWorkRequestBuilder<MediaScanWorker>().build()
+        WorkManager.getInstance(app).enqueue(mediaScanWorkRequest)
     }
 }

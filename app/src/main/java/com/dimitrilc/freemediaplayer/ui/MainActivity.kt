@@ -14,14 +14,11 @@ import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
 import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
-import com.dimitrilc.freemediaplayer.data.worker.MediaScanWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -145,16 +142,11 @@ class MainActivity : AppCompatActivity() {
         binding.materialToolBarViewTopAppBar.setupWithNavController(navController, appBarConfiguration)
     }
 
-    private fun activateMediaScanWorker() {
-        val mediaScanWorkRequest = OneTimeWorkRequestBuilder<MediaScanWorker>().build()
-        WorkManager.getInstance(applicationContext).enqueue(mediaScanWorkRequest)
-    }
-
     private fun requestReadExternalStoragePerm(){
         if (!isReadExternalStoragePermGranted()) {
             val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    activateMediaScanWorker()
+                    mainActivityViewModel.activateMediaScanWorker()
                 } else {
 
                 }
@@ -162,7 +154,7 @@ class MainActivity : AppCompatActivity() {
 
             permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         } else {
-            activateMediaScanWorker()
+            mainActivityViewModel.activateMediaScanWorker()
         }
     }
 
