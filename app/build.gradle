@@ -97,7 +97,7 @@ dependencies {
 
     //Work Manager
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
-    implementation 'androidx.startup:startup-runtime:1.1.1'
+    //implementation 'androidx.startup:startup-runtime:1.1.1'
 
     //Testing
     //Junit
