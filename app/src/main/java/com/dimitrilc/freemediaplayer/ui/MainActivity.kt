@@ -21,7 +21,7 @@ import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
 import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
-import com.dimitrilc.freemediaplayer.worker.MediaScanWorker
+import com.dimitrilc.freemediaplayer.data.worker.MediaScanWorker
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
