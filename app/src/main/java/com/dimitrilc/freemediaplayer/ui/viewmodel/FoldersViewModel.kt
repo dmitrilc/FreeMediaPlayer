@@ -1,30 +1,23 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
 import androidx.lifecycle.*
-import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
+import com.dimitrilc.freemediaplayer.domain.GetAllMediaItemsObservable
 import com.dimitrilc.freemediaplayer.ui.state.FoldersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "FOLDERS_VIEW_MODEL"
 
 @HiltViewModel
-class FoldersViewModel
-@Inject constructor(
-    private val mediaItemRepository: MediaItemRepository
+class FoldersViewModel @Inject constructor(
+    getAllMediaItemsObservable: GetAllMediaItemsObservable
     ) : ViewModel() {
 
-    val foldersUiStateMutableCache = MutableLiveData<List<FoldersUiState>>()
+    var isAudio = true
 
-    fun getImmutableFoldersUiState(isAudio: Boolean): LiveData<List<FoldersUiState>> {
-        val items = if (isAudio){
-            mediaItemRepository.getAllAudioObservable()
-        } else {
-            mediaItemRepository.getAllVideoObservable()
-        }
-
-        val result = items.map { list ->
-            list.distinctBy { it.location }
+    private val _foldersUiState = getAllMediaItemsObservable(isAudio).map { list ->
+        list.distinctBy { it.location }
             .groupBy({ it.location.substringBeforeLast('/') }) {
                 it.location.substringAfterLast('/')
             }
@@ -34,13 +27,20 @@ class FoldersViewModel
                     relativePaths = it.value
                 )
             }
-        }
-
-        return result
     }
 
-    fun onFolderFullClicked(fullPathPos: Int){
-        val newUiState = foldersUiStateMutableCache.value!!.asSequence()
+    val foldersUiStateMutableLiveData = MutableLiveData<List<FoldersUiState>>()
+
+    init {
+        viewModelScope.launch {
+            _foldersUiState.asFlow().collect {
+                foldersUiStateMutableLiveData.postValue(it)
+            }
+        }
+    }
+
+    fun switchExpandedState(fullPathPos: Int){
+        val newUiState = foldersUiStateMutableLiveData.value!!.asSequence()
             .mapIndexed{ idx, uiState ->
                 if (idx == fullPathPos){
                     uiState.copy(isExpanded = !uiState.isExpanded)
@@ -49,6 +49,6 @@ class FoldersViewModel
                 }
             }.toList()
 
-        foldersUiStateMutableCache.postValue(newUiState)
+        foldersUiStateMutableLiveData.postValue(newUiState)
     }
 }

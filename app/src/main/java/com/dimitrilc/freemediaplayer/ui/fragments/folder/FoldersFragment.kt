@@ -34,29 +34,22 @@ abstract class FoldersFragment : Fragment() {
     }
 
     private fun prepareRecycler(){
-        val mutableCache = foldersViewModel.foldersUiStateMutableCache
-        val immutableSource = foldersViewModel.getImmutableFoldersUiState(isAudio())
+        foldersViewModel.isAudio = isAudio()
 
-        mutableCache.observe(viewLifecycleOwner){ list ->
+        foldersViewModel.foldersUiStateMutableLiveData.observe(viewLifecycleOwner){ list ->
             binding.recyclerFoldersFull.adapter = FoldersFullAdapter(list){
                 onFolderFullClicked(it)
-            }
-        }
-
-        immutableSource.observe(viewLifecycleOwner) { list ->
-            if (mutableCache.value == null && list.isNotEmpty()) {
-                mutableCache.postValue(list)
             }
         }
     }
 
     private fun onFolderFullClicked(fullPathPos: Int){
-        foldersViewModel.onFolderFullClicked(fullPathPos)
+        foldersViewModel.switchExpandedState(fullPathPos)
     }
 
     fun onFolderRelativeClicked(fullPathPos: Int, relativePathPos: Int){
         lifecycleScope.launch {
-            val foldersUiState = foldersViewModel.foldersUiStateMutableCache.value!![fullPathPos]
+            val foldersUiState = foldersViewModel.foldersUiStateMutableLiveData.value!![fullPathPos]
             val pathParent = foldersUiState.parentPath
             val pathRelative = foldersUiState.relativePaths[relativePathPos]
             val fullPath = "$pathParent/$pathRelative"
