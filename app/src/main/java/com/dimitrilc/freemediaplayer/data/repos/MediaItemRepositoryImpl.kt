@@ -13,11 +13,14 @@ class MediaItemRepositoryImpl @Inject constructor(
     override suspend fun getAllAudio() = mediaItemRoomDataSource.getAllAudio()
     override suspend fun getAllVideo() = mediaItemRoomDataSource.getAllVideo()
 
+    override fun getAllAudioObservable() = mediaItemRoomDataSource.getAllAudioObservable()
+    override fun getAllVideoObservable() = mediaItemRoomDataSource.getAllVideoObservable()
+
     override suspend fun getAllAudioByLocation(location: String) = mediaItemRoomDataSource.getAllAudioByLocation(location)
     override suspend fun getAllVideoByLocation(location: String) = mediaItemRoomDataSource.getAllVideoByLocation(location)
 
-    override fun getAllAudioObservable() = mediaItemRoomDataSource.getAllAudioObservable()
-    override fun getAllVideoObservable() = mediaItemRoomDataSource.getAllVideoObservable()
+    override fun getAllAudioByLocationObservable(location: String) = mediaItemRoomDataSource.getAllAudioByLocationObservable(location)
+    override fun getAllVideoByLocationObservable(location: String) = mediaItemRoomDataSource.getAllVideoByLocationObservable(location)
 
     override suspend fun getById(id: Long) = mediaItemRoomDataSource.getById(id)
 

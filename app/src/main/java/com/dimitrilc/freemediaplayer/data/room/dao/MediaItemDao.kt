@@ -24,6 +24,12 @@ interface MediaItemDao {
     @Query("SELECT * FROM media_items WHERE isAudio=0 AND location=:location")
     suspend fun getAllVideoByLocation(location: String): List<MediaItem>
 
+    @Query("SELECT * FROM media_items WHERE isAudio=1 AND location=:location")
+    fun getAllAudioByLocationObservable(location: String): LiveData<List<MediaItem>>
+
+    @Query("SELECT * FROM media_items WHERE isAudio=0 AND location=:location")
+    fun getAllVideoByLocationObservable(location: String): LiveData<List<MediaItem>>
+
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insert(item: MediaItem)
 
@@ -44,5 +50,7 @@ interface MediaItemDao {
 
     @Query("SELECT * FROM media_items JOIN global_playlist ON media_items.id=global_playlist.mediaItemId ORDER BY global_playlist.mId")
     suspend fun getMediaItemsInGlobalPlaylistOnce(): List<MediaItem>
+
+
 
 }

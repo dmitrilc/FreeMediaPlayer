@@ -40,11 +40,13 @@ abstract class FolderItemsFragment : Fragment() {
     }
 
     protected open fun prepareRecycler(){
-        folderItemsViewModel.folderItemsUiState.observe(viewLifecycleOwner){
-            binding.recyclerFolderItems.adapter = MediaFolderItemAdapter(it)
-        }
-
-        folderItemsViewModel.refreshFolderItemsUiState(isAudio(), currentPath)
+        folderItemsViewModel
+            .getFolderItemsUiState(
+                isAudio(),
+                currentPath
+            ).observe(viewLifecycleOwner){
+                binding.recyclerFolderItems.adapter = MediaFolderItemAdapter(it)
+            }
     }
 
     fun onFolderItemClicked(position: Int) {
