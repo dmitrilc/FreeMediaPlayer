@@ -9,21 +9,25 @@ import javax.inject.Inject
 
 @HiltViewModel
 class FolderItemsViewModel @Inject constructor(
-    private val getItemsByLocationUseCase: GetItemsByLocationUseCase,
+    getItemsByLocationUseCase: GetItemsByLocationUseCase,
     private val getThumbByUriUseCase: GetThumbByUriUseCase
     ) : ViewModel() {
 
-    fun getFolderItemsUiState(isAudio: Boolean, location: String): LiveData<List<FolderItemsUiState>> {
-        return getItemsByLocationUseCase(isAudio, location)
-            .map { items ->
-                items.map {
-                    FolderItemsUiState(
-                        title = it.title,
-                        album = it.album,
-                        thumbnail = getThumbByUriUseCase(
-                            it.albumArtUri,
-                            if (isAudio) null else it.id
-                        )
+    var isAudio = true
+    var location = ""
+
+    val folderItemsUiState by lazy {
+        getItemsByLocationUseCase(isAudio, location).map { items ->
+            items.map {
+                val videoId = if (isAudio) null else it.id
+
+                FolderItemsUiState(
+                    title = it.title,
+                    album = it.album,
+                    thumbnail = getThumbByUriUseCase(
+                        it.albumArtUri,
+                        videoId
+                    )
                 )
             }
         }
