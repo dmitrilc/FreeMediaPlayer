@@ -1,17 +1,15 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
-import android.graphics.Bitmap
 import androidx.lifecycle.ViewModel
-import com.dimitrilc.freemediaplayer.data.repos.MediaStoreRepository
+import com.dimitrilc.freemediaplayer.domain.GetThumbByUriUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
 @HiltViewModel
 class PlayerViewModel @Inject constructor(
-    private val mediaStoreRepository: MediaStoreRepository
+    private val getThumbByUriUseCase: GetThumbByUriUseCase
     ) : ViewModel() {
 
-    fun getThumb(albumArtUri: String): Bitmap? {
-        return mediaStoreRepository.getThumbnail(albumArtUri, null)
-    }
+    fun getAudioThumb(albumArtUri: String) = getThumbByUriUseCase(albumArtUri, null)
+
 }

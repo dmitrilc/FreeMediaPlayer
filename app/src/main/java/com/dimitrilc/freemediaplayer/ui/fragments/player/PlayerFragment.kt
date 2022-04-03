@@ -194,7 +194,7 @@ abstract class PlayerFragment : Fragment() {
             if (albumArtUri != null && videoId == 0L){
                 lifecycleScope.launch {
                     val drawable = async {
-                        playerViewModel.getThumb(albumArtUri)?.toDrawable(resources)
+                        playerViewModel.getAudioThumb(albumArtUri)?.toDrawable(resources)
                     }
 
                     binding.videoViewPlayer.background = drawable.await()
