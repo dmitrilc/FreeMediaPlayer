@@ -9,4 +9,6 @@ class RemoveGlobalPlaylistItemUseCase @Inject constructor(
 ) {
 
     operator fun invoke(item: GlobalPlaylistItem) = globalPlaylistRepository.removeItem(item)
+
+    operator fun invoke(position: Long) = globalPlaylistRepository.removeItemAtPosition(position)
 }

@@ -36,4 +36,5 @@ class GlobalPlaylistRepositoryImpl
     override fun getAllObservable() = globalPlaylistRoomDataSource.getAllObservable()
     override suspend fun getAllOnce() = globalPlaylistRoomDataSource.getAllOnce()
     override suspend fun count() = globalPlaylistRoomDataSource.count()
+    override fun removeItemAtPosition(position: Long) = globalPlaylistRoomDataSource.removeAtPosition(position)
 }

@@ -24,6 +24,8 @@ import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.ui.viewmodel.ActivePlaylistViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -73,13 +75,13 @@ class ActivePlaylistFragment : Fragment() {
     }
 
     fun onAdapterChildThumbnailLoad(v: ImageView, artUri: String, videoId: Long?) {
-/*        lifecycleScope.launch {
+        lifecycleScope.launch {
             val bitmap = async(Dispatchers.IO) {
-                mediaItemsViewModel.getThumbnail(artUri, videoId)
+                activePlaylistViewModel.getThumbnail(artUri, videoId)
             }
 
             v.setImageBitmap(bitmap.await())
-        }*/
+        }
     }
 
     //TOOD Clean up
@@ -112,13 +114,7 @@ class ActivePlaylistFragment : Fragment() {
             mPlaylistCache.removeAt(fromPos)
             mPlaylistCache.add(toPos, movedItem)
 
-/*            if (movedItem != null) {
-                mPlaylist.add(toPos, movedItem)
-            }*/
-
-            //lifecycleScope.launch(Dispatchers.IO){
             activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, movedItem)
-            //}
 
             binding.recyclerActivePlaylist.adapter!!.notifyItemMoved(fromPos, toPos)
 
@@ -144,20 +140,6 @@ class ActivePlaylistFragment : Fragment() {
                     position
                 }
 
-/*                activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(
-                    mPlaylistCache,
-                    mPlaylistCache[nextItemIndex]
-                )*/
-                activePlaylistViewModel.removeGlobalPlaylistItem(
-                    GlobalPlaylistItem(
-                        position.toLong(),
-                        removedItem.id
-                    )
-                )
-
-
-                //This chain will be null for video player
-                //activity?.mediaController?.transportControls?.skipToQueueItem(nextItemIndex.toLong())
                 setActiveMedia(nextItemIndex)
             } else {
                 activePlaylistViewModel.removeGlobalPlaylistItem(

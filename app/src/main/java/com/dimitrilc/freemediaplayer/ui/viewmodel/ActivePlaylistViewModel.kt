@@ -6,6 +6,7 @@ import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.UpdateGlobalPlaylistAndActiveMediaUseCase
 import com.dimitrilc.freemediaplayer.domain.globalplaylist.RemoveGlobalPlaylistItemUseCase
+import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByUriUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 
@@ -13,7 +14,8 @@ import javax.inject.Inject
 class ActivePlaylistViewModel @Inject constructor(
     getActiveMediaItemObservableUseCase: GetActiveMediaItemObservableUseCase,
     private val updateGlobalPlaylistAndActiveMediaUseCase: UpdateGlobalPlaylistAndActiveMediaUseCase,
-    private val removeGlobalPlaylistItemUseCase: RemoveGlobalPlaylistItemUseCase
+    private val removeGlobalPlaylistItemUseCase: RemoveGlobalPlaylistItemUseCase,
+    private val getThumbByUriUseCase: GetThumbByUriUseCase
 ) : ViewModel() {
     val activeMediaItemLiveData = getActiveMediaItemObservableUseCase()
 
@@ -24,4 +26,8 @@ class ActivePlaylistViewModel @Inject constructor(
     fun removeGlobalPlaylistItem(removed: GlobalPlaylistItem){
         removeGlobalPlaylistItemUseCase(removed)
     }
+
+    fun getThumbnail(artUri: String, videoId: Long?) =
+        getThumbByUriUseCase(artUri, videoId)
+
 }

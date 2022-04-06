@@ -9,4 +9,5 @@ interface GlobalPlaylistRepository {
     fun getAllObservable(): LiveData<List<GlobalPlaylistItem>?>
     suspend fun getAllOnce(): List<GlobalPlaylistItem>?
     suspend fun count(): Long?
+    fun removeItemAtPosition(position: Long)
 }
