@@ -3,7 +3,7 @@ package com.dimitrilc.freemediaplayer.ui.viewmodel
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsByLocationUseCase
 import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByUriUseCase
-import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInfoObservable
+import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInfoObservableUseCase
 import com.dimitrilc.freemediaplayer.ui.state.FolderItemsUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
@@ -11,7 +11,7 @@ import javax.inject.Inject
 @HiltViewModel
 class FolderItemsViewModel @Inject constructor(
     getMediaItemsByLocationUseCase: GetMediaItemsByLocationUseCase,
-    private val getUpdateActiveMediaWorkerInfoObservable: GetUpdateActiveMediaWorkerInfoObservable,
+    private val getUpdateActiveMediaWorkerInfoObservableUseCase: GetUpdateActiveMediaWorkerInfoObservableUseCase,
     private val getThumbByUriUseCase: GetThumbByUriUseCase
     ) : ViewModel() {
 
@@ -35,5 +35,6 @@ class FolderItemsViewModel @Inject constructor(
         }
     }
 
-    fun getUpdateActiveMediaWorkInfoObservable(uuid: String) = getUpdateActiveMediaWorkerInfoObservable(uuid)
+    fun getUpdateActiveMediaWorkInfoObservable(uuid: String) =
+        getUpdateActiveMediaWorkerInfoObservableUseCase(uuid)
 }

@@ -11,7 +11,6 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
-import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaProgress
 import com.dimitrilc.freemediaplayer.ui.viewmodel.VideoPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
@@ -61,6 +60,18 @@ class VideoPlayerFragment : PlayerFragment() {
         binding.videoViewPlayer.setOnPreparedListener(listener)
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (!binding.videoViewPlayer.isPlaying){
+            videoPlayerViewModel.activeMediaItemCache?.let{
+                videoMediaSessionCallback.onPlayFromUri(it.uri, null)
+                videoPlayerViewModel.activeMediaCache?.let {
+                    videoMediaSessionCallback.onSeekTo(it.progress)
+                }
+            }
+        }
+    }
+
     private fun listenForActiveMedia(){
         videoPlayerViewModel.activeMediaObservable.observe(viewLifecycleOwner) {
             if (it != null && isDifferentToActiveMediaCache(it)){
@@ -77,6 +88,7 @@ class VideoPlayerFragment : PlayerFragment() {
     private fun playCurrent(){
         lifecycleScope.launch {
             videoPlayerViewModel.getActiveMediaItemOnce()?.let {
+                videoPlayerViewModel.activeMediaItemCache = it
                 videoMediaSessionCallback.onPlayFromUri(it.uri, null)
             }
         }
@@ -166,6 +178,7 @@ class VideoPlayerFragment : PlayerFragment() {
 /*            lifecycleScope.launch(Dispatchers.IO){
                 videoPlayerViewModel.shuffleGlobalPlaylistAndActiveItem()
             }*/
+            videoPlayerViewModel.shuffle()
         }
 
         fun repeat(){
@@ -287,7 +300,11 @@ class VideoPlayerFragment : PlayerFragment() {
         videoPlayerViewModel.activeMediaCache?.let {
             val new = it.copy(isPlaying = isPlaying)
             setActiveMediaCache(new)
-            videoPlayerViewModel.postActiveMediaToRoom(new)
+            if (isPlaying){
+                videoPlayerViewModel.play()
+            } else {
+                videoPlayerViewModel.pause()
+            }
         }
     }
 
@@ -295,21 +312,12 @@ class VideoPlayerFragment : PlayerFragment() {
         videoPlayerViewModel.activeMediaCache?.let {
             val new = it.copy(progress = position)
             setActiveMediaCache(new)
-
-            postActiveMediaProgressToRoom(
-                ActiveMediaProgress(progress = position)
-            )
+            videoPlayerViewModel.postActiveMediaToRoom(new)
         }
     }
 
     private fun setActiveMediaCache(activeMedia: ActiveMedia){
         videoPlayerViewModel.activeMediaCache = activeMedia
-    }
-
-    private fun postActiveMediaProgressToRoom(activeMediaProgress: ActiveMediaProgress){
-        lifecycleScope.launch(Dispatchers.IO){
-            videoPlayerViewModel.updateActiveMediaProgress(activeMediaProgress)
-        }
     }
 
     override fun isAudio() = false

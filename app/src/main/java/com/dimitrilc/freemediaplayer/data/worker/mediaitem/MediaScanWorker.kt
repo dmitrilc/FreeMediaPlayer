@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.worker
+package com.dimitrilc.freemediaplayer.data.worker.mediaitem
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker

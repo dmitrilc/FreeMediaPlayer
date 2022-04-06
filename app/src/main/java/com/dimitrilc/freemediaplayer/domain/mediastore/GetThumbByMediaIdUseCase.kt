@@ -11,8 +11,6 @@ class GetThumbByMediaIdUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(mediaId: Long): Bitmap? {
         val mediaItem = mediaItemRepository.getById(mediaId)
-        val test = mediaItem
-
         return mediaStoreRepository.getThumbnail(mediaItem?.albumArtUri, null)
     }
 }

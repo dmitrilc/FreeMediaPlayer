@@ -4,7 +4,7 @@ import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepositor
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaPlaylistPosition
 import javax.inject.Inject
 
-class UpdateActiveMediaPlaylistPositionUseCase @Inject constructor(
+class UpdateActiveMediaPlaylistPositionAndMediaIdUseCase @Inject constructor(
     private val activeMediaRepository: ActiveMediaRepository
 ) {
     operator fun invoke(playlistPos: Long){

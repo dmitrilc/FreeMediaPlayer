@@ -4,6 +4,14 @@ import android.app.Application
 import androidx.work.*
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.worker.*
+import com.dimitrilc.freemediaplayer.data.worker.activemedia.InsertNewActiveMediaWorker
+import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaWorker
+import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.InsertGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.ShuffleGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.UpdateGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.mediaitem.MediaScanWorker
 import java.util.*
 import javax.inject.Inject
 
@@ -72,36 +80,13 @@ class MediaManagerImpl @Inject constructor(
         val shuffleGlobalPlaylistWorkRequest = OneTimeWorkRequestBuilder<ShuffleGlobalPlaylistWorker>()
             .build()
 
-        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<UpdateActiveMediaWorker>()
             .build()
 
         WorkManager.getInstance(app)
             .beginWith(shuffleGlobalPlaylistWorkRequest)
             .then(updateActiveMediaWorkRequest)
             .enqueue()
-/*        appDb.withTransaction {
-            val playlist = mediaItemRepository.getMediaItemsInGlobalPlaylistOnce()
-            val previousActive = activeMediaRepository.getOnce()
-
-            val shuffled = playlist.shuffled().mapIndexed { index, item ->
-                GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id
-                )
-            }
-
-            globalPlaylistRepository.replacePlaylist(shuffled)
-
-            val newIndexOfPreviousActive = shuffled.indexOfFirst {
-                it.mediaItemId == previousActive.mediaItemId
-            }
-
-            val newActive = previousActive.copy(
-                globalPlaylistPosition = newIndexOfPreviousActive.toLong()
-            )
-
-            activeMediaRepository.insert(newActive)
-        }*/
     }
 
     override fun updateActiveMediaPlaylistPositionToNextOnGlobalPlaylist(){
@@ -110,27 +95,19 @@ class MediaManagerImpl @Inject constructor(
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 
-/*        WorkManager.getInstance(app).enqueueUniqueWork(
-            "UpdateActiveMediaPlaylistPosition",
-            ExistingWorkPolicy.APPEND,
-            updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest
-        )*/
-
         WorkManager.getInstance(app).enqueue(
             updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest
         )
     }
 
     override fun updateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylist() {
-        val updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest =
+        val updateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorkRequest =
             OneTimeWorkRequestBuilder<UpdateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorker>()
                 .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
                 .build()
 
-        WorkManager.getInstance(app).enqueueUniqueWork(
-            "UpdateActiveMediaPlaylistPosition",
-            ExistingWorkPolicy.APPEND,
-            updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest
+        WorkManager.getInstance(app).enqueue(
+            updateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorkRequest
         )
     }
 

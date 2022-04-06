@@ -1,6 +1,5 @@
 package com.dimitrilc.freemediaplayer.domain.globalplaylist
 
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
 import javax.inject.Inject
 

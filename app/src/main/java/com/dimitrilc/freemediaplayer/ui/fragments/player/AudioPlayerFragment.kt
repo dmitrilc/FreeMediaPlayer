@@ -7,7 +7,6 @@ import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.MediaBrowserCompat.ConnectionCallback
 import android.view.View
 import com.dimitrilc.freemediaplayer.service.AudioPlayerService
-import com.dimitrilc.freemediaplayer.service.PLAY_SELECTED
 
 private const val TAG = "PLAYER_AUDIO"
 

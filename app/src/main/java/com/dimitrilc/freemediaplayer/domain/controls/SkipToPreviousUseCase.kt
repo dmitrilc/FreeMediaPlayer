@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.domain.activemedia
+package com.dimitrilc.freemediaplayer.domain.controls
 
 import com.dimitrilc.freemediaplayer.data.repos.MediaManager
 import javax.inject.Inject

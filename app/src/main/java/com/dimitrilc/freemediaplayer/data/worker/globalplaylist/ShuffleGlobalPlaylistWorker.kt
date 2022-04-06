@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.worker
+package com.dimitrilc.freemediaplayer.data.worker.globalplaylist
 
 import android.content.Context
 import androidx.hilt.work.HiltWorker
@@ -10,6 +10,7 @@ import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepositor
 import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
 import com.dimitrilc.freemediaplayer.data.repos.mediaitem.MediaItemRepository
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
+import com.dimitrilc.freemediaplayer.data.worker.getActiveMediaWorkerInputData
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 

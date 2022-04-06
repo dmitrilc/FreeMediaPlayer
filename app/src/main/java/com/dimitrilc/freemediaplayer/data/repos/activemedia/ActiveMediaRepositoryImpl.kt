@@ -2,6 +2,7 @@ package com.dimitrilc.freemediaplayer.data.repos.activemedia
 
 import com.dimitrilc.freemediaplayer.data.datasources.activemedia.ActiveMediaRoomDataSource
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
+import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaIsPlaying
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaPlaylistPosition
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaProgress
 import javax.inject.Inject
@@ -27,4 +28,7 @@ class ActiveMediaRepositoryImpl @Inject constructor(
     override fun updatePlaylistPosition(playlistPosition: ActiveMediaPlaylistPosition) =
         activeMediaRoomDataSource.updatePlaylistPosition(playlistPosition)
 
-    }
+    override fun updateIsPlaying(activeMediaIsPlaying: ActiveMediaIsPlaying) =
+        activeMediaRoomDataSource.updateIsPlaying(activeMediaIsPlaying)
+
+}
