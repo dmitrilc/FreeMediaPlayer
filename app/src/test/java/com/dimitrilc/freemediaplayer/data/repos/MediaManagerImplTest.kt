@@ -1,5 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
+import android.app.Application
 import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepository
 import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
 import com.dimitrilc.freemediaplayer.data.repos.mediaitem.MediaItemRepository
@@ -21,16 +22,7 @@ class MediaManagerImplTest {
     var hiltRule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var activeMediaRepository: ActiveMediaRepository
-
-    @Inject
-    lateinit var globalPlaylistRepository: GlobalPlaylistRepository
-
-    @Inject
-    lateinit var mediaItemRepository: MediaItemRepository
-
-    @Inject
-    lateinit var appDb: AppDatabase
+    lateinit var app: Application
 
     @Before
     fun init() {
@@ -39,12 +31,7 @@ class MediaManagerImplTest {
 
     @Test
     fun creationTest(){
-        val mediaManagerImpl = MediaManagerImpl(
-            mediaItemRepository,
-            globalPlaylistRepository,
-            activeMediaRepository,
-            appDb
-        )
+        val mediaManagerImpl = MediaManagerImpl(app)
         assertNotNull(mediaManagerImpl)
     }
 }

@@ -17,7 +17,7 @@ class ActiveMediaTest {
             mediaItemId = mediaItemId
         )
 
-        val sampleToString = "ActiveMedia(mId=1, globalPlaylistPosition=0, mediaItemId=1)"
+        val sampleToString = "ActiveMedia(mId=1, globalPlaylistPosition=0, mediaItemId=1, duration=0, progress=0, isPlaying=false, repeatMode=0)"
 
         assertEquals(activeMedia.toString(), sampleToString)
     }
@@ -33,9 +33,9 @@ class ActiveMediaTest {
             mediaItemId = mediaItemId
         )
 
-        val sampleHash = 962
+        val sampleHash = 888427202
 
-        assertEquals(activeMedia.hashCode(), 962)
+        assertEquals(activeMedia.hashCode(), sampleHash)
     }
 
     @Test
