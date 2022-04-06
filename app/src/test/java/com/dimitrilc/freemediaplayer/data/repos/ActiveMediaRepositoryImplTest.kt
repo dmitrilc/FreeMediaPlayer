@@ -1,6 +1,7 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
-import com.dimitrilc.freemediaplayer.data.datasources.ActiveMediaRoomDataSource
+import com.dimitrilc.freemediaplayer.data.datasources.activemedia.ActiveMediaRoomDataSource
+import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepositoryImpl
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.*

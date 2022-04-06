@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.hilt.repos
 
-import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepository
-import com.dimitrilc.freemediaplayer.data.repos.GlobalPlaylistRepositoryImpl
+import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
+import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepositoryImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

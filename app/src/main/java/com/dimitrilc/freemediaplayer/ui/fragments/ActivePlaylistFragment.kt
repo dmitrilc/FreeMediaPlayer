@@ -17,13 +17,13 @@ import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
+import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.ui.adapter.ActivePlaylistItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FragmentActivePlaylistBinding
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.ui.viewmodel.ActivePlaylistViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -36,7 +36,7 @@ class ActivePlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val activePlaylistViewModel: ActivePlaylistViewModel by viewModels()
-    private val mediaItemsViewModel: MediaItemsViewModel by activityViewModels()
+    private val appViewModel: AppViewModel by activityViewModels()
 
     private val mPlaylistCache = mutableListOf<MediaItem>()
     private val mActiveMediaCache = MutableLiveData<MediaItem>()
@@ -53,7 +53,7 @@ class ActivePlaylistFragment : Fragment() {
 
         lifecycleScope.launch {
             withContext(lifecycleScope.coroutineContext){
-                mPlaylistCache.addAll(mediaItemsViewModel.getPlaylistOnce())
+                mPlaylistCache.addAll(appViewModel.getMediaItemsInGlobalPlaylistOnce()!!)
             }
             withContext(lifecycleScope.coroutineContext){
                 binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(mPlaylistCache)
@@ -65,9 +65,9 @@ class ActivePlaylistFragment : Fragment() {
             mActiveMediaCache.value = it
         }
 
-        mActiveMediaCache.observe(viewLifecycleOwner){
-
-        }
+        //mActiveMediaCache.observe(viewLifecycleOwner){
+            //activity?.mediaController?.sendCommand(PLAY_SELECTED, null, null)
+        //}
 
         return binding.root
     }
@@ -87,18 +87,10 @@ class ActivePlaylistFragment : Fragment() {
         val controller: MediaController? = requireActivity().mediaController
 
         if (controller != null){ //audio
-            lifecycleScope.launch {
-                withContext(Dispatchers.IO){
-                    activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
-                }
-                withContext(Dispatchers.IO){
-                    controller.transportControls.skipToQueueItem(bindingAdapterPosition.toLong())
-                }
-            }
+            activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
+            //controller.transportControls.skipToQueueItem(bindingAdapterPosition.toLong())
         } else { //video
-            lifecycleScope.launch {
-                activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
-            }
+            activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
             val navController = findNavController()
             navController.popBackStack()
         }
@@ -124,9 +116,9 @@ class ActivePlaylistFragment : Fragment() {
                 mPlaylist.add(toPos, movedItem)
             }*/
 
-            lifecycleScope.launch(Dispatchers.IO){
-                activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, movedItem)
-            }
+            //lifecycleScope.launch(Dispatchers.IO){
+            activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, movedItem)
+            //}
 
             binding.recyclerActivePlaylist.adapter!!.notifyItemMoved(fromPos, toPos)
 
@@ -152,18 +144,28 @@ class ActivePlaylistFragment : Fragment() {
                     position
                 }
 
-                lifecycleScope.launch {
-                    withContext(Dispatchers.IO){
-                        activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mPlaylistCache[nextItemIndex])
-                    }
-                    withContext(Dispatchers.IO){
-                        activity?.mediaController?.transportControls?.skipToQueueItem(nextItemIndex.toLong())
-                    }
-                }
+/*                activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(
+                    mPlaylistCache,
+                    mPlaylistCache[nextItemIndex]
+                )*/
+                activePlaylistViewModel.removeGlobalPlaylistItem(
+                    GlobalPlaylistItem(
+                        position.toLong(),
+                        removedItem.id
+                    )
+                )
+
+
+                //This chain will be null for video player
+                //activity?.mediaController?.transportControls?.skipToQueueItem(nextItemIndex.toLong())
+                setActiveMedia(nextItemIndex)
             } else {
-                lifecycleScope.launch(Dispatchers.IO) {
-                    activePlaylistViewModel.updateGlobalPlaylistAndActiveItem(mPlaylistCache, mActiveMediaCache.value!!)
-                }
+                activePlaylistViewModel.removeGlobalPlaylistItem(
+                    GlobalPlaylistItem(
+                        position.toLong(),
+                        removedItem.id
+                    )
+                )
             }
         }
 

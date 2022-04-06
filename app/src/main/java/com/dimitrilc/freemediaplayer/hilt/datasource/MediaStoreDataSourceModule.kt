@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.hilt.datasource
 
-import com.dimitrilc.freemediaplayer.data.datasources.MediaStoreDataSource
-import com.dimitrilc.freemediaplayer.data.datasources.MediaStoreDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.datasources.mediastore.MediaStoreDataSource
+import com.dimitrilc.freemediaplayer.data.datasources.mediastore.MediaStoreDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

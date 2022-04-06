@@ -1,5 +1,8 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
+import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepository
+import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
+import com.dimitrilc.freemediaplayer.data.repos.mediaitem.MediaItemRepository
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
 import androidx.lifecycle.*
-import com.dimitrilc.freemediaplayer.domain.GetAllMediaItemsObservable
+import com.dimitrilc.freemediaplayer.domain.mediaitem.GetAllMediaItemsObservableUseCase
 import com.dimitrilc.freemediaplayer.ui.state.FoldersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -11,32 +11,34 @@ private const val TAG = "FOLDERS_VIEW_MODEL"
 
 @HiltViewModel
 class FoldersViewModel @Inject constructor(
-    getAllMediaItemsObservable: GetAllMediaItemsObservable
-    ) : ViewModel() {
+    private val getAllMediaItemsObservableUseCase: GetAllMediaItemsObservableUseCase
+) : ViewModel() {
 
-    var isAudio = true
-
-    private val _foldersUiState = getAllMediaItemsObservable(isAudio).map { list ->
-        list.distinctBy { it.location }
-            .groupBy({ it.location.substringBeforeLast('/') }) {
-                it.location.substringAfterLast('/')
-            }
-            .map {
-                FoldersUiState(
-                    parentPath = it.key,
-                    relativePaths = it.value
-                )
-            }
-    }
+    private lateinit var _foldersUiState: LiveData<List<FoldersUiState>>
 
     val foldersUiStateMutableLiveData = MutableLiveData<List<FoldersUiState>>()
 
-    init {
+    fun start(isAudio: Boolean): LiveData<List<FoldersUiState>> {
+        _foldersUiState = getAllMediaItemsObservableUseCase(isAudio).map { list ->
+            list!!.distinctBy { it.location }
+                .groupBy({ it.location.substringBeforeLast('/') }) {
+                    it.location.substringAfterLast('/')
+                }
+                .map {
+                    FoldersUiState(
+                        parentPath = it.key,
+                        relativePaths = it.value
+                    )
+                }
+        }
+
         viewModelScope.launch {
             _foldersUiState.asFlow().collect {
                 foldersUiStateMutableLiveData.postValue(it)
             }
         }
+
+        return _foldersUiState
     }
 
     fun switchExpandedState(fullPathPos: Int){

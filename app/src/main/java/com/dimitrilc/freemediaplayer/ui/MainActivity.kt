@@ -18,7 +18,7 @@ import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
 import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private val mainActivityViewModel: MainActivityViewModel by viewModels()
-    private val mediaItemsViewModel: MediaItemsViewModel by viewModels()
+    private val appViewModel: AppViewModel by viewModels()
 
     private val onDestinationChangedListener = object : NavController.OnDestinationChangedListener {
         override fun onDestinationChanged(
@@ -106,8 +106,8 @@ class MainActivity : AppCompatActivity() {
 
         fun closeAudioSession(){
             mediaController?.transportControls?.stop()
-            mediaItemsViewModel.audioBrowser.value?.disconnect()
-            mediaItemsViewModel.audioBrowser.postValue(null)
+            appViewModel.audioBrowser.value?.disconnect()
+            appViewModel.audioBrowser.postValue(null)
             mediaController = null
         }
     }

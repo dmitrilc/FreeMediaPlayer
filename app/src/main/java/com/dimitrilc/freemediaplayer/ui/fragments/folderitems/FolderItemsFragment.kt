@@ -1,6 +1,7 @@
 package com.dimitrilc.freemediaplayer.ui.fragments.folderitems
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -8,13 +9,16 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
+import androidx.work.WorkInfo
+import androidx.work.WorkManager
+import androidx.work.await
 import com.dimitrilc.freemediaplayer.ui.adapter.MediaFolderItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FolderItemsFragmentBinding
 import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.FolderItemsViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.MediaItemsViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 
 private const val TAG = "FOLDER_ITEMS_FRAGMENT"
 
@@ -24,7 +28,7 @@ abstract class FolderItemsFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val folderItemsViewModel: FolderItemsViewModel by viewModels()
-    private val mediaItemsViewModel by activityViewModels<MediaItemsViewModel>()
+    private val appViewModel by activityViewModels<AppViewModel>()
 
     private val currentPath by lazy {
         requireArguments().getString(KEY_FULL_PATH)!!
@@ -49,12 +53,14 @@ abstract class FolderItemsFragment : Fragment() {
     }
 
     fun onFolderItemClicked(position: Int) {
-        lifecycleScope.launch {
-            withContext(Dispatchers.Main){
-                mediaItemsViewModel.generateGlobalPlaylistAndActiveItem(currentPath, position, isAudio())
-            }
+        val workUUID = appViewModel.generateGlobalPlaylistAndActiveItem(
+            currentPath,
+            position,
+            isAudio()
+        )
 
-            withContext(Dispatchers.Main){
+        folderItemsViewModel.getUpdateActiveMediaWorkInfoObservable("$workUUID").observe(viewLifecycleOwner){
+            if (it.state.isFinished){
                 navigateToPlayer()
             }
         }

@@ -14,8 +14,6 @@ private const val TAG = "PLAYER_AUDIO"
 class AudioPlayerFragment : PlayerFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        binding.videoViewPlayer.visibility = View.INVISIBLE
-
         if (!isAudioBrowserActive()){
             createAudioBrowser()
         } else {
@@ -25,11 +23,7 @@ class AudioPlayerFragment : PlayerFragment() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    private fun playSelected(){
-        mediaControllerCompat!!.sendCommand(PLAY_SELECTED, null, null)
-    }
-
-    private fun isAudioBrowserActive() = mediaItemsViewModel.audioBrowser.value !== null
+    private fun isAudioBrowserActive() = appViewModel.audioBrowser.value !== null
 
     private fun createAudioBrowser() {
         requireActivity().applicationContext.let { context ->
@@ -42,7 +36,7 @@ class AudioPlayerFragment : PlayerFragment() {
                 connect()
             }
 
-            mediaItemsViewModel.audioBrowser.postValue(audioBrowser)
+            appViewModel.audioBrowser.postValue(audioBrowser)
         }
     }
 
@@ -52,13 +46,11 @@ class AudioPlayerFragment : PlayerFragment() {
 
             addMediaControllerToContext()
             syncButtonsToController()
-
-            playSelected()
         }
     }
 
     override fun getMediaController(): MediaControllerCompat {
-        val token = mediaItemsViewModel.audioBrowser.value!!.sessionToken
+        val token = appViewModel.audioBrowser.value!!.sessionToken
         return MediaControllerCompat(context, token)
     }
 
@@ -66,4 +58,6 @@ class AudioPlayerFragment : PlayerFragment() {
         val activity = requireActivity()
         MediaControllerCompat.setMediaController(activity, mediaControllerCompat)
     }
+
+    override fun isAudio() = true
 }

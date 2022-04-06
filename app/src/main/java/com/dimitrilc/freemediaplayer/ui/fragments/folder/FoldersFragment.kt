@@ -22,7 +22,7 @@ abstract class FoldersFragment : Fragment() {
     private var _binding: FragmentFoldersFullBinding? = null
     private val binding get() = _binding!!
 
-    private val foldersViewModel: FoldersViewModel by viewModels()
+    private val foldersViewModel by viewModels<FoldersViewModel>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -34,7 +34,9 @@ abstract class FoldersFragment : Fragment() {
     }
 
     private fun prepareRecycler(){
-        foldersViewModel.isAudio = isAudio()
+        if (foldersViewModel.foldersUiStateMutableLiveData.value == null){
+            foldersViewModel.start(isAudio())
+        }
 
         foldersViewModel.foldersUiStateMutableLiveData.observe(viewLifecycleOwner){ list ->
             binding.recyclerFoldersFull.adapter = FoldersFullAdapter(list){

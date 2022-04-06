@@ -4,8 +4,8 @@ import android.content.Context
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
-import com.dimitrilc.freemediaplayer.data.repos.MediaItemRepository
-import com.dimitrilc.freemediaplayer.data.repos.MediaStoreRepository
+import com.dimitrilc.freemediaplayer.data.repos.mediaitem.MediaItemRepository
+import com.dimitrilc.freemediaplayer.data.repos.mediastore.MediaStoreRepository
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -24,7 +24,13 @@ class MediaScanWorker
         val allAudios = mediaStoreRepository.queryAudios()
         val allVideos = mediaStoreRepository.queryVideos()
 
-        mediaItemRepository.insertMediaItems(allAudios.plus(allVideos))
+        allAudios?.let {
+            mediaItemRepository.insertMediaItems(it)
+        }
+
+        allVideos?.let {
+            mediaItemRepository.insertMediaItems(it)
+        }
 
         return Result.success()
     }

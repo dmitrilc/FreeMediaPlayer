@@ -1,75 +1,85 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
 import android.app.Application
-import androidx.room.withTransaction
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
+import androidx.work.*
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
-import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
-import com.dimitrilc.freemediaplayer.data.worker.MediaScanWorker
+import com.dimitrilc.freemediaplayer.data.worker.*
+import java.util.*
 import javax.inject.Inject
 
+const val UPDATE_ACTIVE_WORKER_UUID = "UPDATE_ACTIVE_WORKER_UUID"
+
 class MediaManagerImpl @Inject constructor(
-    private val mediaItemRepository: MediaItemRepository,
-    private val globalPlaylistRepository: GlobalPlaylistRepository,
-    private val activeMediaRepository: ActiveMediaRepository,
-    private val appDb: AppDatabase,
     private val app: Application
 ) : MediaManager {
 
-    override suspend fun generateGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int, isAudio: Boolean) {
-        appDb.withTransaction {
-            val items = if (isAudio){
-                mediaItemRepository.getAllAudioByLocation(currentPath)
-            } else {
-                mediaItemRepository.getAllVideoByLocation(currentPath)
-            }
+    private val dataBuilder = Data.Builder()
 
-            val playlist = items.mapIndexed { index, item ->
-                GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id)
-            }
+    override fun insertGlobalPlaylistAndActiveItem(currentPath: String, selectedIndex: Int, isAudio: Boolean): UUID {
 
-            //Needs to run sequentially because of foreign key constraint
-            globalPlaylistRepository.replacePlaylist(playlist)
+        val insertGlobalPlaylistWorkerData = dataBuilder
+            .putString(WORKER_DATA_KEY_CURRENT_PATH, currentPath)
+            .putInt(WORKER_DATA_KEY_SELECTED_INDEX, selectedIndex)
+            .putBoolean(WORKER_DATA_KEY_IS_AUDIO, isAudio)
+            .build()
 
-            val selectedItem = items[selectedIndex]
-            val activeItem = ActiveMedia(
-                globalPlaylistPosition = selectedIndex.toLong(),
-                mediaItemId = selectedItem.id
-            )
+        val insertGlobalPlaylistWorkRequest = OneTimeWorkRequestBuilder<InsertGlobalPlaylistWorker>()
+            .setInputData(insertGlobalPlaylistWorkerData)
+            .build()
 
-            activeMediaRepository.insert(activeItem)
-        }
+        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+            .build()
+
+        WorkManager.getInstance(app)
+            .beginWith(insertGlobalPlaylistWorkRequest)
+            .then(updateActiveMediaWorkRequest)
+            .enqueue()
+
+        return updateActiveMediaWorkRequest.id
     }
 
-    override suspend fun updateGlobalPlaylistAndActiveItem(playlist: List<MediaItem>, activeItem: MediaItem) {
-        appDb.withTransaction {
-            val globalPlaylist = playlist.mapIndexed { index, item ->
-                GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id)
-            }
+    override fun updateGlobalPlaylistAndActiveMedia(playlist: List<MediaItem>, activeItem: MediaItem) {
+        val mediaItemIdList = playlist
+            .map { it.id }
+            .toLongArray()
 
-            //Needs to run sequentially because of foreign key constraint
-            globalPlaylistRepository.replacePlaylist(globalPlaylist)
+        val updateGlobalPlaylistWorkerData = dataBuilder
+            .putLongArray(WORKER_DATA_KEY_MEDIA_ITEM_ID_LIST, mediaItemIdList)
+            .build()
 
-            val index = playlist.indexOf(activeItem)
+        val updateGlobalPlaylistWorkRequest = OneTimeWorkRequestBuilder<UpdateGlobalPlaylistWorker>()
+            .setInputData(updateGlobalPlaylistWorkerData)
+            .build()
 
-            val newActiveItem = ActiveMedia(
-                globalPlaylistPosition = index.toLong(),
-                mediaItemId = activeItem.id
-            )
+        val activeMediaIndex = mediaItemIdList.indexOf(activeItem.id)
 
-            activeMediaRepository.insert(newActiveItem)
-        }
+        val updateActiveMediaWorkerData = getActiveMediaWorkerInputData(
+            activeMediaIndex.toLong(),
+            activeItem.id
+        )
+
+        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+            .setInputData(updateActiveMediaWorkerData)
+            .build()
+
+        WorkManager.getInstance(app)
+            .beginWith(updateGlobalPlaylistWorkRequest)
+            .then(updateActiveMediaWorkRequest)
+            .enqueue()
     }
 
-    override suspend fun shuffleGlobalPlaylistAndActiveItem() {
-        appDb.withTransaction {
+    override fun shuffleGlobalPlaylistAndActiveItem() {
+        val shuffleGlobalPlaylistWorkRequest = OneTimeWorkRequestBuilder<ShuffleGlobalPlaylistWorker>()
+            .build()
+
+        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+            .build()
+
+        WorkManager.getInstance(app)
+            .beginWith(shuffleGlobalPlaylistWorkRequest)
+            .then(updateActiveMediaWorkRequest)
+            .enqueue()
+/*        appDb.withTransaction {
             val playlist = mediaItemRepository.getMediaItemsInGlobalPlaylistOnce()
             val previousActive = activeMediaRepository.getOnce()
 
@@ -91,7 +101,37 @@ class MediaManagerImpl @Inject constructor(
             )
 
             activeMediaRepository.insert(newActive)
-        }
+        }*/
+    }
+
+    override fun updateActiveMediaPlaylistPositionToNextOnGlobalPlaylist(){
+        val updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest =
+            OneTimeWorkRequestBuilder<UpdateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorker>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
+
+/*        WorkManager.getInstance(app).enqueueUniqueWork(
+            "UpdateActiveMediaPlaylistPosition",
+            ExistingWorkPolicy.APPEND,
+            updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest
+        )*/
+
+        WorkManager.getInstance(app).enqueue(
+            updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest
+        )
+    }
+
+    override fun updateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylist() {
+        val updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest =
+            OneTimeWorkRequestBuilder<UpdateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorker>()
+                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                .build()
+
+        WorkManager.getInstance(app).enqueueUniqueWork(
+            "UpdateActiveMediaPlaylistPosition",
+            ExistingWorkPolicy.APPEND,
+            updateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorkRequest
+        )
     }
 
     override fun activateMediaScanWorker() {
