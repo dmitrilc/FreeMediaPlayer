@@ -5,6 +5,7 @@ plugins {
     id 'dagger.hilt.android.plugin'
     id "com.google.protobuf" version "0.8.18"
     id 'androidx.navigation.safeargs.kotlin'
+    id "com.diffplug.spotless" version "6.4.2"
 }
 
 android {
@@ -38,6 +39,20 @@ android {
 
     kotlinOptions {
         jvmTarget = '1.8'
+    }
+}
+
+spotless { // if you are using build.gradle.kts, instead of 'spotless {' use:
+    // configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+    kotlin {
+        // by default the target is every '.kt' and '.kts` file in the java sourcesets
+        // version and userData are both optional
+        ktlint('0.43.1')
+        licenseHeader '/* (C)$YEAR */' // or licenseHeaderFile
+    }
+    kotlinGradle {
+        target '*.gradle.kts' // default target for kotlinGradle
+        ktlint() // or ktfmt() or prettier()
     }
 }
 
