@@ -14,11 +14,8 @@ import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaProgress
-import com.dimitrilc.freemediaplayer.domain.controls.SkipToNextUseCase
-import com.dimitrilc.freemediaplayer.domain.controls.SkipToPreviousUseCase
 import com.dimitrilc.freemediaplayer.domain.activemedia.*
-import com.dimitrilc.freemediaplayer.domain.controls.PauseUseCase
-import com.dimitrilc.freemediaplayer.domain.controls.PlayUseCase
+import com.dimitrilc.freemediaplayer.domain.controls.*
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsInGlobalPlaylistOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInfoObservableUseCase
@@ -66,6 +63,9 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var pauseUseCase: PauseUseCase
+
+    @Inject
+    lateinit var shuffleUseCase: ShuffleUseCase
 
     private val stateBuilder = PlaybackStateCompat.Builder()
 
@@ -261,9 +261,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         }
 
         override fun onSetShuffleMode(shuffleMode: Int) {
-/*            lifecycleScope.launch(Dispatchers.IO){
-                mediaManager.shuffleGlobalPlaylistAndActiveItem()
-            }*/
+            shuffleUseCase()
         }
 
         override fun onStop() {
