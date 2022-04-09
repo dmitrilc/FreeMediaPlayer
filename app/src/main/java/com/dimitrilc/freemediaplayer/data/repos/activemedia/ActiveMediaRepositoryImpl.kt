@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos.activemedia
 
-import com.dimitrilc.freemediaplayer.data.datasources.activemedia.ActiveMediaRoomDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaRoomDataSource
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaIsPlaying
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaPlaylistPosition

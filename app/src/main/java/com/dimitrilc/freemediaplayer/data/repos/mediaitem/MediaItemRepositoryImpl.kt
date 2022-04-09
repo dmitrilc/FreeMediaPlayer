@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos.mediaitem
 
-import com.dimitrilc.freemediaplayer.data.datasources.mediaitem.MediaItemRoomDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.mediaitem.MediaItemRoomDataSource
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import javax.inject.Inject
 

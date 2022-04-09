@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.datasources.mediaitem
+package com.dimitrilc.freemediaplayer.data.source.room.mediaitem
 
 import androidx.lifecycle.LiveData
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem

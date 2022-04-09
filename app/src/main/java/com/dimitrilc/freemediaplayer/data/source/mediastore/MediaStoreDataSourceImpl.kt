@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.datasources.mediastore
+package com.dimitrilc.freemediaplayer.data.source.mediastore
 
 import android.content.ContentUris
 import android.content.Context

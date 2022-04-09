@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.datasources.globalplaylist
+package com.dimitrilc.freemediaplayer.data.source.room.globalplaylist
 
 import androidx.lifecycle.LiveData
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem

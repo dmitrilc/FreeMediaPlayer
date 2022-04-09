@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
-import com.dimitrilc.freemediaplayer.data.datasources.mediastore.MediaStoreDataSource
+import com.dimitrilc.freemediaplayer.data.source.mediastore.MediaStoreDataSource
 import com.dimitrilc.freemediaplayer.data.repos.mediastore.MediaStoreRepositoryImpl
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

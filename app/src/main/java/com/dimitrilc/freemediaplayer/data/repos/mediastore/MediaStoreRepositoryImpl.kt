@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos.mediastore
 
-import com.dimitrilc.freemediaplayer.data.datasources.mediastore.MediaStoreDataSource
+import com.dimitrilc.freemediaplayer.data.source.mediastore.MediaStoreDataSource
 import javax.inject.Inject
 
 class MediaStoreRepositoryImpl

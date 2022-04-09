@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.datasources
 
-import com.dimitrilc.freemediaplayer.data.datasources.globalplaylist.GlobalPlaylistRoomDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSourceImpl
 import com.dimitrilc.freemediaplayer.data.room.dao.GlobalPlaylistDao
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.datasources.activemedia
+package com.dimitrilc.freemediaplayer.data.source.room.activemedia
 
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaDao

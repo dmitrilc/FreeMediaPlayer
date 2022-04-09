@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.hilt.datasource
 
-import com.dimitrilc.freemediaplayer.data.datasources.globalplaylist.GlobalPlaylistRoomDataSource
-import com.dimitrilc.freemediaplayer.data.datasources.globalplaylist.GlobalPlaylistRoomDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn

@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.datasources
 
-import com.dimitrilc.freemediaplayer.data.datasources.mediaitem.MediaItemRoomDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.source.room.mediaitem.MediaItemRoomDataSourceImpl
 import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest

@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.data.datasources.mediaitem
+package com.dimitrilc.freemediaplayer.data.source.room.mediaitem
 
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
