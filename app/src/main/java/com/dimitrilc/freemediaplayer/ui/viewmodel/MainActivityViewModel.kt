@@ -9,6 +9,7 @@ import androidx.preference.PreferenceManager
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.data.proto.BottomNavProto
 import com.dimitrilc.freemediaplayer.data.repos.MediaManager
+import com.dimitrilc.freemediaplayer.domain.mediastore.ScanForMediaFilesUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.map
@@ -19,7 +20,7 @@ import javax.inject.Inject
 class MainActivityViewModel @Inject constructor(
     //private val app: Application,
     private val bottomNavDataStore: DataStore<BottomNavProto>,
-    private val mediaManager: MediaManager
+    private val scanForMediaFilesUseCase: ScanForMediaFilesUseCase
     ): ViewModel() {
 
     fun getBottomNavState() = bottomNavDataStore.data
@@ -59,8 +60,8 @@ class MainActivityViewModel @Inject constructor(
         }
     }
 
-    fun activateMediaScanWorker() {
-        mediaManager.activateMediaScanWorker()
+    fun scanForMediaFiles() {
+        scanForMediaFilesUseCase()
     }
 
 }

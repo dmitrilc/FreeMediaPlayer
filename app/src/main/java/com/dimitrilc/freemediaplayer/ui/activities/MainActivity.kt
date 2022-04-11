@@ -1,11 +1,8 @@
 package com.dimitrilc.freemediaplayer.ui.activities
 
 import android.Manifest
-import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -15,7 +12,6 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
@@ -29,8 +25,6 @@ import com.dimitrilc.freemediaplayer.ui.fragments.settings.SettingsFragmentDirec
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.launch
 
 private const val TAG = "MAIN_ACTIVITY"
 
@@ -242,7 +236,7 @@ class MainActivity : AppCompatActivity() {
         if (!isReadExternalStoragePermGranted()) {
             val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    mainActivityViewModel.activateMediaScanWorker()
+                    mainActivityViewModel.scanForMediaFiles()
                 } else {
 
                 }
@@ -250,7 +244,7 @@ class MainActivity : AppCompatActivity() {
 
             permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         } else {
-            mainActivityViewModel.activateMediaScanWorker()
+            mainActivityViewModel.scanForMediaFiles()
         }
     }
 
