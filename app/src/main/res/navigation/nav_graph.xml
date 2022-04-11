@@ -75,4 +75,12 @@
             android:id="@+id/action_playlists_path_to_audio_player_path"
             app:destination="@id/audio_player_path" />
     </fragment>
+    <fragment
+        android:id="@+id/settings_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.settings.SettingsFragment"
+        android:label="SettingsFragment" />
+    <action
+        android:id="@+id/action_global_settings_path"
+        app:destination="@id/settings_path"
+        app:launchSingleTop="true" />
 </navigation>

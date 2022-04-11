@@ -19,7 +19,6 @@ object BottomNavProtoSerializer: Serializer<BottomNavProto> {
         } catch (exception: InvalidProtocolBufferException) {
             throw CorruptionException("Cannot read proto.", exception)
         }
-
     }
 
     override suspend fun writeTo(t: BottomNavProto, output: OutputStream) {
