@@ -11,14 +11,32 @@ private const val TAG = "FOLDERS_VIEW_MODEL"
 
 @HiltViewModel
 class FoldersViewModel @Inject constructor(
+    private val savedStateHandle: SavedStateHandle,
     private val getAllMediaItemsObservableUseCase: GetAllMediaItemsObservableUseCase
 ) : ViewModel() {
 
     private lateinit var _foldersUiState: LiveData<List<FoldersUiState>>
-
     val foldersUiStateMutableLiveData = MutableLiveData<List<FoldersUiState>>()
 
-    fun start(isAudio: Boolean): LiveData<List<FoldersUiState>> {
+    fun saveState(){
+        foldersUiStateMutableLiveData.value?.let { state ->
+            state.forEach {
+                savedStateHandle[it.parentPath] = it
+            }
+        }
+    }
+
+    fun getFoldersUiStateMutable(isAudio: Boolean): MutableLiveData<List<FoldersUiState>> {
+        if (savedStateHandle.keys().isEmpty()){
+            initFoldersUiStateFromUseCase(isAudio)
+        } else {
+            initFoldersUiStateFromHandle()
+        }
+
+        return foldersUiStateMutableLiveData
+    }
+
+    private fun initFoldersUiStateFromUseCase(isAudio: Boolean){
         _foldersUiState = getAllMediaItemsObservableUseCase(isAudio).map { list ->
             list!!.distinctBy { it.location }
                 .groupBy({ it.location.substringBeforeLast('/') }) {
@@ -32,13 +50,26 @@ class FoldersViewModel @Inject constructor(
                 }
         }
 
+        collectToFoldersUiStateCache()
+    }
+
+    private fun collectToFoldersUiStateCache(){
         viewModelScope.launch {
             _foldersUiState.asFlow().collect {
                 foldersUiStateMutableLiveData.postValue(it)
             }
         }
+    }
 
-        return _foldersUiState
+    private fun initFoldersUiStateFromHandle(){
+        val state = savedStateHandle.keys().asSequence()
+            .map { savedStateHandle.get<FoldersUiState>(it) }
+            .filter { it != null }
+            .toList()
+
+        if (state.isNotEmpty()){
+            foldersUiStateMutableLiveData.postValue(state as List<FoldersUiState>)
+        }
     }
 
     fun switchExpandedState(fullPathPos: Int){

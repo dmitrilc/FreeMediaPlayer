@@ -8,8 +8,8 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
-import com.dimitrilc.freemediaplayer.ui.adapter.FoldersFullAdapter
 import com.dimitrilc.freemediaplayer.databinding.FragmentFoldersFullBinding
+import com.dimitrilc.freemediaplayer.ui.adapter.FoldersFullAdapter
 import com.dimitrilc.freemediaplayer.ui.viewmodel.FoldersViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
@@ -34,11 +34,7 @@ abstract class FoldersFragment : Fragment() {
     }
 
     private fun prepareRecycler(){
-        if (foldersViewModel.foldersUiStateMutableLiveData.value == null){
-            foldersViewModel.start(isAudio())
-        }
-
-        foldersViewModel.foldersUiStateMutableLiveData.observe(viewLifecycleOwner){ list ->
+        foldersViewModel.getFoldersUiStateMutable(isAudio()).observe(viewLifecycleOwner){ list ->
             binding.recyclerFoldersFull.adapter = FoldersFullAdapter(list){
                 onFolderFullClicked(it)
             }
@@ -59,6 +55,11 @@ abstract class FoldersFragment : Fragment() {
             val navArgs = bundleOf(KEY_FULL_PATH to fullPath)
             navigateToFolderItems(fullPath, navArgs)
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        foldersViewModel.saveState()
+        super.onSaveInstanceState(outState)
     }
 
     abstract fun navigateToFolderItems(fullPath: String, navArgs: Bundle)
