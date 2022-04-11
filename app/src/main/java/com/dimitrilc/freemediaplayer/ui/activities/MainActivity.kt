@@ -3,7 +3,6 @@ package com.dimitrilc.freemediaplayer.ui.activities
 import android.Manifest
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -16,8 +15,6 @@ import androidx.core.content.PermissionChecker
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
-import androidx.navigation.NavOptions
-import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -25,8 +22,6 @@ import androidx.preference.PreferenceManager
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
 import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
-import com.dimitrilc.freemediaplayer.ui.fragments.folder.audio.AudioFoldersFragmentDirections
-import com.dimitrilc.freemediaplayer.ui.fragments.settings.SettingsFragmentDirections
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
@@ -210,7 +205,6 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun listenToSharedPreferencesChange(){
-        //val sharedPrefManager = PreferenceManager.getDefaultSharedPreferences(this)
         sharedPrefManager.registerOnSharedPreferenceChangeListener(preferencesChangeListener)
     }
 
@@ -257,28 +251,6 @@ class MainActivity : AppCompatActivity() {
         )
 
         return isGranted == PermissionChecker.PERMISSION_GRANTED
-    }
-
-    override fun onPause() {
-        //mainActivityViewModel.persistBottomNavState(currentDestination.id)
-        super.onPause()
-    }
-
-/*    override fun onSaveInstanceState(outState: Bundle) {
-        //val state = navController.saveState()
-        //outState.putBundle("NAV_STATE", state)
-        Log.d(TAG, "Saving Nav Bundle")
-        super.onSaveInstanceState(outState)
-    }*/
-
-    override fun onResume() {
-        super.onResume()
-
-        //query saved state from ViewModel
-/*        lifecycleScope.launch {
-            navController.popBackStack()
-            navController.navigate(mainActivityViewModel.getBottomNavState().first())
-        }*/
     }
 
     private fun saveBottomNavState(){
