@@ -3,6 +3,7 @@ package com.dimitrilc.freemediaplayer.ui.activities
 import android.Manifest
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -12,8 +13,11 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import androidx.navigation.NavOptions
+import androidx.navigation.NavOptionsBuilder
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.setupWithNavController
@@ -21,10 +25,13 @@ import androidx.preference.PreferenceManager
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
 import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
+import com.dimitrilc.freemediaplayer.ui.fragments.folder.audio.AudioFoldersFragmentDirections
 import com.dimitrilc.freemediaplayer.ui.fragments.settings.SettingsFragmentDirections
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.launch
 
 private const val TAG = "MAIN_ACTIVITY"
 
@@ -80,24 +87,24 @@ class MainActivity : AppCompatActivity() {
                     val fullPath = arguments!!.getString(KEY_FULL_PATH)!!
                     setTopAppBarTitle(fullPath)
                     setBottomNavGone()
-                    showSettingsGear()
+                    hideSettingsGear()
                 }
                 R.id.video_folder_items_path -> {
                     val fullPath = arguments!!.getString(KEY_FULL_PATH)!!
                     setTopAppBarTitle(fullPath)
                     setBottomNavGone()
-                    showSettingsGear()
+                    hideSettingsGear()
                 }
                 R.id.audio_player_path -> {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
-                    showSettingsGear()
+                    hideSettingsGear()
                 }
                 R.id.video_player_path -> {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
                     closeAudioSession()
-                    showSettingsGear()
+                    hideSettingsGear()
                 }
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")
@@ -144,6 +151,7 @@ class MainActivity : AppCompatActivity() {
 
     private val preferencesChangeListener = SharedPreferences.OnSharedPreferenceChangeListener { _, key ->
         if (key == preferencesKeyIsDark){
+            saveBottomNavState()
             checkIsDarkAndSetTheme()
         }
     }
@@ -159,37 +167,16 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        checkIsDarkAndSetTheme()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        checkIsDarkAndSetTheme()
 
-/*        lifecycleScope.launch {
-            val destId = mainActivityViewModel.getBottomNavState().first()
-            if ()
-            //navController.popBackStack()
-*//*            val pendingIntent = navController.createDeepLink()
-                .setDestination(R.id.android)
-                .setArguments(args)
-                .createPendingIntent()*//*
-            //navController.navigate(mainActivityViewModel.getBottomNavState().first())
-
-*//*            mainActivityViewModel.getBottomNavState().collect{
-                val pendingIntent = navController.createDeepLink()
-                    .setDestination(it)
-                    .createPendingIntent()
-
-                //navController.navigate(pendingIntent)
-
-                pendingIntent.send()
-            }*//*
-        }*/
-/*        if (savedInstanceState != null){
-            val state = savedInstanceState.getBundle("NAV_STATE")
-            navController.restoreState(state)
-        }*/
+        restoreBottomNavState()
 
         prepareTopAppBar()
+
         bindBottomNavToNavController()
+
         bindTopAppBarToNavController()
 
         //Add onDestinationChangedListener to navController
@@ -198,10 +185,21 @@ class MainActivity : AppCompatActivity() {
         requestReadExternalStoragePerm()
     }
 
+    private fun restoreBottomNavState(){
+        lifecycleScope.launch {
+            val destId = mainActivityViewModel.getBottomNavState().first()
+            when(destId){
+                R.id.audio_folders_path -> navController.navigate(R.id.action_global_audio_folders_path)
+                R.id.video_folders_path -> navController.navigate(R.id.action_global_video_folders_path)
+                R.id.playlists_path -> navController.navigate(R.id.action_global_playlists_path)
+            }
+        }
+    }
+
     private fun prepareTopAppBar(){
         binding.materialToolBarViewTopAppBar.setOnMenuItemClickListener { menuItem ->
             if (menuItem.itemId == R.id.settings){
-                navController.navigate(SettingsFragmentDirections.actionGlobalSettingsPath())
+                navController.navigate(R.id.settings_path)
                 true
             } else {
                 false
@@ -214,6 +212,10 @@ class MainActivity : AppCompatActivity() {
     private fun listenToSharedPreferencesChange(){
         //val sharedPrefManager = PreferenceManager.getDefaultSharedPreferences(this)
         sharedPrefManager.registerOnSharedPreferenceChangeListener(preferencesChangeListener)
+    }
+
+    private fun unregisterSharedPreferencesChangeListener(){
+        sharedPrefManager.unregisterOnSharedPreferenceChangeListener(preferencesChangeListener)
     }
 
     private fun bindBottomNavToNavController(){
@@ -258,9 +260,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     override fun onPause() {
-        val currentDestination = navController.currentDestination!!
         //mainActivityViewModel.persistBottomNavState(currentDestination.id)
-        sharedPrefManager.unregisterOnSharedPreferenceChangeListener(preferencesChangeListener)
         super.onPause()
     }
 
@@ -281,7 +281,25 @@ class MainActivity : AppCompatActivity() {
         }*/
     }
 
+    private fun saveBottomNavState(){
+        val currentDestination = navController.currentDestination
+        if (currentDestination != null){
+            mainActivityViewModel.persistBottomNavState(currentDestination.id)
+        }
+    }
+
+    override fun onStop() {
+        saveBottomNavState()
+        super.onStop()
+    }
+
+    override fun onRestart() {
+        unregisterSharedPreferencesChangeListener()
+        super.onRestart()
+    }
+
     override fun onDestroy() {
+        unregisterSharedPreferencesChangeListener()
         super.onDestroy()
     }
 

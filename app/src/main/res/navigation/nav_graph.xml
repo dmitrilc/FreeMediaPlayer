@@ -12,6 +12,9 @@
         <action
             android:id="@+id/action_audio_folders_path_to_audioFolderItemsFragment"
             app:destination="@id/audio_folder_items_path" />
+        <action
+            android:id="@+id/action_audio_folders_path_to_settings_path"
+            app:destination="@id/settings_path" />
     </fragment>
     <fragment
         android:id="@id/video_folders_path"
@@ -21,6 +24,9 @@
         <action
             android:id="@+id/action_video_folders_path_to_videoFolderItemsFragment"
             app:destination="@id/video_folder_items_path" />
+        <action
+            android:id="@+id/action_video_folders_path_to_settings_path"
+            app:destination="@id/settings_path" />
     </fragment>
     <fragment
         android:id="@+id/audio_folder_items_path"
@@ -74,13 +80,24 @@
         <action
             android:id="@+id/action_playlists_path_to_audio_player_path"
             app:destination="@id/audio_player_path" />
+        <action
+            android:id="@+id/action_playlists_path_to_settings_path"
+            app:destination="@id/settings_path" />
     </fragment>
     <fragment
         android:id="@+id/settings_path"
         android:name="com.dimitrilc.freemediaplayer.ui.fragments.settings.SettingsFragment"
         android:label="SettingsFragment" />
     <action
-        android:id="@+id/action_global_settings_path"
-        app:destination="@id/settings_path"
+        android:id="@+id/action_global_audio_folders_path"
+        app:destination="@id/audio_folders_path"
+        app:launchSingleTop="true" />
+    <action
+        android:id="@+id/action_global_video_folders_path"
+        app:destination="@id/video_folders_path"
+        app:launchSingleTop="true" />
+    <action
+        android:id="@+id/action_global_playlists_path"
+        app:destination="@id/playlists_path"
         app:launchSingleTop="true" />
 </navigation>

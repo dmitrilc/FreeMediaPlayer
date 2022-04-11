@@ -9,8 +9,8 @@ message BottomNavProto {
   State state = 1;
 
   enum State {
-    MUSIC = 0;
-    VIDEOS = 1;
+    AUDIO_FOLDERS = 0;
+    VIDEOS_FOLDERS = 1;
     PLAYLISTS = 2;
     SETTINGS = 3;
   }
