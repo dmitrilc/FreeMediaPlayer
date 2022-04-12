@@ -66,6 +66,11 @@ abstract class FolderItemsFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        folderItemsViewModel.saveState()
+        super.onDestroyView()
+    }
+
     abstract fun isAudio(): Boolean
     abstract fun navigateToPlayer()
 }
