@@ -57,9 +57,9 @@ abstract class FoldersFragment : Fragment() {
         }
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
+    override fun onDestroyView() {
         foldersViewModel.saveState()
-        super.onSaveInstanceState(outState)
+        super.onDestroyView()
     }
 
     abstract fun navigateToFolderItems(fullPath: String, navArgs: Bundle)
