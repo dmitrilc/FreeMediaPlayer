@@ -3,6 +3,7 @@ package com.dimitrilc.freemediaplayer.ui.activities
 import android.Manifest
 import android.content.SharedPreferences
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -16,7 +17,9 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
+import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.dimitrilc.freemediaplayer.R
@@ -177,7 +180,7 @@ class MainActivity : AppCompatActivity() {
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        restoreBottomNavState()
+        restoreNavState()
 
         prepareTopAppBar()
 
@@ -191,14 +194,27 @@ class MainActivity : AppCompatActivity() {
         requestReadExternalStoragePerm()
     }
 
-    private fun restoreBottomNavState(){
+    private fun restoreNavState(){
         lifecycleScope.launch {
-            val destId = mainActivityViewModel.getBottomNavState().first()
-            when(destId){
-                R.id.audio_folders_path -> navController.navigate(R.id.action_global_audio_folders_path)
-                R.id.video_folders_path -> navController.navigate(R.id.action_global_video_folders_path)
-                R.id.playlists_path -> navController.navigate(R.id.action_global_playlists_path)
+            when(mainActivityViewModel.getBottomNavState().first()){
+                R.id.video_folders_path -> {
+                    navController.navigate(R.id.action_global_video_folders_path)
+                    navController.graph.setStartDestination(R.id.video_folders_path)
+                }
+                R.id.playlists_path -> {
+                    navController.graph.setStartDestination(R.id.video_folders_path)
+                    navController.navigate(R.id.playlists_path)
+                    navController.popBackStack()
+                }
+                else -> restoreNavGraphState()
             }
+        }
+    }
+
+    private fun restoreNavGraphState(){
+        val state = mainActivityViewModel.getSavedNavState()
+        state?.let {
+            navController.restoreState(it)
         }
     }
 
@@ -268,7 +284,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    private fun saveNavGraphState(){
+        val navState = navController.saveState()
+        mainActivityViewModel.saveNavState(navState)
+    }
+
     override fun onStop() {
+        saveNavGraphState()
         saveBottomNavState()
         super.onStop()
     }

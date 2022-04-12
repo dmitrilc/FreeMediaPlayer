@@ -10,8 +10,15 @@ message BottomNavProto {
 
   enum State {
     AUDIO_FOLDERS = 0;
-    VIDEOS_FOLDERS = 1;
-    PLAYLISTS = 2;
-    SETTINGS = 3;
+    AUDIO_FOLDER_ITEMS = 1;
+    AUDIO_PLAYER = 2;
+
+    VIDEOS_FOLDERS = 3;
+    VIDEO_FOLDER_ITEMS = 4;
+    VIDEO_PLAYER = 5;
+
+    ACTIVE_PLAYLIST = 6;
+
+    PLAYLISTS = 7;
   }
 }

@@ -90,8 +90,7 @@
         android:label="SettingsFragment" />
     <action
         android:id="@+id/action_global_audio_folders_path"
-        app:destination="@id/audio_folders_path"
-        app:launchSingleTop="true" />
+        app:destination="@id/audio_folders_path" />
     <action
         android:id="@+id/action_global_video_folders_path"
         app:destination="@id/video_folders_path"
