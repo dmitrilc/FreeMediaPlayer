@@ -66,48 +66,48 @@ class MainActivity : AppCompatActivity() {
                 R.id.audio_folders_path -> {
                     setTopAppBarTitle("Audios")
                     setBottomNavVisible()
-                    showSettingsGear()
+                    showOverflowMenu()
                 }
                 R.id.video_folders_path -> {
                     setTopAppBarTitle("Videos")
                     setBottomNavVisible()
-                    showSettingsGear()
+                    showOverflowMenu()
                 }
                 R.id.playlists_path -> {
                     setTopAppBarTitle("Playlists")
                     setBottomNavVisible()
-                    showSettingsGear()
+                    showOverflowMenu()
                 }
                 R.id.audio_folder_items_path -> {
                     val fullPath = arguments!!.getString(KEY_FULL_PATH)!!
                     setTopAppBarTitle(fullPath)
                     setBottomNavGone()
-                    hideSettingsGear()
+                    hideOverflowMenu()
                 }
                 R.id.video_folder_items_path -> {
                     val fullPath = arguments!!.getString(KEY_FULL_PATH)!!
                     setTopAppBarTitle(fullPath)
                     setBottomNavGone()
-                    hideSettingsGear()
+                    hideOverflowMenu()
                 }
                 R.id.audio_player_path -> {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
-                    hideSettingsGear()
+                    hideOverflowMenu()
                 }
                 R.id.video_player_path -> {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
                     closeAudioSession()
-                    hideSettingsGear()
+                    hideOverflowMenu()
                 }
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")
                     setBottomNavGone()
-                    showSettingsGear()
+                    showOverflowMenu()
                 }
                 R.id.settings_path -> {
-                    hideSettingsGear()
+                    hideOverflowMenu()
                     setBottomNavGone()
                 }
                 else -> {
@@ -135,12 +135,15 @@ class MainActivity : AppCompatActivity() {
             appViewModel.audioBrowser.postValue(null)
             mediaController = null
         }
-        fun hideSettingsGear(){
+
+        fun hideOverflowMenu(){
             binding.materialToolBarViewTopAppBar.menu.findItem(R.id.settings).isVisible = false
+            binding.materialToolBarViewTopAppBar.menu.findItem(R.id.rescan).isVisible = false
         }
 
-        fun showSettingsGear(){
+        fun showOverflowMenu(){
             binding.materialToolBarViewTopAppBar.menu.findItem(R.id.settings).isVisible = true
+            binding.materialToolBarViewTopAppBar.menu.findItem(R.id.rescan).isVisible = true
         }
     }
 
@@ -148,6 +151,14 @@ class MainActivity : AppCompatActivity() {
         if (key == preferencesKeyIsDark){
             saveBottomNavState()
             checkIsDarkAndSetTheme()
+        }
+    }
+
+    private val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+        if (isGranted) {
+            mainActivityViewModel.scanForMediaFiles()
+        } else {
+
         }
     }
 
@@ -193,11 +204,16 @@ class MainActivity : AppCompatActivity() {
 
     private fun prepareTopAppBar(){
         binding.materialToolBarViewTopAppBar.setOnMenuItemClickListener { menuItem ->
-            if (menuItem.itemId == R.id.settings){
-                navController.navigate(R.id.settings_path)
-                true
-            } else {
-                false
+            when(menuItem.itemId){
+                R.id.settings -> {
+                    navController.navigate(R.id.settings_path)
+                    true
+                }
+                R.id.rescan -> {
+                    requestReadExternalStoragePerm()
+                    true
+                }
+                else -> false
             }
         }
 
@@ -230,14 +246,6 @@ class MainActivity : AppCompatActivity() {
 
     private fun requestReadExternalStoragePerm(){
         if (!isReadExternalStoragePermGranted()) {
-            val permissionLauncher = registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
-                if (isGranted) {
-                    mainActivityViewModel.scanForMediaFiles()
-                } else {
-
-                }
-            }
-
             permissionLauncher.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
         } else {
             mainActivityViewModel.scanForMediaFiles()
