@@ -3,7 +3,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
+        <import type="android.view.View"/>
         <variable name="foldersUiState" type="com.dimitrilc.freemediaplayer.ui.state.FoldersUiState"/>
+        <variable name="callback" type="java.util.function.IntConsumer"/>
+        <variable name="adapterPosition" type="Integer"/>
     </data>
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -15,6 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:cardCornerRadius="0dp"
+            android:onClick="@{() -> callback.accept(adapterPosition)}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
@@ -35,6 +39,7 @@
             android:id="@+id/recycler_foldersRelative"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:visibility="@{foldersUiState.isExpanded ? View.VISIBLE : View.GONE}"
             app:layoutManager="GridLayoutManager"
             android:layout_marginVertical="8dp"
             android:layout_marginHorizontal="8dp"

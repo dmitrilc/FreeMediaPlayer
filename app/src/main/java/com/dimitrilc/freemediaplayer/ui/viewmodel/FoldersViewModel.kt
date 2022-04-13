@@ -1,7 +1,12 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
+import androidx.core.os.bundleOf
+import androidx.databinding.BindingAdapter
 import androidx.lifecycle.*
+import androidx.recyclerview.widget.RecyclerView
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetAllMediaItemsObservableUseCase
+import com.dimitrilc.freemediaplayer.ui.adapter.FoldersFullAdapter
+import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.state.FoldersUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
