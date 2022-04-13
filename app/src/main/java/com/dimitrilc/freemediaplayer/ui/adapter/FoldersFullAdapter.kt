@@ -16,10 +16,10 @@ class FoldersFullAdapter(
     private val callback: (Int)->Unit) :
     RecyclerView.Adapter<FoldersFullAdapter.FolderFullViewHolder>() {
 
-    class FolderFullViewHolder(folderFullViewBinding: FolderFullViewBinding, private val callback: (Int)->Unit) :
+    class FolderFullViewHolder(val folderFullViewBinding: FolderFullViewBinding, private val callback: (Int)->Unit) :
         RecyclerView.ViewHolder(folderFullViewBinding.root) {
         private val cardView: CardView = folderFullViewBinding.cardViewFolderFullPath
-        val fullPath: TextView = folderFullViewBinding.textViewFolderFullPath
+        //val fullPath: TextView = folderFullViewBinding.textViewFolderFullPath
         val relativeRecyclerView: RecyclerView = folderFullViewBinding.recyclerFoldersRelative
 
         init {
@@ -39,7 +39,8 @@ class FoldersFullAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: FolderFullViewHolder, position: Int) {
-        viewHolder.fullPath.text = dataSet[position].parentPath
+        //viewHolder.fullPath.text = dataSet[position].parentPath
+        viewHolder.folderFullViewBinding.foldersUiState = dataSet[position]
         viewHolder.relativeRecyclerView.adapter = FoldersRelativeAdapter(dataSet[position].relativePaths, position)
 
         if (dataSet[position].isExpanded){
