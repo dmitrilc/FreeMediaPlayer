@@ -295,14 +295,14 @@ class MainActivity : AppCompatActivity() {
         super.onStop()
     }
 
-    override fun onRestart() {
+    override fun onPause() {
         unregisterSharedPreferencesChangeListener()
-        super.onRestart()
+        super.onPause()
     }
 
-    override fun onDestroy() {
-        unregisterSharedPreferencesChangeListener()
-        super.onDestroy()
+    override fun onResume() {
+        listenToSharedPreferencesChange()
+        super.onResume()
     }
 
 }
