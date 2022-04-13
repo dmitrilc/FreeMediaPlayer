@@ -107,7 +107,7 @@ class MainActivity : AppCompatActivity() {
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")
                     setBottomNavGone()
-                    showOverflowMenu()
+                    hideOverflowMenu()
                 }
                 R.id.settings_path -> {
                     hideOverflowMenu()
