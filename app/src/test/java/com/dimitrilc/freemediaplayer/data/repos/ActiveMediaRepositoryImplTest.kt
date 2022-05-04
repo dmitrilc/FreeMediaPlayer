@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
-import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaRoomDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaLocalDataSource
 import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepositoryImpl
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -20,7 +20,7 @@ class ActiveMediaRepositoryImplTest {
     var hiltRule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var activeMediaRoomDataSource: ActiveMediaRoomDataSource
+    lateinit var activeMediaLocalDataSource: ActiveMediaLocalDataSource
 
     @Before
     fun init() {
@@ -29,7 +29,7 @@ class ActiveMediaRepositoryImplTest {
 
     @Test
     fun creationTest(){
-        val activeMediaRepositoryImpl = ActiveMediaRepositoryImpl(activeMediaRoomDataSource)
+        val activeMediaRepositoryImpl = ActiveMediaRepositoryImpl(activeMediaLocalDataSource)
         assertNotNull(activeMediaRepositoryImpl)
     }
 }

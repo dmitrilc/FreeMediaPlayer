@@ -3,7 +3,7 @@ package com.dimitrilc.freemediaplayer.data.source.room.mediaitem
 import androidx.lifecycle.LiveData
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 
-interface MediaItemRoomDataSource {
+interface MediaItemLocalDataSource {
     suspend fun getAllAudio(): List<MediaItem>?
     suspend fun getAllVideo(): List<MediaItem>?
 

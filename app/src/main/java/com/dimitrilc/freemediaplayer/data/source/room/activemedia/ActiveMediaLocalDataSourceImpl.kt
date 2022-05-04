@@ -7,9 +7,9 @@ import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaPlaylistPosition
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaProgress
 import javax.inject.Inject
 
-class ActiveMediaRoomDataSourceImpl
+class ActiveMediaLocalDataSourceImpl
 @Inject constructor(private val activeMediaDao: ActiveMediaDao)
-    : ActiveMediaRoomDataSource {
+    : ActiveMediaLocalDataSource {
     override fun insert(activeMedia: ActiveMedia) =
         activeMediaDao.insert(activeMedia)
 

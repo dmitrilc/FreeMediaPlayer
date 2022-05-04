@@ -6,7 +6,7 @@ import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaPlaylistPosition
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaProgress
 import kotlinx.coroutines.flow.Flow
 
-interface ActiveMediaRoomDataSource {
+interface ActiveMediaLocalDataSource {
     fun insert(activeMedia: ActiveMedia)
     fun update(activeMedia: ActiveMedia)
     suspend fun getOnce(): ActiveMedia?

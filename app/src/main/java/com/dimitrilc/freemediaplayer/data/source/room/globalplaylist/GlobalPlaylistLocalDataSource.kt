@@ -3,7 +3,7 @@ package com.dimitrilc.freemediaplayer.data.source.room.globalplaylist
 import androidx.lifecycle.LiveData
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 
-interface GlobalPlaylistRoomDataSource {
+interface GlobalPlaylistLocalDataSource {
     fun replace(playlist: List<GlobalPlaylistItem>)
     fun removeItem(item: GlobalPlaylistItem)
     fun getAllObservable(): LiveData<List<GlobalPlaylistItem>?>

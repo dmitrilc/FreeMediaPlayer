@@ -4,7 +4,7 @@ import android.app.Application
 import androidx.work.Data
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.WorkManager
-import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistLocalDataSource
 import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.worker.*
 import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.RemoveGlobalPlaylistItemWorker
@@ -12,12 +12,12 @@ import javax.inject.Inject
 
 class GlobalPlaylistRepositoryImpl
 @Inject constructor(
-    private val globalPlaylistRoomDataSource: GlobalPlaylistRoomDataSource,
+    private val globalPlaylistLocalDataSource: GlobalPlaylistLocalDataSource,
     private val app: Application
     )
     : GlobalPlaylistRepository {
     override fun replace(playlist: List<GlobalPlaylistItem>) =
-        globalPlaylistRoomDataSource.replace(playlist)
+        globalPlaylistLocalDataSource.replace(playlist)
 
     override fun removeItem(item: GlobalPlaylistItem) {
         val data = Data.Builder()
@@ -33,8 +33,8 @@ class GlobalPlaylistRepositoryImpl
             .enqueue(removeGlobalPlaylistItemWorkRequest)
     }
 
-    override fun getAllObservable() = globalPlaylistRoomDataSource.getAllObservable()
-    override suspend fun getAllOnce() = globalPlaylistRoomDataSource.getAllOnce()
-    override suspend fun count() = globalPlaylistRoomDataSource.count()
-    override fun removeItemAtPosition(position: Long) = globalPlaylistRoomDataSource.removeAtPosition(position)
+    override fun getAllObservable() = globalPlaylistLocalDataSource.getAllObservable()
+    override suspend fun getAllOnce() = globalPlaylistLocalDataSource.getAllOnce()
+    override suspend fun count() = globalPlaylistLocalDataSource.count()
+    override fun removeItemAtPosition(position: Long) = globalPlaylistLocalDataSource.removeAtPosition(position)
 }

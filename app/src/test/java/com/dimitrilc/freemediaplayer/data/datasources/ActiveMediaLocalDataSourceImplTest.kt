@@ -1,6 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.datasources
 
-import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaRoomDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaLocalDataSourceImpl
 import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaDao
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -14,7 +14,7 @@ import javax.inject.Inject
 
 @RunWith(RobolectricTestRunner::class)
 @HiltAndroidTest
-class ActiveMediaRoomDataSourceImplTest {
+class ActiveMediaLocalDataSourceImplTest {
 
     @get:Rule
     var hiltRule = HiltAndroidRule(this)
@@ -29,7 +29,7 @@ class ActiveMediaRoomDataSourceImplTest {
 
     @Test
     fun creationTest(){
-        val activeMediaRoomDataSourceImpl = ActiveMediaRoomDataSourceImpl(activeMediaDao)
+        val activeMediaRoomDataSourceImpl = ActiveMediaLocalDataSourceImpl(activeMediaDao)
         assertNotNull(activeMediaRoomDataSourceImpl)
     }
 

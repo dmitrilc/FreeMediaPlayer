@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
 import android.app.Application
-import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistLocalDataSource
 import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepositoryImpl
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -20,7 +20,7 @@ class GlobalPlaylistRepositoryImplTest {
     var hiltRule = HiltAndroidRule(this)
 
     @Inject
-    lateinit var globalPlaylistRoomDataSource: GlobalPlaylistRoomDataSource
+    lateinit var globalPlaylistLocalDataSource: GlobalPlaylistLocalDataSource
 
     @Inject
     lateinit var app: Application
@@ -32,7 +32,7 @@ class GlobalPlaylistRepositoryImplTest {
 
     @Test
     fun creationTest(){
-        val globalPlaylistRepositoryImpl = GlobalPlaylistRepositoryImpl(globalPlaylistRoomDataSource, app)
+        val globalPlaylistRepositoryImpl = GlobalPlaylistRepositoryImpl(globalPlaylistLocalDataSource, app)
         assertNotNull(globalPlaylistRepositoryImpl)
     }
 }

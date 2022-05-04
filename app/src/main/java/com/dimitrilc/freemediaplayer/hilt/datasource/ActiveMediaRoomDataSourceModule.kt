@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.hilt.datasource
 
-import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaRoomDataSource
-import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaRoomDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaLocalDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.activemedia.ActiveMediaLocalDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,6 +12,6 @@ import dagger.hilt.components.SingletonComponent
 abstract class ActiveMediaRoomDataSourceModule {
     @Binds
     abstract fun bindActiveMediaRoomDataSource(
-        activeMediaRoomDataSource: ActiveMediaRoomDataSourceImpl
-    ): ActiveMediaRoomDataSource
+        activeMediaRoomDataSource: ActiveMediaLocalDataSourceImpl
+    ): ActiveMediaLocalDataSource
 }

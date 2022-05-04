@@ -4,8 +4,8 @@ import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
 import javax.inject.Inject
 
-class MediaItemRoomDataSourceImpl @Inject constructor(private val mediaItemDao: MediaItemDao) :
-    MediaItemRoomDataSource {
+class MediaItemLocalDataSourceImpl @Inject constructor(private val mediaItemDao: MediaItemDao) :
+    MediaItemLocalDataSource {
     override suspend fun getAllAudio() = mediaItemDao.getAllAudio()
     override suspend fun getAllVideo() = mediaItemDao.getAllVideo()
 
