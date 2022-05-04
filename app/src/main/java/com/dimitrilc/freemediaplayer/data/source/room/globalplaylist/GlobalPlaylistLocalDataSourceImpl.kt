@@ -4,9 +4,9 @@ import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.room.dao.GlobalPlaylistDao
 import javax.inject.Inject
 
-class GlobalPlaylistRoomDataSourceImpl
+class GlobalPlaylistLocalDataSourceImpl
 @Inject constructor(private val globalPlaylistDao: GlobalPlaylistDao)
-    : GlobalPlaylistRoomDataSource {
+    : GlobalPlaylistLocalDataSource {
     override fun replace(playlist: List<GlobalPlaylistItem>) = globalPlaylistDao.replacePlaylist(playlist)
     override fun removeItem(item: GlobalPlaylistItem) = globalPlaylistDao.remove(item)
     override fun getAllObservable() = globalPlaylistDao.getAllObservable()

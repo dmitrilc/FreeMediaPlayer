@@ -1,7 +1,7 @@
 package com.dimitrilc.freemediaplayer.hilt.datasource
 
-import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSource
-import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistRoomDataSourceImpl
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistLocalDataSource
+import com.dimitrilc.freemediaplayer.data.source.room.globalplaylist.GlobalPlaylistLocalDataSourceImpl
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -12,6 +12,6 @@ import dagger.hilt.components.SingletonComponent
 abstract class GlobalPlaylistRoomDataSourceModule {
     @Binds
     abstract fun bindGlobalPlaylistRoomDataSource(
-        globalPlaylistRoomDataSource: GlobalPlaylistRoomDataSourceImpl
-    ): GlobalPlaylistRoomDataSource
+        globalPlaylistRoomDataSource: GlobalPlaylistLocalDataSourceImpl
+    ): GlobalPlaylistLocalDataSource
 }
