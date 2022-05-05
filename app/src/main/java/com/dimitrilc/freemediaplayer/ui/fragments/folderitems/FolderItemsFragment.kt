@@ -1,22 +1,21 @@
 package com.dimitrilc.freemediaplayer.ui.fragments.folderitems
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.work.WorkInfo
-import androidx.work.WorkManager
-import androidx.work.await
+import androidx.lifecycle.repeatOnLifecycle
 import com.dimitrilc.freemediaplayer.ui.adapter.MediaFolderItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FolderItemsFragmentBinding
-import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
+import com.dimitrilc.freemediaplayer.ui.state.folders.items.CustomIntConsumer
 import com.dimitrilc.freemediaplayer.ui.viewmodel.FolderItemsViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.KEY_FULL_PATH
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 
@@ -46,13 +45,22 @@ abstract class FolderItemsFragment : Fragment() {
     protected open fun prepareRecycler(){
         folderItemsViewModel.isAudio = isAudio()
         folderItemsViewModel.location = currentPath
+        folderItemsViewModel.navigator = object : CustomIntConsumer {
+            override fun invoke(arg1: Int) {
+                navigate(arg1)
+            }
+        }
 
-        folderItemsViewModel.folderItemsUiState.observe(viewLifecycleOwner){
-            binding.recyclerFolderItems.adapter = MediaFolderItemAdapter(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
+                folderItemsViewModel.uiState.collect{
+                    binding.recyclerFolderItems.adapter = MediaFolderItemAdapter(it)
+                }
+            }
         }
     }
 
-    fun onFolderItemClicked(position: Int) {
+    private fun navigate(position: Int) {
         val workUUID = appViewModel.generateGlobalPlaylistAndActiveItem(
             currentPath,
             position,
@@ -64,6 +72,11 @@ abstract class FolderItemsFragment : Fragment() {
                 navigateToPlayer()
             }
         }
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        folderItemsViewModel.saveState()
+        super.onSaveInstanceState(outState)
     }
 
     override fun onDestroyView() {
