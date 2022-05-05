@@ -2,31 +2,19 @@ package com.dimitrilc.freemediaplayer.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
 import com.dimitrilc.freemediaplayer.databinding.FolderRelativeViewBinding
-import com.dimitrilc.freemediaplayer.ui.fragments.folder.FoldersFragment
+import com.dimitrilc.freemediaplayer.ui.state.FoldersRelativeUiState
 
 private const val TAG = "FOLDERS_RELATIVE_ADAPTER"
 
-class FoldersRelativeAdapter(private val dataSet: List<String>,
+class FoldersRelativeAdapter(private val uiState: FoldersRelativeUiState,
                              private val fullPathPos: Int) :
     RecyclerView.Adapter<FoldersRelativeAdapter.FolderRelativeViewHolder>() {
 
     class FolderRelativeViewHolder(
-        folderRelativeViewBinding: FolderRelativeViewBinding,
-        fullPathPos: Int) :
+        val folderRelativeViewBinding: FolderRelativeViewBinding) :
         RecyclerView.ViewHolder(folderRelativeViewBinding.root) {
-        val relativePath: TextView = folderRelativeViewBinding.textViewFolderRelativePath
-
-        init {
-            folderRelativeViewBinding.root.setOnClickListener {
-                //DON'T hold a reference to the fragment
-                it.findFragment<FoldersFragment>()
-                    .onFolderRelativeClicked(fullPathPos, bindingAdapterPosition)
-            }
-        }
     }
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FolderRelativeViewHolder {
@@ -35,13 +23,15 @@ class FoldersRelativeAdapter(private val dataSet: List<String>,
             viewGroup,
             false)
 
-        return FolderRelativeViewHolder(folderViewBinding, fullPathPos)
+        return FolderRelativeViewHolder(folderViewBinding)
     }
 
     override fun onBindViewHolder(viewHolder: FolderRelativeViewHolder, position: Int) {
-        viewHolder.relativePath.text = dataSet[position]
+        viewHolder.folderRelativeViewBinding.fullPathPos = fullPathPos
+        viewHolder.folderRelativeViewBinding.bindingAdapterPos = position
+        viewHolder.folderRelativeViewBinding.foldersRelativeUiState = uiState
     }
 
-    override fun getItemCount() = dataSet.size
+    override fun getItemCount() = uiState.path.size
 
 }
