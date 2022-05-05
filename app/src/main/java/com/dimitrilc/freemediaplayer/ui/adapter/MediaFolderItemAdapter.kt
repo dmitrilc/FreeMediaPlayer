@@ -2,31 +2,18 @@ package com.dimitrilc.freemediaplayer.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import androidx.fragment.app.findFragment
 import androidx.recyclerview.widget.RecyclerView
+import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.FolderItemViewBinding
-import com.dimitrilc.freemediaplayer.ui.fragments.folderitems.FolderItemsFragment
-import com.dimitrilc.freemediaplayer.ui.state.FolderItemsUiState
+import com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState
 
 private const val TAG = "FILE_ADAPTER"
 
 class MediaFolderItemAdapter(private val dataSet: List<FolderItemsUiState>) :
     RecyclerView.Adapter<MediaFolderItemAdapter.FolderItemViewHolder>() {
 
-    class FolderItemViewHolder(folderItemViewBinding: FolderItemViewBinding) :
-        RecyclerView.ViewHolder(folderItemViewBinding.root) {
-        val titleView = folderItemViewBinding.textViewFolderItemTitle
-        val albumView = folderItemViewBinding.textViewFolderItemAlbum
-        val displayArtView = folderItemViewBinding.imageViewFolderItemDisplayArt
-
-        init {
-            folderItemViewBinding.root.setOnClickListener {
-                //DON'T hold a reference to the fragment
-                it.findFragment<FolderItemsFragment>()
-                    .onFolderItemClicked(bindingAdapterPosition)
-            }
-        }
-    }
+    class FolderItemViewHolder(val folderItemViewBinding: FolderItemViewBinding) :
+        RecyclerView.ViewHolder(folderItemViewBinding.root)
 
     override fun onCreateViewHolder(viewGroup: ViewGroup, viewType: Int): FolderItemViewHolder {
         val fileViewBinding = FolderItemViewBinding.inflate(
@@ -40,14 +27,15 @@ class MediaFolderItemAdapter(private val dataSet: List<FolderItemsUiState>) :
 
     override fun onBindViewHolder(viewHolder: FolderItemViewHolder, position: Int) {
         val item = dataSet[position]
-
-        viewHolder.titleView.text = item.title
-        viewHolder.albumView.text = item.album
-
-        if (item.thumbnail != null){
-            viewHolder.displayArtView.setImageBitmap(item.thumbnail)
+        viewHolder.folderItemViewBinding.state = item
+        viewHolder.folderItemViewBinding.adapterPos = position
+        
+        val thumb = item.thumbnailLoader(item.thumbnailUri, item.videoId)
+        if (thumb != null){
+            viewHolder.folderItemViewBinding.imageViewFolderItemDisplayArt.setImageBitmap(thumb)
+        } else {
+            viewHolder.folderItemViewBinding.imageViewFolderItemDisplayArt.setImageResource(R.drawable.album_art)
         }
-
     }
 
     override fun getItemCount() = dataSet.size

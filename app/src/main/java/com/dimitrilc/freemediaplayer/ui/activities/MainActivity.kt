@@ -3,7 +3,6 @@ package com.dimitrilc.freemediaplayer.ui.activities
 import android.Manifest
 import android.content.SharedPreferences
 import android.os.Bundle
-import android.util.Log
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
@@ -17,15 +16,13 @@ import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import androidx.navigation.fragment.NavHostFragment
-import androidx.navigation.navOptions
 import androidx.navigation.ui.AppBarConfiguration
-import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
-import com.dimitrilc.freemediaplayer.ui.fragments.folder.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first

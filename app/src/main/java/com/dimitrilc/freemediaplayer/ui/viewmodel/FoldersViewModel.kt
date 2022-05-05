@@ -15,7 +15,7 @@ import javax.inject.Inject
 
 private const val TAG = "FOLDERS_VIEW_MODEL"
 private const val FOLDERS_UI_STATE_KEY = "0"
-private const val KEY_FULL_PATH = "0"
+const val KEY_FULL_PATH = "0"
 
 @HiltViewModel
 class FoldersViewModel @Inject constructor(
@@ -23,7 +23,7 @@ class FoldersViewModel @Inject constructor(
     private val getAllMediaItemsObservableUseCase: GetAllMediaItemsObservableUseCase
 ) : ViewModel() {
     lateinit var navigator: (String, Bundle)->Unit
-    var isAudio: Boolean = false
+    var isAudio = true
 
     private val _uiState = MutableStateFlow(FoldersUiState(listOf()))
     val uiState by lazy {

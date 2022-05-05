@@ -1,5 +1,6 @@
 package com.dimitrilc.freemediaplayer.ui.state
 
+import com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState
 import org.junit.Assert.*
 
 import org.junit.Test

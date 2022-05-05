@@ -3,10 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="adapterPos"
+            type="Integer" />
+
+        <variable
+            name="state"
+            type="com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState" />
+    </data>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/root_folderItem"
         android:layout_width="match_parent"
-        android:layout_height="72dp">
+        android:layout_height="72dp"
+        android:onClick="@{() -> state.onClick.invoke(adapterPos)}">
 
         <ImageView
             android:id="@+id/imageView_folderItemDisplayArt"
@@ -35,6 +47,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:maxLines="1"
+                android:text="@{state.title}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -48,7 +61,7 @@
                 android:layout_marginTop="8dp"
                 android:layout_marginEnd="16dp"
                 android:maxLines="1"
-                android:text="longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg Album"
+                android:text="@{state.album}"
                 android:textSize="12sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
