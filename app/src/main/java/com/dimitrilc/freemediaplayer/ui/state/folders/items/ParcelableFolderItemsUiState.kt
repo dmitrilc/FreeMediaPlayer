@@ -2,6 +2,8 @@ package com.dimitrilc.freemediaplayer.ui.state.folders.items
 
 import android.graphics.Bitmap
 import android.os.Parcelable
+import com.dimitrilc.freemediaplayer.ui.state.callback.CustomBiFunction
+import com.dimitrilc.freemediaplayer.ui.state.callback.IntConsumerCompat
 import kotlinx.parcelize.Parcelize
 
 @Parcelize
@@ -13,7 +15,7 @@ data class ParcelableFolderItemsUiState(
 
         fun toState(
             thumbnailLoader: CustomBiFunction<String?,
-                Long?, Bitmap?>, onClick: CustomIntConsumer
+                    Long?, Bitmap?>, onClick: IntConsumerCompat
         ): FolderItemsUiState {
             return FolderItemsUiState(
                 title = title,

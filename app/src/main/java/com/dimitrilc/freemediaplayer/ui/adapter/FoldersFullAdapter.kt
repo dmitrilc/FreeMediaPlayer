@@ -4,12 +4,12 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.dimitrilc.freemediaplayer.databinding.FolderFullViewBinding
-import com.dimitrilc.freemediaplayer.ui.state.FoldersUiState
+import com.dimitrilc.freemediaplayer.ui.state.folders.FoldersFullUiState
 
 private const val TAG = "FOLDERS_FULL_ADAPTER"
 
 class FoldersFullAdapter(
-    private val uiState: FoldersUiState
+    private val dataSet: List<FoldersFullUiState>
     ) : RecyclerView.Adapter<FoldersFullAdapter.FolderFullViewHolder>() {
 
     class FolderFullViewHolder(val folderFullViewBinding: FolderFullViewBinding):
@@ -27,16 +27,21 @@ class FoldersFullAdapter(
     }
 
     override fun onBindViewHolder(viewHolder: FolderFullViewHolder, position: Int) {
-        viewHolder.folderFullViewBinding.foldersFullUiState = uiState.fullFolders[position]
+        val state = dataSet[position]
+
+        viewHolder.folderFullViewBinding.foldersFullUiState = state
         viewHolder.folderFullViewBinding.adapterPosition = position
+
         viewHolder.relativeRecyclerView.adapter = FoldersRelativeAdapter(
-            uiState.fullFolders[position].relativePath,
-            position)
+            state.relativePaths,
+            position,
+            callback = state.onRelativeClick
+        )
 
         //Fixes flickering problem
         viewHolder.folderFullViewBinding.executePendingBindings()
     }
 
-    override fun getItemCount() = uiState.fullFolders.size
+    override fun getItemCount() = dataSet.size
 
 }

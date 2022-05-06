@@ -4,13 +4,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.dimitrilc.freemediaplayer.databinding.FolderRelativeViewBinding
-import com.dimitrilc.freemediaplayer.ui.state.FoldersRelativeUiState
+import com.dimitrilc.freemediaplayer.ui.state.callback.BiIntConsumer
 
 private const val TAG = "FOLDERS_RELATIVE_ADAPTER"
 
-class FoldersRelativeAdapter(private val uiState: FoldersRelativeUiState,
-                             private val fullPathPos: Int) :
-    RecyclerView.Adapter<FoldersRelativeAdapter.FolderRelativeViewHolder>() {
+class FoldersRelativeAdapter(
+    private val dataSet: List<String>,
+    private val fullPathPos: Int,
+    private val callback: BiIntConsumer
+    ) : RecyclerView.Adapter<FoldersRelativeAdapter.FolderRelativeViewHolder>() {
 
     class FolderRelativeViewHolder(
         val folderRelativeViewBinding: FolderRelativeViewBinding) :
@@ -29,9 +31,10 @@ class FoldersRelativeAdapter(private val uiState: FoldersRelativeUiState,
     override fun onBindViewHolder(viewHolder: FolderRelativeViewHolder, position: Int) {
         viewHolder.folderRelativeViewBinding.fullPathPos = fullPathPos
         viewHolder.folderRelativeViewBinding.bindingAdapterPos = position
-        viewHolder.folderRelativeViewBinding.foldersRelativeUiState = uiState
+        viewHolder.folderRelativeViewBinding.path = dataSet[position]
+        viewHolder.folderRelativeViewBinding.callback = callback
     }
 
-    override fun getItemCount() = uiState.path.size
+    override fun getItemCount() = dataSet.size
 
 }
