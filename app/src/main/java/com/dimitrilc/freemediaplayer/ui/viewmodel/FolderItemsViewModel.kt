@@ -5,6 +5,8 @@ import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsByLocationUseCase
 import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByUriUseCase
 import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInfoObservableUseCase
+import com.dimitrilc.freemediaplayer.ui.state.callback.CustomBiFunction
+import com.dimitrilc.freemediaplayer.ui.state.callback.IntConsumerCompat
 import com.dimitrilc.freemediaplayer.ui.state.folders.items.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -26,9 +28,9 @@ class FolderItemsViewModel @Inject constructor(
 
     var isAudio = true
     var location = ""
-    lateinit var navigator: CustomIntConsumer
+    lateinit var navigator: IntConsumerCompat
 
-    private val onClick = object : CustomIntConsumer {
+    private val onClick = object : IntConsumerCompat {
         override fun invoke(pos: Int) {
             navigator(pos)
         }

@@ -4,7 +4,10 @@ import android.os.Bundle
 import androidx.core.os.bundleOf
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetAllMediaItemsObservableUseCase
-import com.dimitrilc.freemediaplayer.ui.state.*
+import com.dimitrilc.freemediaplayer.ui.state.callback.BiIntConsumer
+import com.dimitrilc.freemediaplayer.ui.state.callback.IntConsumerCompat
+import com.dimitrilc.freemediaplayer.ui.state.folders.FoldersFullUiState
+import com.dimitrilc.freemediaplayer.ui.state.folders.ParcelableFoldersFullUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -14,7 +17,6 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private const val TAG = "FOLDERS_VIEW_MODEL"
-private const val FOLDERS_UI_STATE_KEY = "0"
 const val KEY_FULL_PATH = "0"
 
 @HiltViewModel
@@ -25,50 +27,49 @@ class FoldersViewModel @Inject constructor(
     lateinit var navigator: (String, Bundle)->Unit
     var isAudio = true
 
-    private val _uiState = MutableStateFlow(FoldersUiState(listOf()))
+    private val _uiState = MutableStateFlow(listOf<FoldersFullUiState>())
     val uiState by lazy {
         loadUiState()
     }
 
     //Using one callback to save ram
-    private val foldersFullClickListener: (Int)->Unit = {
-        val newUiState = _uiState.value.fullFolders
-            .asSequence()
-            .mapIndexed { index, foldersFullUiState ->
-                if (index == it){
-                    foldersFullUiState.copy(isExpanded = !foldersFullUiState.isExpanded)
-                } else {
-                    foldersFullUiState
+    private val foldersFullClickListener = object: IntConsumerCompat {
+        override fun invoke(bindingAdapterPos: Int) {
+            val newUiState = _uiState.value
+                .mapIndexed { index, foldersFullUiState ->
+                    if (index == bindingAdapterPos){
+                        foldersFullUiState.copy(isExpanded = !foldersFullUiState.isExpanded)
+                    } else {
+                        foldersFullUiState
+                    }
                 }
-            }.map {
-                FoldersUiState(fullFolders = listOf(it))
-            }.reduce { acc, foldersUiState ->
-                acc.copy(
-                    fullFolders = acc.fullFolders.plus(foldersUiState.fullFolders)
-                )
-            }
 
-        viewModelScope.launch {
-            _uiState.emit(newUiState)
+            viewModelScope.launch {
+                _uiState.emit(newUiState)
+            }
         }
     }
 
     //Using one callback to save ram
-    private val foldersRelativeClickListener: (Int,Int)->Unit = { fullPathPos, bindingAdapterPos ->
-        val foldersUiState = _uiState.value.fullFolders[fullPathPos]
-        val pathParent = foldersUiState.path
-        val pathRelative = foldersUiState.relativePath.path[bindingAdapterPos]
-        val fullPath = "$pathParent/$pathRelative"
+    private val foldersRelativeClickListener = object : BiIntConsumer{
+        override fun invoke(fullPathPos: Int, bindingAdapterPos: Int) {
+            val foldersUiState = _uiState.value[fullPathPos]
+            val pathParent = foldersUiState.path
+            val pathRelative = foldersUiState.relativePaths[bindingAdapterPos]
+            val fullPath = "$pathParent/$pathRelative"
 
-        val navArgs = bundleOf(KEY_FULL_PATH to fullPath)
-        navigator(fullPath, navArgs)
+            val navArgs = bundleOf(KEY_FULL_PATH to fullPath)
+            navigator(fullPath, navArgs)
+        }
     }
 
     fun saveState(){
-        savedStateHandle[FOLDERS_UI_STATE_KEY] = _uiState.value.toParcelable()
+        _uiState.value.forEachIndexed { idx, state ->
+            savedStateHandle["$idx"] = state.toParcelable()
+        }
     }
 
-    private fun loadUiState(): StateFlow<FoldersUiState> {
+    private fun loadUiState(): StateFlow<List<FoldersFullUiState>> {
         if (savedStateHandle.keys().isNotEmpty()){
             initFromSavedState()
         } else {
@@ -90,21 +91,11 @@ class FoldersViewModel @Inject constructor(
                     it.location.substringAfterLast('/')
                 }
                 ?.map {
-                    val relativePath = FoldersRelativeUiState(
-                        path = it.value,
-                        foldersRelativeClickListener
-                    )
-
                     FoldersFullUiState(
                         path = it.key,
-                        relativePath = relativePath,
-                        onClick = foldersFullClickListener
-                    )
-                }?.map {
-                    FoldersUiState(fullFolders = listOf(it))
-                }?.reduceOrNull { acc, foldersUiState ->
-                    acc.copy(
-                        fullFolders = acc.fullFolders.plus(foldersUiState.fullFolders)
+                        relativePaths = it.value,
+                        onFullClick = foldersFullClickListener,
+                        onRelativeClick = foldersRelativeClickListener
                     )
                 }
         }
@@ -119,26 +110,18 @@ class FoldersViewModel @Inject constructor(
     }
 
     private fun initFromSavedState() {
-        val state = savedStateHandle
-            .get<List<ParcelableFoldersFullUiState>>(FOLDERS_UI_STATE_KEY)
-            ?.map {
-                it.toState(
-                    foldersFullOnClick = foldersFullClickListener,
-                    foldersRelativeOnClick = foldersRelativeClickListener
-                )
-            }
-            ?.map {
-                FoldersUiState(fullFolders = listOf(it))
-            }?.reduceOrNull { acc, foldersUiState ->
-                acc.copy(
-                    fullFolders = acc.fullFolders.plus(foldersUiState.fullFolders)
-                )
-            }
+        viewModelScope.launch {
+            val state = savedStateHandle.keys()
+                .mapNotNull {
+                    savedStateHandle
+                        .get<ParcelableFoldersFullUiState>(it)
+                        ?.toState(
+                            foldersFullClickListener,
+                            foldersRelativeClickListener
+                        )
+                }
 
-        state?.let {
-            viewModelScope.launch {
-                _uiState.emit(it)
-            }
+            _uiState.emit(state)
         }
     }
 }

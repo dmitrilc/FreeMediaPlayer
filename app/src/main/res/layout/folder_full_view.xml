@@ -8,7 +8,7 @@
 
         <variable
             name="foldersFullUiState"
-            type="com.dimitrilc.freemediaplayer.ui.state.FoldersFullUiState" />
+            type="com.dimitrilc.freemediaplayer.ui.state.folders.FoldersFullUiState" />
 
         <variable
             name="adapterPosition"
@@ -24,7 +24,7 @@
             android:id="@+id/cardView_folderFullPath"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:onClick="@{() -> foldersFullUiState.onClick.invoke(adapterPosition)}"
+            android:onClick="@{() -> foldersFullUiState.onFullClick.invoke(adapterPosition)}"
             app:cardCornerRadius="0dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"

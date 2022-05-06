@@ -12,7 +12,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.dimitrilc.freemediaplayer.ui.adapter.MediaFolderItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FolderItemsFragmentBinding
-import com.dimitrilc.freemediaplayer.ui.state.folders.items.CustomIntConsumer
+import com.dimitrilc.freemediaplayer.ui.state.callback.IntConsumerCompat
 import com.dimitrilc.freemediaplayer.ui.viewmodel.FolderItemsViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.KEY_FULL_PATH
@@ -45,7 +45,7 @@ abstract class FolderItemsFragment : Fragment() {
     protected open fun prepareRecycler(){
         folderItemsViewModel.isAudio = isAudio()
         folderItemsViewModel.location = currentPath
-        folderItemsViewModel.navigator = object : CustomIntConsumer {
+        folderItemsViewModel.navigator = object : IntConsumerCompat {
             override fun invoke(arg1: Int) {
                 navigate(arg1)
             }
