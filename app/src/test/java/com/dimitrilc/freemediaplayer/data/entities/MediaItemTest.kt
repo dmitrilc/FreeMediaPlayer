@@ -24,7 +24,7 @@ class MediaItemTest {
         val albumArtUri = "albumArtUri"
 
         val mediaItem = MediaItem(
-            id = id,
+            mediaItemId = id,
             uri = uri,
             data = data,
             displayName = displayName,
@@ -55,7 +55,7 @@ class MediaItemTest {
         val albumArtUri = "albumArtUri"
 
         val mediaItem = MediaItem(
-            id = id,
+            mediaItemId = id,
             uri = uri,
             data = data,
             displayName = displayName,
@@ -86,7 +86,7 @@ class MediaItemTest {
         val albumArtUri = "albumArtUri"
 
         val mediaItem = MediaItem(
-            id = id,
+            mediaItemId = id,
             uri = uri,
             data = data,
             displayName = displayName,
@@ -99,7 +99,7 @@ class MediaItemTest {
         )
 
         val mediaItem2 = MediaItem(
-            id = id,
+            mediaItemId = id,
             uri = uri,
             data = data,
             displayName = displayName,

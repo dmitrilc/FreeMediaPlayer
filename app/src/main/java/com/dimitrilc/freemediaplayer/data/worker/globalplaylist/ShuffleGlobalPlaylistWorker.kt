@@ -31,8 +31,8 @@ class ShuffleGlobalPlaylistWorker @AssistedInject constructor(
 
             val shuffled = playlist.shuffled().mapIndexed { index, item ->
                 GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id
+                    globalPlaylistItemId = index.toLong(),
+                    mediaItemId = item.mediaItemId
                 )
             }
 

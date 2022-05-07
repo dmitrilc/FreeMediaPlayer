@@ -57,7 +57,7 @@ class MediaManagerImpl @Inject constructor(
 
     override fun updateGlobalPlaylistAndActiveMedia(playlist: List<MediaItem>, activeItem: MediaItem) {
         val mediaItemIdList = playlist
-            .map { it.id }
+            .map { it.mediaItemId }
             .toLongArray()
 
         val updateGlobalPlaylistWorkerData = dataBuilder
@@ -68,11 +68,11 @@ class MediaManagerImpl @Inject constructor(
             .setInputData(updateGlobalPlaylistWorkerData)
             .build()
 
-        val activeMediaIndex = mediaItemIdList.indexOf(activeItem.id)
+        val activeMediaIndex = mediaItemIdList.indexOf(activeItem.mediaItemId)
 
         val updateActiveMediaWorkerData = getActiveMediaWorkerInputData(
             activeMediaIndex.toLong(),
-            activeItem.id
+            activeItem.mediaItemId
         )
 
         val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()

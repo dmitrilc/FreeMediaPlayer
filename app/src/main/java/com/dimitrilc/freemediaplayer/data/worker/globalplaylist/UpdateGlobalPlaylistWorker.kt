@@ -22,7 +22,7 @@ class UpdateGlobalPlaylistWorker @AssistedInject constructor(
 
         val globalPlaylist = mediaItemIdList.mapIndexed { index, id ->
             GlobalPlaylistItem(
-                mId = index.toLong(),
+                globalPlaylistItemId = index.toLong(),
                 mediaItemId = id)
         }
 

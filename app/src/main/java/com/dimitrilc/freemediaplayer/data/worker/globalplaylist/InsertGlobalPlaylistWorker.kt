@@ -39,15 +39,15 @@ class InsertGlobalPlaylistWorker @AssistedInject constructor(
 
             val playlist = items!!.mapIndexed { index, item ->
                 GlobalPlaylistItem(
-                    mId = index.toLong(),
-                    mediaItemId = item.id)
+                    globalPlaylistItemId = index.toLong(),
+                    mediaItemId = item.mediaItemId)
             }
 
             globalPlaylistRepository.replace(playlist)
 
             getActiveMediaWorkerInputData(
                 selectedIndex.toLong(),
-                items[selectedIndex].id
+                items[selectedIndex].mediaItemId
             )
         }
 

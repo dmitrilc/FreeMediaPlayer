@@ -28,10 +28,10 @@ interface GlobalPlaylistDao {
     @Query("DELETE FROM global_playlist")
     fun deleteAll()
 
-    @Query("SELECT COUNT(mId) FROM global_playlist")
+    @Query("SELECT COUNT(global_playlist_item_id) FROM global_playlist")
     suspend fun count(): Long?
 
-    @Query("DELETE FROM global_playlist WHERE mId = :position")
+    @Query("DELETE FROM global_playlist WHERE global_playlist_item_id = :position")
     fun removeAtPosition(position: Long)
 
 }

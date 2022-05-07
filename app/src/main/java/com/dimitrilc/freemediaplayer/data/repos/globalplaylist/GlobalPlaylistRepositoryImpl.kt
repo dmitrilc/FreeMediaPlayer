@@ -21,7 +21,7 @@ class GlobalPlaylistRepositoryImpl
 
     override fun removeItem(item: GlobalPlaylistItem) {
         val data = Data.Builder()
-            .putLong(WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX, item.mId)
+            .putLong(WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX, item.globalPlaylistItemId)
             .putLong(WORKER_DATA_KEY_MEDIA_ITEM_ID, item.mediaItemId)
             .build()
 
