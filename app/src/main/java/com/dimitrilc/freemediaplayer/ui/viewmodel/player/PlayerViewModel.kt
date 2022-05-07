@@ -2,14 +2,15 @@ package com.dimitrilc.freemediaplayer.ui.viewmodel.player
 
 import android.graphics.Bitmap
 import androidx.lifecycle.*
-import androidx.test.internal.util.Checks
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.activemedia.GetActiveMediaObservableUseCase
+import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemByIdUseCase
 import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByMediaIdUseCase
 import com.dimitrilc.freemediaplayer.ui.state.PlayerUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.combineTransform
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -17,53 +18,45 @@ import javax.inject.Inject
 class PlayerViewModel @Inject constructor(
     private val getThumbByMediaIdUseCase: GetThumbByMediaIdUseCase,
     private val getActiveMediaObservableUseCase: GetActiveMediaObservableUseCase,
-    private val getMediaItemByIdUseCase: GetMediaItemByIdUseCase
+    private val getActiveMediaItemObservableUseCase: GetActiveMediaItemObservableUseCase
     ) : ViewModel() {
 
     private val _playerUiStateObservable = MutableLiveData<PlayerUiState>()
     val playerUiStateObservable: LiveData<PlayerUiState> = _playerUiStateObservable
 
     private val _thumbCache = mutableMapOf<Long, Bitmap?>()
-    private val _mediaItemCache = mutableMapOf<Long, MediaItem>()
 
     init {
         viewModelScope.launch {
             delay(300)
-            getActiveMediaObservableUseCase().collect {
-                if (it != null){
+            getActiveMediaItemObservableUseCase()
+                .asFlow()
+                .filterNotNull()
+                .combineTransform(getActiveMediaObservableUseCase().filterNotNull()){ mediaItem, activeMedia ->
                     /* Checks whether the local cache of thumbnail already
                     contains the thumbnail for this MediaItem */
-                    val thumb = if (_thumbCache.containsKey(it.mediaItemId)){
-                        _thumbCache[it.mediaItemId] //Gets thumbnail from cache
+                    val thumb = if (_thumbCache.containsKey(activeMedia.mediaItemId)){
+                        _thumbCache[activeMedia.mediaItemId] //Gets thumbnail from cache
                     } else {
-                        val result = getThumbByMediaIdUseCase(it.mediaItemId) //Loads new thumbnail
-                        _thumbCache[it.mediaItemId] = result //Assigns new thumbnail to cache
+                        val result = getThumbByMediaIdUseCase(activeMedia.mediaItemId) //Loads new thumbnail
+                        _thumbCache[activeMedia.mediaItemId] = result //Assigns new thumbnail to cache
                         result
                     }
 
-                    val mediaItem = if (_mediaItemCache.containsKey(it.mediaItemId)){
-                        _mediaItemCache[it.mediaItemId]
-                    } else {
-                        getMediaItemByIdUseCase(it.mediaItemId)
-                    }
-
-                    if (mediaItem != null) {
-                        _mediaItemCache[it.mediaItemId] = mediaItem
-                    }
-
-                    _playerUiStateObservable.postValue(
+                    emit(
                         PlayerUiState(
-                            title = mediaItem?.title,
-                            album = mediaItem?.album,
+                            title = mediaItem.title,
+                            album = mediaItem.album,
                             thumbnail = thumb,
-                            position = it.progress,
-                            duration = it.duration,
-                            isPlaying = it.isPlaying,
-                            repeatMode = it.repeatMode
+                            position = activeMedia.progress,
+                            duration = activeMedia.duration,
+                            isPlaying = activeMedia.isPlaying,
+                            repeatMode = activeMedia.repeatMode
                         )
                     )
+                }.collect {
+                    _playerUiStateObservable.postValue(it)
                 }
-            }
         }
     }
 }
