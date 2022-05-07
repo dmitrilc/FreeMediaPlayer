@@ -51,7 +51,7 @@ class ActivePlaylistItemAdapter(private val dataSet: MutableList<MediaItem>) :
         val item = dataSet[holder.bindingAdapterPosition]
 
         holder.displayArtView.findFragment<ActivePlaylistFragment>()
-            .onAdapterChildThumbnailLoad(holder.displayArtView, item.albumArtUri!!, item.id)
+            .onAdapterChildThumbnailLoad(holder.displayArtView, item.albumArtUri!!, item.mediaItemId)
     }
 
 }

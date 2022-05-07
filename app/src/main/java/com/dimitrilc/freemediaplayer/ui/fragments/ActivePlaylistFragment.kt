@@ -46,7 +46,7 @@ class ActivePlaylistFragment : Fragment() {
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         _binding = FragmentActivePlaylistBinding.inflate(inflater, container, false)
 
         val helper = ItemTouchHelper(helperCallback)
@@ -145,7 +145,7 @@ class ActivePlaylistFragment : Fragment() {
                 activePlaylistViewModel.removeGlobalPlaylistItem(
                     GlobalPlaylistItem(
                         position.toLong(),
-                        removedItem.id
+                        removedItem.mediaItemId
                     )
                 )
             }

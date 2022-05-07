@@ -79,7 +79,7 @@ class FolderItemsViewModel @Inject constructor(
     private fun initFromUseCase(){
         val result = getMediaItemsByLocationUseCase(isAudio, location).map { items ->
             items?.map {
-                val videoId = if (isAudio) null else it.id
+                val videoId = if (isAudio) null else it.mediaItemId
 
                 FolderItemsUiState(
                     title = it.title,

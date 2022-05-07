@@ -12,7 +12,7 @@ class GlobalPlaylistItemTest {
         val mediaItemId = 1L
 
         val globalPlaylistItem = GlobalPlaylistItem(
-            mId = mId,
+            globalPlaylistItemId = mId,
             mediaItemId = mediaItemId
         )
 
@@ -27,7 +27,7 @@ class GlobalPlaylistItemTest {
         val mediaItemId = 1L
 
         val globalPlaylistItem = GlobalPlaylistItem(
-            mId = mId,
+            globalPlaylistItemId = mId,
             mediaItemId = mediaItemId
         )
 
@@ -42,12 +42,12 @@ class GlobalPlaylistItemTest {
         val mediaItemId = 1L
 
         val globalPlaylistItem = GlobalPlaylistItem(
-            mId = mId,
+            globalPlaylistItemId = mId,
             mediaItemId = mediaItemId
         )
 
         val globalPlaylistItem2 = GlobalPlaylistItem(
-            mId = mId,
+            globalPlaylistItemId = mId,
             mediaItemId = mediaItemId
         )
 

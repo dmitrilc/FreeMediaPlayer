@@ -73,7 +73,7 @@ class MediaStoreDataSourceImpl
                 }
 
                 val audio = MediaItem(
-                    id = id,
+                    mediaItemId = id,
                     uri = uri,
                     data = data,
                     displayName = displayName,
@@ -139,7 +139,7 @@ class MediaStoreDataSourceImpl
                 val location = data.substringBeforeLast('/')
 
                 val video = MediaItem(
-                    id = id,
+                    mediaItemId = id,
                     uri = uri,
                     data = data,
                     displayName = displayName,
