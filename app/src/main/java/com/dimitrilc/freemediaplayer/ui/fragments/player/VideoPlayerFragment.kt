@@ -11,7 +11,7 @@ import android.view.View
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
-import com.dimitrilc.freemediaplayer.ui.viewmodel.VideoPlayerViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.player.VideoPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import kotlinx.coroutines.*
 

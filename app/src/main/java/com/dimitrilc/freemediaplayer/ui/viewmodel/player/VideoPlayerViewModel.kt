@@ -1,4 +1,4 @@
-package com.dimitrilc.freemediaplayer.ui.viewmodel
+package com.dimitrilc.freemediaplayer.ui.viewmodel.player
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData

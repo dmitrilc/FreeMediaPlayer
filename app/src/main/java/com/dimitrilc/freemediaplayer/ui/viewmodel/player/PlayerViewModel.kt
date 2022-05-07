@@ -1,7 +1,8 @@
-package com.dimitrilc.freemediaplayer.ui.viewmodel
+package com.dimitrilc.freemediaplayer.ui.viewmodel.player
 
 import android.graphics.Bitmap
 import androidx.lifecycle.*
+import androidx.test.internal.util.Checks
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.activemedia.GetActiveMediaObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemByIdUseCase
@@ -30,18 +31,20 @@ class PlayerViewModel @Inject constructor(
             delay(300)
             getActiveMediaObservableUseCase().collect {
                 if (it != null){
-                    val thumb = if (!_thumbCache.containsKey(it.mediaItemId)){
-                        getThumbByMediaIdUseCase(it.mediaItemId)
+                    /* Checks whether the local cache of thumbnail already
+                    contains the thumbnail for this MediaItem */
+                    val thumb = if (_thumbCache.containsKey(it.mediaItemId)){
+                        _thumbCache[it.mediaItemId] //Gets thumbnail from cache
                     } else {
-                        _thumbCache[it.mediaItemId]
+                        val result = getThumbByMediaIdUseCase(it.mediaItemId) //Loads new thumbnail
+                        _thumbCache[it.mediaItemId] = result //Assigns new thumbnail to cache
+                        result
                     }
 
-                    _thumbCache[it.mediaItemId] = thumb
-
-                    val mediaItem = if (!_mediaItemCache.containsKey(it.mediaItemId)){
-                        getMediaItemByIdUseCase(it.mediaItemId)
-                    } else {
+                    val mediaItem = if (_mediaItemCache.containsKey(it.mediaItemId)){
                         _mediaItemCache[it.mediaItemId]
+                    } else {
+                        getMediaItemByIdUseCase(it.mediaItemId)
                     }
 
                     if (mediaItem != null) {
@@ -50,8 +53,8 @@ class PlayerViewModel @Inject constructor(
 
                     _playerUiStateObservable.postValue(
                         PlayerUiState(
-                            title = mediaItem?.title ?: "null",
-                            album = mediaItem?.album ?: "null",
+                            title = mediaItem?.title,
+                            album = mediaItem?.album,
                             thumbnail = thumb,
                             position = it.progress,
                             duration = it.duration,

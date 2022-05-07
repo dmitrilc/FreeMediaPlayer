@@ -15,7 +15,7 @@ import androidx.navigation.fragment.findNavController
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.FragmentPlayerBinding
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.PlayerViewModel
+import com.dimitrilc.freemediaplayer.ui.viewmodel.player.PlayerViewModel
 import dagger.hilt.android.AndroidEntryPoint
 
 private const val TAG = "PLAYER_ABSTRACT"

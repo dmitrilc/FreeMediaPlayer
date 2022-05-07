@@ -4,8 +4,8 @@ import android.graphics.Bitmap
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 
 data class PlayerUiState(
-    val title: String,
-    val album: String,
+    val title: String? = "null",
+    val album: String? = "null",
     val thumbnail: Bitmap? = null,
     val duration: Long = 0,
     val position: Long = 0,
