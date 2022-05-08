@@ -32,10 +32,30 @@ class VideoPlayerFragment : PlayerFragment() {
         bindPlayerErrorListener()
         bindPlayerCompletionListener()
         bindPlayerOnPreparedListener()
+        setupFullscreenButton()
 
         listenForActiveMedia()
 
         super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun setupFullscreenButton(){
+        var job: Job? = null
+
+        binding.videoViewContainer.setOnClickListener {
+            job?.cancel()
+
+            binding.buttonFullscreen.visibility = View.VISIBLE
+
+            job = viewLifecycleOwner.lifecycleScope.launch {
+                delay(1000)
+                binding.buttonFullscreen.visibility = View.GONE
+            }
+        }
+
+        binding.buttonFullscreen.setOnClickListener {
+            throw Exception()
+        }
     }
 
     private fun bindPlayerCompletionListener(){
