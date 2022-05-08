@@ -9,16 +9,30 @@
         android:layout_height="match_parent"
         tools:context=".ui.fragments.PlayerFragment">
 
-        <VideoView
-            android:id="@+id/videoView_player"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/videoView_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:layout_margin="16dp"
-            android:scaleType="fitCenter"
+            android:background="#000000"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent">
+
+            <VideoView
+                android:id="@+id/videoView_player"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:scaleType="fitCenter"
+                app:layout_constraintWidth_default="wrap"
+                app:layout_constraintHeight_default="wrap"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
         <TextView
             android:id="@+id/textView_playerTitle"
@@ -27,11 +41,11 @@
             android:layout_margin="16dp"
             android:gravity="center"
             android:maxLines="1"
-            tools:text="Media Title"
             android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/videoView_player" />
+            app:layout_constraintTop_toBottomOf="@id/videoView_container"
+            tools:text="Media Title" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/playerFirstControlGroup"
