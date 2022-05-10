@@ -1,5 +1,6 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel.player
 
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
@@ -9,13 +10,13 @@ import com.dimitrilc.freemediaplayer.domain.activemedia.*
 import com.dimitrilc.freemediaplayer.domain.controls.*
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsInGlobalPlaylistOnceUseCase
+import com.dimitrilc.freemediaplayer.hilt.FmpApplication
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private const val TAG = "VIDEO_PLAYER_VIEW_MODEL"
-
+private const val TAG = "VIDEO_PLAYER_VM"
 
 //TOO many deps on contructor. Maybe code smell, but this is preferrable
 // to field injection where fields cannot be private

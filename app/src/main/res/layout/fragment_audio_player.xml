@@ -2,6 +2,15 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <import type="android.graphics.drawable.BitmapDrawable"/>
+        <import type="com.dimitrilc.freemediaplayer.ui.fragments.player.AudioPlayerFragment"/>
+        <import type="android.support.v4.media.session.PlaybackStateCompat"/>
+
+        <variable
+            name="vm"
+            type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.AudioPlayerViewModel" />
+    </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/playerLayout"
@@ -9,43 +18,16 @@
         android:layout_height="match_parent"
         tools:context=".ui.fragments.PlayerFragment">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/videoView_container"
-            android:layout_width="0dp"
+        <ImageView
+            android:id="@+id/imageView_albumArt"
+            android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_margin="16dp"
-            android:background="#000000"
+            android:scaleType="fitCenter"
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-
-            <VideoView
-                android:id="@+id/videoView_player"
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:scaleType="fitCenter"
-                app:layout_constraintWidth_default="wrap"
-                app:layout_constraintHeight_default="wrap"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
-
-            <ImageButton
-                android:id="@+id/button_fullscreen"
-                android:layout_width="56dp"
-                android:layout_height="56dp"
-                android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_fullscreen_24"
-                android:visibility="gone"
-                tools:visibility="visible"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="parent" />
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
             android:id="@+id/textView_playerTitle"
@@ -55,9 +37,10 @@
             android:gravity="center"
             android:maxLines="1"
             android:textSize="32sp"
+            android:text="@{vm.uiState.title}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@id/videoView_container"
+            app:layout_constraintTop_toBottomOf="@id/imageView_albumArt"
             tools:text="Media Title" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -76,6 +59,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_replay_10_24"
+                android:onClick="@{() -> vm.onRewindClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/imageButton_playerPlayPause"
                 app:layout_constraintStart_toStartOf="parent"
@@ -87,7 +71,8 @@
                 android:layout_height="56dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_pause_24"
+                android:src="@{vm.uiState.isPlaying ? @drawable/ic_baseline_pause_24 : @drawable/ic_baseline_play_arrow_24 }"
+                android:onClick="@{() -> vm.onPlayPauseClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerForward30"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerReplay10"
@@ -100,6 +85,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_forward_30_24"
+                android:onClick="@{() -> vm.onForwardClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerPlayPause"
@@ -111,6 +97,8 @@
             android:id="@+id/seekBar_playerSeekBar"
             android:layout_width="match_parent"
             android:layout_height="80dp"
+            android:progress="@{Long.valueOf(vm.uiState.position).intValue()}"
+            android:max="@{Long.valueOf(vm.uiState.duration).intValue()}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/playerFirstControlGroup" />
@@ -129,7 +117,8 @@
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
-                android:src="@drawable/ic_baseline_repeat_24"
+                android:src="@{vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? @drawable/ic_baseline_repeat_24 : @drawable/ic_baseline_repeat_one_24}"
+                android:onClick="@{() -> vm.onReplayClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerShuffle"
                 app:layout_constraintStart_toStartOf="parent"
@@ -142,6 +131,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_shuffle_24"
+                android:onClick="@{() -> vm.onShuffleClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekBackward"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerReplayInfinite"
@@ -154,6 +144,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_skip_previous_24"
+                android:onClick="@{() -> vm.onSeekPreviousClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekForward"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerShuffle"
@@ -166,6 +157,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_skip_next_24"
+                android:onClick="@{() -> vm.onSeekNextClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerPlaylist"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekBackward"
@@ -178,6 +170,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_format_list_bulleted_24"
+                android:onClick="@{() -> vm.onPlaylistClick()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekForward"

@@ -1,6 +1,7 @@
 package com.dimitrilc.freemediaplayer.ui.state
 
 import android.graphics.Bitmap
+import android.graphics.drawable.Drawable
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 
 data class PlayerUiState(

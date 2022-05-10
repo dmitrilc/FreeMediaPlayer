@@ -19,7 +19,7 @@ class AppViewModel @Inject constructor(
     private val getActiveMediaItemOnceUseCase: GetActiveMediaItemOnceUseCase,
     private val getMediaItemsInGlobalPlaylistOnceUseCase: GetMediaItemsInGlobalPlaylistOnceUseCase
 ): ViewModel() {
-    val audioBrowser = MutableLiveData<MediaBrowserCompat>()
+    var audioBrowser: MediaBrowserCompat? = null
 
     suspend fun getActiveMediaItemOnce() = getActiveMediaItemOnceUseCase()
     suspend fun getMediaItemsInGlobalPlaylistOnce() = getMediaItemsInGlobalPlaylistOnceUseCase()
