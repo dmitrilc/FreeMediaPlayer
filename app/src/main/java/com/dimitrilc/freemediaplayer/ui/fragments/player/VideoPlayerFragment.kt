@@ -5,120 +5,89 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.ResultReceiver
 import android.support.v4.media.session.MediaControllerCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.DisplayMetrics
 import android.util.Log
+import android.view.LayoutInflater
 import android.view.Surface
 import android.view.View
-import android.view.ViewGroup.LayoutParams.MATCH_PARENT
-import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
-import android.widget.MediaController
+import android.view.ViewGroup
 import android.widget.SeekBar
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.dimitrilc.freemediaplayer.R
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.databinding.FragmentVideoPlayerBinding
 import com.dimitrilc.freemediaplayer.hilt.FmpApplication
-import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.player.AudioPlayerViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.player.VideoPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.collectLatest
 
 private const val TAG = "VIDEO_PLAYER_FRAG"
 
 @AndroidEntryPoint
 class VideoPlayerFragment : Fragment() {
-    private val stateBuilder = PlaybackStateCompat.Builder()
+    private var _binding: FragmentVideoPlayerBinding? = null
+    private val binding get() = _binding!!
 
     private val videoPlayerViewModel by viewModels<VideoPlayerViewModel>()
+
+    private val stateBuilder = PlaybackStateCompat.Builder()
 
     private val videoMediaSessionCompat: MediaSessionCompat by lazy {
         MediaSessionCompat(context, TAG)
     }
 
-    private var _binding: FragmentVideoPlayerBinding? = null
-    protected val binding get() = _binding!!
-
-    protected val appViewModel: AppViewModel by activityViewModels()
-    private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
-
-    protected val mediaControllerCompat: MediaControllerCompat by lazy {
-        getMediaController()
+    private val mediaControllerCompat: MediaControllerCompat by lazy {
+        videoMediaSessionCompat.controller
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        //Disconnects Audio playback, if present
         (requireActivity().application as FmpApplication).audioBrowser?.disconnect()
-    }
 
-    protected fun syncButtonsToController(){
-        mediaControllerCompat?.let { controller ->
-            buildTransportControls(controller)
-        }
-    }
-
-    private fun buildTransportControls(controller: MediaControllerCompat) {
-/*        if (isRotated()){
-            //build full screen buttons here
-        } else {
-            bindPlaylistButtonToController()
-            bindSeekPreviousButtonToController(controller)
-            bindSeekNextButtonToController(controller)
-            bindShuffleButtonToController(controller)
-            bindReplayButtonToController(controller)
-            bindSeekBarChangeListenerToController(controller)
-            bindPlayPauseButtonToController(controller)
-            bindReplay10ButtonToController(controller)
-            bindForward30ButtonToController(controller)
-        }*/
-    }
-
-    private fun bindPlayPauseButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerPlayPause.setOnClickListener {
-            audioPlayerViewModel.uiState.value?.let {
-                if (it.isPlaying){
-                    controller.transportControls.pause()
-                } else {
-                    controller.transportControls.play()
-                }
-            }
-        }
-    }
-
-    private fun bindSeekNextButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerSeekForward.setOnClickListener {
-            controller.transportControls.skipToNext()
-        }
-    }
-
-    private fun bindSeekPreviousButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerSeekBackward.setOnClickListener {
-            controller.transportControls.skipToPrevious()
-        }
-    }
-
-    private fun bindShuffleButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerShuffle.setOnClickListener {
-            controller.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)
-        }
-    }
-
-    private fun bindPlaylistButtonToController() {
-        binding.imageButtonPlayerPlaylist.setOnClickListener {
+        videoPlayerViewModel.navigator = {
             findNavController().navigate(R.id.active_playlist_path)
         }
+
+        setupVideoMediaSessionCompat()
     }
 
-    private fun bindSeekBarChangeListenerToController(controller: MediaControllerCompat) {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentVideoPlayerBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.vm = videoPlayerViewModel
+        binding.controller = mediaControllerCompat
+
+        return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        bindSeekBarChangeListener()
+
+        bindPlayerErrorListener()
+        bindPlayerCompletionListener()
+        bindPlayerOnPreparedListener()
+
+        listenForActiveMedia()
+
+        super.onViewCreated(view, savedInstanceState)
+    }
+
+    private fun bindSeekBarChangeListener() {
         val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(
                 seekBar: SeekBar?,
@@ -126,7 +95,7 @@ class VideoPlayerFragment : Fragment() {
                 fromUser: Boolean
             ) {
                 if (fromUser) {
-                    controller.transportControls.seekTo(progress.toLong())
+                    mediaControllerCompat.transportControls.seekTo(progress.toLong())
                 }
             }
 
@@ -134,152 +103,17 @@ class VideoPlayerFragment : Fragment() {
             override fun onStopTrackingTouch(seekBar: SeekBar?) {}
         }
 
-        binding.seekBarPlayerSeekBar.setOnSeekBarChangeListener(seekBarListener)
-    }
-
-    private fun bindReplayButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerReplayInfinite.setOnClickListener {
-            if (audioPlayerViewModel.uiState.value?.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE){
-                controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE)
-            } else {
-                controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)
-            }
-        }
-    }
-
-    private fun bindReplay10ButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerReplay10.setOnClickListener {
-            controller.transportControls.rewind()
-        }
-    }
-
-    private fun bindForward30ButtonToController(controller: MediaControllerCompat) {
-        binding.imageButtonPlayerForward30.setOnClickListener {
-            controller.transportControls?.fastForward()
-        }
-    }
-
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        setupVideoMediaSessionCompat()
-        syncButtonsToController()
-        bindPlayerErrorListener()
-        bindPlayerCompletionListener()
-        bindPlayerOnPreparedListener()
-        setupFullscreenButton()
-
-        listenForActiveMedia()
-
-        super.onViewCreated(view, savedInstanceState)
-    }
-
-    private fun setupFullscreenButton(){
-/*        var job: Job? = null
-
-        binding.videoViewContainer.setOnClickListener {
-            job?.cancel()
-
-            binding.buttonFullscreen.visibility = View.VISIBLE
-
-            job = viewLifecycleOwner.lifecycleScope.launch {
-                delay(1000)
-                binding.buttonFullscreen.visibility = View.GONE
-            }
-        }
-
-        binding.buttonFullscreen.setOnClickListener {
-            requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
-        }*/
-
-        //requireActivity().requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
-
-/*        portraitPlayerBinding.buttonFullscreen.setOnClickListener {
-            val windowInsetsController = WindowCompat.getInsetsController(
-                requireActivity().window,
-                requireActivity().window.decorView
-            )
-
-            // Configure the behavior of the hidden system bars
-            windowInsetsController.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-            // Hide both the status bar and the navigation bar
-            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
-
-            portraitPlayerBinding.playerFirstControlGroup.visibility = View.GONE
-            portraitPlayerBinding.playerSecondControlGroup.visibility = View.GONE
-            portraitPlayerBinding.textViewPlayerTitle.visibility = View.GONE
-            portraitPlayerBinding.seekBarPlayerSeekBar.visibility = View.GONE
-            val topAppBar = requireActivity()
-                .findViewById<MaterialToolbar>(R.id.materialToolBarView_topAppBar)
-            topAppBar.visibility = View.GONE
-
-            //To get the screen size
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                val bounds = requireActivity().windowManager.currentWindowMetrics.bounds
-                val height = bounds.height()
-                val width = bounds.width()
-//                Log.d(TAG, height.toString())
-//                Log.d(TAG, width.toString())
-                portraitPlayerBinding.videoViewContainer.layoutParams = ViewGroup.LayoutParams(width, height)
-
-*//*                val playerWidth = binding.videoViewPlayer.width
-                val playerHeight = binding.videoViewPlayer.height
-                Log.d(TAG, playerHeight.toString())
-                Log.d(TAG, playerWidth.toString())*//*
-            } else {
-                val display = requireActivity().windowManager.defaultDisplay
-                val displayMetrics = DisplayMetrics()
-                display.getMetrics(displayMetrics)
-
-                val height = displayMetrics.heightPixels
-                val width = displayMetrics.widthPixels
-
-                portraitPlayerBinding.videoViewContainer.layoutParams = ViewGroup.LayoutParams(width, height)
-            }
-
-            //requireActivity().isRotated()
-
-            //getRotation
-
-
-
-*//*            val set = ConstraintSet()
-            binding.videoViewContainer.setConstraintSet(set)*//*
-            //binding.videoViewContainer.layoutParams = ViewGroup.LayoutParams(2000, 2000)
-            //binding.videoViewPlayer.layoutParams = ViewGroup.LayoutParams(2000, 2000)
-
-
-        }*/
-
-/*        fun endImmersiveMode(){
-            //showTopAppBar()
-            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
-
-            // Configure the behavior of the hidden system bars
-            windowInsetsController.systemBarsBehavior =
-                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-
-            // Hide both the status bar and the navigation bar
-            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
-        }*/
-
-/*        fun hideTopAppBar(){
-            binding.materialToolBarViewTopAppBar.visibility = View.GONE
-        }
-
-        fun showTopAppBar(){
-            binding.materialToolBarViewTopAppBar.visibility = View.VISIBLE
-        }*/
+        binding.seekBarVideoPlayerSeekBar.setOnSeekBarChangeListener(seekBarListener)
     }
 
     private fun bindPlayerCompletionListener(){
         binding.videoViewPlayer.setOnCompletionListener {
-            when(videoPlayerViewModel.activeMediaCache?.repeatMode){
+            when(videoPlayerViewModel.activeMedia.value?.repeatMode){
                 PlaybackStateCompat.REPEAT_MODE_ONE -> {
-                    videoMediaSessionCallback.repeat()
+                    mediaControllerCompat.sendCommand(COMMAND_REPEAT, null, null)
                 }
                 else -> {
-                    videoMediaSessionCallback.onSkipToNext()
+                    mediaControllerCompat.transportControls.skipToNext()
                 }
             }
         }
@@ -288,6 +122,7 @@ class VideoPlayerFragment : Fragment() {
     private fun bindPlayerOnPreparedListener(){
         val listener = MediaPlayer.OnPreparedListener { player ->
             if (requireActivity().isRotated()) {
+                //startImmersiveMode()
                 //startImmersiveMode()
 
 /*                Log.d(TAG, binding.videoViewContainer.width.toString())
@@ -315,144 +150,28 @@ class VideoPlayerFragment : Fragment() {
             }*/
 
             }
-            onActiveMediaDurationChanged(player.duration.toLong())
-            videoMediaSessionCallback.onPlay()
+            //onActiveMediaDurationChanged(player.duration.toLong())
+
+            //Updates the new max duration
+            videoPlayerViewModel.onDurationChanged(player.duration.toLong())
+
+            videoPlayerViewModel.activeMedia.value?.let {
+                mediaControllerCompat.transportControls.seekTo(it.progress)
+            }
+
+            mediaControllerCompat.transportControls.play()
         }
 
         binding.videoViewPlayer.setOnPreparedListener(listener)
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (!binding.videoViewPlayer.isPlaying){
-            videoPlayerViewModel.activeMediaItemCache?.let{
-                videoMediaSessionCallback.onPlayFromUri(it.uri, null)
-                videoPlayerViewModel.activeMediaCache?.let {
-                    videoMediaSessionCallback.onSeekTo(it.progress)
-                }
-            }
-        }
-    }
-
     private fun listenForActiveMedia(){
-        videoPlayerViewModel.activeMediaObservable.observe(viewLifecycleOwner) {
-            if (it != null && isDifferentToActiveMediaCache(it)){
-                videoPlayerViewModel.activeMediaCache = it
-                playCurrent()
-            }
-        }
-    }
-
-    private fun isDifferentToActiveMediaCache(it: ActiveMedia?): Boolean {
-        return it?.mediaItemId != videoPlayerViewModel.activeMediaCache?.mediaItemId
-    }
-
-    private fun playCurrent(){
-        lifecycleScope.launch {
-            videoPlayerViewModel.getActiveMediaItemOnce()?.let {
-                videoPlayerViewModel.activeMediaItemCache = it
-                videoMediaSessionCallback.onPlayFromUri(it.uri, null)
-            }
-        }
-    }
-
-    private val videoMediaSessionCallback = object : MediaSessionCompat.Callback() {
-        var syncJob: Job? = null
-
-        private fun startProgressLoop() {
-            syncJob = lifecycleScope.launch {
-                while (videoMediaSessionCompat.isActive && isActive) {
-                    try {
-                        if (binding.videoViewPlayer.isPlaying){
-                            onActiveMediaPositionChanged(binding.videoViewPlayer.currentPosition.toLong())
-                        }
-                    } catch (e: IllegalStateException){
-                        break
-                    }
-                    delay(1000)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                videoPlayerViewModel.activeMediaItem.collectLatest { mediaItem ->
+                    mediaControllerCompat.transportControls.playFromUri(mediaItem.uri, null)
                 }
             }
-        }
-
-        private fun endProgressLoop() {
-            syncJob?.cancel()
-            syncJob = null
-        }
-
-        override fun onPlay() {
-            onActiveMediaPlayingStateChanged(true)
-            binding.videoViewPlayer.start()
-            startProgressLoop()
-        }
-
-        override fun onPause() {
-            endProgressLoop()
-            binding.videoViewPlayer.pause()
-            onActiveMediaPlayingStateChanged(false)
-        }
-
-        override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
-            endProgressLoop()
-
-            try {
-                binding.videoViewPlayer.setVideoURI(uri!!)
-            } catch (e: IllegalStateException){
-                Log.d(TAG, "User is spamming Seek button")
-                Log.d(TAG, "$e")
-            }
-        }
-
-        override fun onSkipToQueueItem(playlistPos: Long) {
-            videoPlayerViewModel.updateActiveMediaPlaylistPosition(playlistPos)
-        }
-
-        override fun onSkipToNext() {
-            videoPlayerViewModel.skipToNext()
-        }
-
-        override fun onSkipToPrevious() {
-            videoPlayerViewModel.skipToPrevious()
-        }
-
-        override fun onSeekTo(pos: Long) {
-            binding.videoViewPlayer.seekTo(pos.toInt())
-
-            onActiveMediaPositionChanged(pos)
-        }
-
-        override fun onRewind() {
-            videoPlayerViewModel.activeMediaCache?.progress?.minus(10_000)?.let {
-                onSeekTo(it)
-            }
-        }
-
-        override fun onFastForward() {
-            videoPlayerViewModel.activeMediaCache?.progress?.plus(30_000)?.let {
-                onSeekTo(it)
-            }
-        }
-
-        override fun onSetRepeatMode(repeatMode: Int) {
-            onActiveMediaRepeatModeChange(repeatMode)
-        }
-
-        override fun onSetShuffleMode(shuffleMode: Int) {
-/*            lifecycleScope.launch(Dispatchers.IO){
-                videoPlayerViewModel.shuffleGlobalPlaylistAndActiveItem()
-            }*/
-            videoPlayerViewModel.shuffle()
-        }
-
-        fun repeat(){
-            onSeekTo(0)
-            endProgressLoop()
-            onPlay()
-        }
-
-        override fun onStop() {
-            super.onStop()
-            endProgressLoop()
-            binding.videoViewPlayer.stopPlayback()
         }
     }
 
@@ -475,6 +194,109 @@ class VideoPlayerFragment : Fragment() {
 
             //Setting callback
             setPlaybackState(initialState)
+
+            val videoMediaSessionCallback = object : MediaSessionCompat.Callback() {
+                var syncJob: Job? = null
+
+                private fun startProgressLoop() {
+                    syncJob = viewLifecycleOwner.lifecycleScope.launch {
+                        while (videoMediaSessionCompat.isActive && isActive) {
+                            try {
+                                if (binding.videoViewPlayer.isPlaying){
+                                    videoPlayerViewModel.onProgressChanged(binding.videoViewPlayer.currentPosition.toLong())
+                                }
+                            } catch (e: IllegalStateException){
+                                break
+                            }
+                            delay(1000)
+                        }
+                    }
+                }
+
+                private fun endProgressLoop() {
+                    syncJob?.cancel()
+                    syncJob = null
+                }
+
+                override fun onPlay() {
+                    videoPlayerViewModel.play()
+
+                    binding.videoViewPlayer.start()
+                    startProgressLoop()
+                }
+
+                override fun onPause() {
+                    endProgressLoop()
+                    binding.videoViewPlayer.pause()
+                    videoPlayerViewModel.pause()
+                }
+
+                override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
+                    endProgressLoop()
+                    binding.videoViewPlayer.stopPlayback()
+
+                    try {
+                        binding.videoViewPlayer.setVideoURI(uri)
+                    } catch (e: IllegalStateException){
+                        Log.d(TAG, "User is spamming Seek button")
+                        Log.d(TAG, "$e")
+                    }
+                }
+
+                override fun onSkipToQueueItem(playlistPos: Long) {
+                    videoPlayerViewModel.updateActiveMediaPlaylistPosition(playlistPos)
+                }
+
+                override fun onSkipToNext() {
+                    videoPlayerViewModel.skipToNext()
+                }
+
+                override fun onSkipToPrevious() {
+                    videoPlayerViewModel.skipToPrevious()
+                }
+
+                override fun onSeekTo(pos: Long) {
+                    binding.videoViewPlayer.seekTo(pos.toInt())
+
+                    videoPlayerViewModel.onProgressChanged(pos)
+                }
+
+                override fun onRewind() {
+                    videoPlayerViewModel.activeMedia.value?.progress?.minus(10_000)?.let {
+                        onSeekTo(it)
+                    }
+                }
+
+                override fun onFastForward() {
+                    videoPlayerViewModel.activeMedia.value?.progress?.plus(30_000)?.let {
+                        onSeekTo(it)
+                    }
+                }
+
+                override fun onSetRepeatMode(repeatMode: Int) {
+                    videoPlayerViewModel.onRepeatModeChanged(repeatMode)
+                }
+
+                override fun onSetShuffleMode(shuffleMode: Int) {
+                    videoPlayerViewModel.shuffle()
+                }
+
+                override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+                    when(command){
+                        COMMAND_REPEAT -> {
+                            onSeekTo(0)
+                            endProgressLoop()
+                            onPlay()
+                        }
+                    }
+                }
+
+                override fun onStop() {
+                    super.onStop()
+                    endProgressLoop()
+                    binding.videoViewPlayer.stopPlayback()
+                }
+            }
             setCallback(videoMediaSessionCallback)
             isActive = true
         }
@@ -528,12 +350,8 @@ class VideoPlayerFragment : Fragment() {
         }
     }
 
-    fun getMediaController(): MediaControllerCompat {
-        return videoMediaSessionCompat.controller
-    }
-
     override fun onDestroyView() {
-        videoMediaSessionCallback.onStop()
+        mediaControllerCompat.transportControls.stop()
         super.onDestroyView()
     }
 
@@ -542,44 +360,8 @@ class VideoPlayerFragment : Fragment() {
         super.onDestroy()
     }
 
-    private fun onActiveMediaRepeatModeChange(repeatMode: Int){
-        videoPlayerViewModel.activeMediaCache?.let {
-            val new = it.copy(repeatMode = repeatMode)
-            setActiveMediaCache(new)
-            videoPlayerViewModel.postActiveMediaToRoom(new)
-        }
-    }
-
-    private fun onActiveMediaDurationChanged(duration: Long){
-        videoPlayerViewModel.activeMediaCache?.let {
-            val new = it.copy(duration = duration)
-            setActiveMediaCache(new)
-            videoPlayerViewModel.postActiveMediaToRoom(new)
-        }
-    }
-
-    private fun onActiveMediaPlayingStateChanged(isPlaying: Boolean){
-        videoPlayerViewModel.activeMediaCache?.let {
-            val new = it.copy(isPlaying = isPlaying)
-            setActiveMediaCache(new)
-            if (isPlaying){
-                videoPlayerViewModel.play()
-            } else {
-                videoPlayerViewModel.pause()
-            }
-        }
-    }
-
-    private fun onActiveMediaPositionChanged(position: Long){
-        videoPlayerViewModel.activeMediaCache?.let {
-            val new = it.copy(progress = position)
-            setActiveMediaCache(new)
-            videoPlayerViewModel.postActiveMediaToRoom(new)
-        }
-    }
-
-    private fun setActiveMediaCache(activeMedia: ActiveMedia){
-        videoPlayerViewModel.activeMediaCache = activeMedia
+    companion object {
+        private const val COMMAND_REPEAT = "0"
     }
 
     private fun isVideoSmallerThanContainer(): Boolean {
@@ -613,8 +395,6 @@ class VideoPlayerFragment : Fragment() {
         return true
     }
 }
-
-//class MyMediaController: MediaController()
 
 fun Activity.isRotated(): Boolean {
     val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {

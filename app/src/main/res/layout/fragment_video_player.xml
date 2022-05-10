@@ -4,11 +4,21 @@
 
     <data>
 
+        <import type="android.support.v4.media.session.PlaybackStateCompat" />
+
+        <variable
+            name="vm"
+            type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.VideoPlayerViewModel" />
+
+        <variable
+            name="controller"
+            type="android.support.v4.media.session.MediaControllerCompat" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="#000000">
 
         <VideoView
             android:id="@+id/videoView_player"
@@ -29,127 +39,137 @@
             app:layout_constraintTop_toTopOf="parent">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/playerFirstControlGroup"
+                android:id="@+id/videoPlayerFirstControlGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_margin="16dp"
+                app:layout_constraintBottom_toTopOf="@id/seekBar_videoPlayerSeekBar"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/seekBar_playerSeekBar">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerReplay10"
+                    android:id="@+id/imageButton_videoPlayerReplay10"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.rewind()}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_replay_10_24"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@+id/imageButton_playerPlayPause"
+                    app:layout_constraintEnd_toStartOf="@+id/imageButton_videoPlayerPlayPause"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerPlayPause"
+                    android:id="@+id/imageButton_videoPlayerPlayPause"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> vm.uiState.isPlaying ? controller.transportControls.pause() : controller.transportControls.play()}"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_baseline_pause_24"
+                    android:src="@{vm.uiState.isPlaying ? @drawable/ic_baseline_pause_24 : @drawable/ic_baseline_play_arrow_24 }"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/imageButton_playerForward30"
-                    app:layout_constraintStart_toEndOf="@id/imageButton_playerReplay10"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerForward30"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplay10"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerForward30"
+                    android:id="@+id/imageButton_videoPlayerForward30"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.fastForward()}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_forward_30_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/imageButton_playerPlayPause"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerPlayPause"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <SeekBar
-                android:id="@+id/seekBar_playerSeekBar"
+                android:id="@+id/seekBar_videoPlayerSeekBar"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
+                android:max="@{Long.valueOf(vm.uiState.duration).intValue()}"
+                android:progress="@{Long.valueOf(vm.uiState.position).intValue()}"
+                app:layout_constraintBottom_toTopOf="@id/videoPlayerSecondControlGroup"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toTopOf="@id/playerSecondControlGroup" />
+                app:layout_constraintStart_toStartOf="parent" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/playerSecondControlGroup"
+                android:id="@+id/videoPlayerSecondControlGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent">
+                app:layout_constraintStart_toStartOf="parent">
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerReplayInfinite"
+                    android:id="@+id/imageButton_videoPlayerReplayInfinite"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE) : controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)}"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_baseline_repeat_24"
+                    android:src="@{vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? @drawable/ic_baseline_repeat_24 : @drawable/ic_baseline_repeat_one_24}"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/imageButton_playerShuffle"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerShuffle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerShuffle"
+                    android:id="@+id/imageButton_videoPlayerShuffle"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_shuffle_24"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekBackward"
-                    app:layout_constraintStart_toEndOf="@id/imageButton_playerReplayInfinite"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekBackward"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplayInfinite"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerSeekBackward"
+                    android:id="@+id/imageButton_videoPlayerSeekBackward"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.skipToPrevious()}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_skip_previous_24"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekForward"
-                    app:layout_constraintStart_toEndOf="@id/imageButton_playerShuffle"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekForward"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerShuffle"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerSeekForward"
+                    android:id="@+id/imageButton_videoPlayerSeekForward"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.skipToNext()}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_skip_next_24"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/imageButton_playerPlaylist"
-                    app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekBackward"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerPlaylist"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekBackward"
                     app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageButton
-                    android:id="@+id/imageButton_playerPlaylist"
+                    android:id="@+id/imageButton_videoPlayerPlaylist"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
+                    android:onClick="@{() -> vm.navigator.invoke()}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_format_list_bulleted_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekForward"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekForward"
                     app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>

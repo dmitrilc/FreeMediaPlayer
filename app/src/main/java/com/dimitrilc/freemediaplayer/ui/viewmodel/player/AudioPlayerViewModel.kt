@@ -8,7 +8,7 @@ import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.domain.activemedia.GetActiveMediaObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByMediaIdUseCase
-import com.dimitrilc.freemediaplayer.ui.state.PlayerUiState
+import com.dimitrilc.freemediaplayer.ui.state.AudioPlayerUiState
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combineTransform
@@ -29,9 +29,10 @@ class AudioPlayerViewModel @Inject constructor(
 
     private val _thumbCache = mutableMapOf<Long, Bitmap?>()
 
-    private val _uiState = MutableLiveData<PlayerUiState>()
-    val uiState: LiveData<PlayerUiState> = _uiState
+    private val _uiState = MutableLiveData<AudioPlayerUiState>()
+    val uiState: LiveData<AudioPlayerUiState> = _uiState
 
+    //TODO Duplicate code
     val seekBarChangeListener = object : SeekBar.OnSeekBarChangeListener {
         override fun onProgressChanged(
             seekBar: SeekBar?,
@@ -52,30 +53,30 @@ class AudioPlayerViewModel @Inject constructor(
             delay(300)
             getActiveMediaItemObservableUseCase()
                 .asFlow()
-                .filterNotNull()
-                .combineTransform(getActiveMediaObservableUseCase().filterNotNull()){ mediaItem, activeMedia ->
-
-                    /* Checks whether the local cache of thumbnail already
+                .combineTransform(getActiveMediaObservableUseCase()){ mediaItem, activeMedia ->
+                    if (mediaItem != null && activeMedia != null){
+                        /* Checks whether the local cache of thumbnail already
                     contains the thumbnail for this MediaItem */
-                    val thumb = if (_thumbCache.containsKey(activeMedia.mediaItemId)){
-                        _thumbCache[activeMedia.mediaItemId] //Gets thumbnail from cache
-                    } else {
-                        val result = getThumbByMediaIdUseCase(activeMedia.mediaItemId) //Loads new thumbnail
-                        _thumbCache[activeMedia.mediaItemId] = result //Assigns new thumbnail to cache
-                        result
-                    }
+                        val thumb = if (_thumbCache.containsKey(activeMedia.mediaItemId)){
+                            _thumbCache[activeMedia.mediaItemId] //Gets thumbnail from cache
+                        } else {
+                            val result = getThumbByMediaIdUseCase(activeMedia.mediaItemId) //Loads new thumbnail
+                            _thumbCache[activeMedia.mediaItemId] = result //Assigns new thumbnail to cache
+                            result
+                        }
 
-                    emit(
-                        PlayerUiState(
-                            title = mediaItem.title,
-                            album = mediaItem.album,
-                            thumbnail = getThumbByMediaIdUseCase(mediaItem.mediaItemId),
-                            position = activeMedia.progress,
-                            duration = activeMedia.duration,
-                            isPlaying = activeMedia.isPlaying,
-                            repeatMode = activeMedia.repeatMode
+                        emit(
+                            AudioPlayerUiState(
+                                title = mediaItem.title,
+                                album = mediaItem.album,
+                                thumbnail = getThumbByMediaIdUseCase(mediaItem.mediaItemId),
+                                position = activeMedia.progress,
+                                duration = activeMedia.duration,
+                                isPlaying = activeMedia.isPlaying,
+                                repeatMode = activeMedia.repeatMode
+                            )
                         )
-                    )
+                    }
                 }.collect {
                     _uiState.postValue(it)
                 }
@@ -90,7 +91,7 @@ class AudioPlayerViewModel @Inject constructor(
         }
     }
 
-    //TOOD GH ticket 59
+    //TODO GH ticket 59
     fun onSeekNextClick() {
         controller?.transportControls?.skipToNext()
     }

@@ -93,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                     setTopAppBarTitle(fullPath)
                     setBottomNavGone()
                     hideOverflowMenu()
+                    endImmersiveMode()
                 }
                 R.id.audio_player_path -> {
                     setTopAppBarTitle("Add file Path here")
@@ -103,8 +104,9 @@ class MainActivity : AppCompatActivity() {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
                     closeAudioSession()
-                    hideOverflowMenu()
+                    //hideOverflowMenu()
                     //endImmersiveMode()
+                    startImmersiveMode()
                 }
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")

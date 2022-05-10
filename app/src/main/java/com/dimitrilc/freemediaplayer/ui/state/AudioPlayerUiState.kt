@@ -4,7 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 
-data class PlayerUiState(
+data class AudioPlayerUiState(
     val title: String? = "null",
     val album: String? = "null",
     val thumbnail: Bitmap? = null,

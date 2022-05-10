@@ -3,8 +3,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
-        <import type="android.graphics.drawable.BitmapDrawable"/>
-        <import type="com.dimitrilc.freemediaplayer.ui.fragments.player.AudioPlayerFragment"/>
         <import type="android.support.v4.media.session.PlaybackStateCompat"/>
 
         <variable
