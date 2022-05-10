@@ -3,6 +3,8 @@ package com.dimitrilc.freemediaplayer.data.entities
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import androidx.room.*
 
+const val ACTIVE_MEDIA_PROGRESS_KEY = "0"
+
 @Entity(
     tableName = "active_media",
     foreignKeys = [
