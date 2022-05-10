@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    compileSdk 31
+    compileSdk 32
 
     defaultConfig {
         applicationId "com.dimitrilc.freemediaplayer"
@@ -86,9 +86,9 @@ dependencies {
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
     //Coroutine scope
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-alpha06'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-alpha06'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0-alpha06'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.0-beta01'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.0-beta01'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.0-beta01'
 
     // Typed DataStore
     implementation 'androidx.datastore:datastore:1.0.0'
@@ -111,14 +111,18 @@ dependencies {
     kapt 'androidx.hilt:hilt-compiler:1.0.0'
 
     //Material
-    implementation 'com.google.android.material:material:1.6.0-beta01'
+    implementation 'com.google.android.material:material:1.7.0-alpha01'
 
     //Navigation
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-alpha04'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-alpha04'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.5.0-beta01'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.5.0-beta01'
 
     //Work Manager
     implementation 'androidx.work:work-runtime-ktx:2.7.1'
+
+    //WindowManager
+    //implementation "androidx.window:window:1.1.0-alpha01"
+    //implementation "androidx.window:window-testing:1.1.0-alpha01"
 
     //Testing
     //Junit
@@ -142,7 +146,7 @@ dependencies {
     //Fragment
     debugImplementation "androidx.fragment:fragment-testing:1.4.1"
     //Kotlin Coroutines
-    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.0'
+    testImplementation 'org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.1-native-mt'
     //Room Testing
     testImplementation 'androidx.room:room-testing:2.4.2'
     //Work Testing
