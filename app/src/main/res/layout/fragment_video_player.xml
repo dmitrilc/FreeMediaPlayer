@@ -48,6 +48,18 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
+            <TextView
+                android:id="@+id/textView_videoTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                android:text="@{vm.uiState.title}"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="video title.mp4" />
+
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/videoPlayerFirstControlGroup"
                 android:layout_width="match_parent"
@@ -105,9 +117,11 @@
                 android:id="@+id/slider_videoPlayerSlider"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
-                android:valueTo="@{vm.uiState.duration}"
-                android:valueFrom="-0.1"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
                 android:value="@{vm.uiState.position}"
+                android:valueFrom="-0.1"
+                android:valueTo="@{vm.uiState.duration}"
                 app:layout_constraintBottom_toTopOf="@id/videoPlayerSecondControlGroup"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
