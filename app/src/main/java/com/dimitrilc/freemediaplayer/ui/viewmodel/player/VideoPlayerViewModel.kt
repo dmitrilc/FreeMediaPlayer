@@ -37,7 +37,7 @@ class VideoPlayerViewModel @Inject constructor(
 
     private val _actionFlow = MutableSharedFlow<Action>()
 
-    private val _activeMediaItem = getActiveMediaItemObservableUseCase().asFlow()
+    val activeMediaItem = getActiveMediaItemObservableUseCase()
     private val _activeMedia = getActiveMediaObservableUseCase()
 
     val accept: (Action) -> Unit = { action ->
@@ -61,8 +61,7 @@ class VideoPlayerViewModel @Inject constructor(
                     is Action.SystemAction.EmitActiveMediaItem -> {
                         _uiState.value?.copy(
                             title = it.mediaItem.title,
-                            album = it.mediaItem.album,
-                            uri = it.mediaItem.uri,
+                            album = it.mediaItem.album
                         )
                     }
                     is Action.UiAction.Playlist -> {
@@ -149,7 +148,7 @@ class VideoPlayerViewModel @Inject constructor(
         }
 
         viewModelScope.launch {
-            _activeMediaItem.filterNotNull().distinctUntilChanged().collect {
+            activeMediaItem.asFlow().filterNotNull().distinctUntilChanged().collect {
                 accept(Action.SystemAction.EmitActiveMediaItem(it))
             }
         }

@@ -142,7 +142,27 @@ class VideoPlayerFragment : Fragment() {
 
     private fun bindPlayerOnPreparedListener(){
         val listener = MediaPlayer.OnPreparedListener { player ->
-            if (requireActivity().isRotated()) {
+            if (player.videoWidth > player.videoHeight){
+                val params = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                params.bottomToBottom = binding.videoViewContainer.id
+                params.topToTop = binding.videoViewContainer.id
+                params.startToStart = binding.videoViewContainer.id
+                params.endToEnd = binding.videoViewContainer.id
+
+                binding.videoViewPlayer.layoutParams = params
+            }
+            //if video is designed for portrait view
+            else if (player.videoWidth < player.videoHeight){
+                val params = ConstraintLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+                params.bottomToBottom = binding.videoViewContainer.id
+                params.topToTop = binding.videoViewContainer.id
+                params.startToStart = binding.videoViewContainer.id
+                params.endToEnd = binding.videoViewContainer.id
+
+                binding.videoViewPlayer.layoutParams = params
+            }
+
+/*            if (requireActivity().isRotated()) {
                 //if video is designed for landscape view
                 if (player.videoWidth > player.videoHeight){
                     val params = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
@@ -167,7 +187,29 @@ class VideoPlayerFragment : Fragment() {
                 else {
 
                 }
-            }
+            } else {
+                //Portrait and video resolution is smaller than screen resolution
+                if (player.videoWidth > player.videoHeight){
+                    val params = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
+                    params.bottomToBottom = binding.videoViewContainer.id
+                    params.topToTop = binding.videoViewContainer.id
+                    params.startToStart = binding.videoViewContainer.id
+                    params.endToEnd = binding.videoViewContainer.id
+
+                    binding.videoViewPlayer.layoutParams = params
+                }
+                else if (player.videoWidth < player.videoHeight){
+                    val params = ConstraintLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+                    params.bottomToBottom = binding.videoViewContainer.id
+                    params.topToTop = binding.videoViewContainer.id
+                    params.startToStart = binding.videoViewContainer.id
+                    params.endToEnd = binding.videoViewContainer.id
+
+                    binding.videoViewPlayer.layoutParams = params
+                } else {
+
+                }
+            }*/
 
             //Updates the new max duration
             videoPlayerViewModel.accept(Action.UiAction.UpdateDuration(player.duration))
@@ -185,14 +227,10 @@ class VideoPlayerFragment : Fragment() {
     private var playingUri: Uri = Uri.EMPTY
 
     private fun listenForActiveMedia(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                videoPlayerViewModel.uiState.asFlow().collectLatest { state ->
-                    if (state.uri != playingUri){
-                        playingUri = state.uri
-                        mediaControllerCompat.transportControls.playFromUri(state.uri, null)
-                    }
-                }
+        videoPlayerViewModel.activeMediaItem.observe(viewLifecycleOwner){
+            if (it!= null && it.uri != playingUri){
+                playingUri = it.uri
+                mediaControllerCompat.transportControls.playFromUri(it.uri, null)
             }
         }
     }
@@ -253,7 +291,6 @@ class VideoPlayerFragment : Fragment() {
                 override fun onPause() {
                     endProgressLoop()
                     binding.videoViewPlayer.pause()
-                    //videoPlayerViewModel.pause()
                     videoPlayerViewModel.accept(Action.UiAction.Pause)
                 }
 
@@ -343,7 +380,10 @@ class VideoPlayerFragment : Fragment() {
                                 .setTitle("Codec not supported")
                                 .setMessage("This app is only used for demonstration purposes. " +
                                         "Add ExoPlayer lib to use additional software decoders.")
-                                .setNeutralButton("Close") { _, _ -> }
+                                .setNeutralButton("Go Back") { _, _ -> }
+                                .setOnDismissListener {
+                                    findNavController().popBackStack()
+                                }
                                 .show()
                         }
                     }
@@ -371,7 +411,10 @@ class VideoPlayerFragment : Fragment() {
                                 .setTitle("Codec not supported")
                                 .setMessage("This app is only used for demonstration purposes. " +
                                         "Add ExoPlayer lib to use additional software decoders.")
-                                .setNeutralButton("Close") { _, _ -> }
+                                .setNeutralButton("Go Back") { _, _ -> }
+                                .setOnDismissListener {
+                                    findNavController().popBackStack()
+                                }
                                 .show()
                         }
                     }
