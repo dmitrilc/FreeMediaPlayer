@@ -1,7 +1,5 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel.player
 
-import android.provider.MediaStore
-import android.util.Log
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
@@ -37,25 +35,16 @@ class VideoPlayerViewModel @Inject constructor(
     private val _uiState = MutableLiveData<VideoPlayerUiState>(VideoPlayerUiState())
     val uiState: LiveData<VideoPlayerUiState> = _uiState.distinctUntilChanged()
 
-/*    private val _activeMediaItem = MutableStateFlow<MediaItem?>(null)
-    val activeMediaItem = _activeMediaItem.filterNotNull().distinctUntilChanged()
-
-    private val _activeMedia = MutableStateFlow<ActiveMedia?>(null)
-    val activeMedia: StateFlow<ActiveMedia?> = _activeMedia*/
+    private val _actionFlow = MutableSharedFlow<Action>()
 
     private val _activeMediaItem = getActiveMediaItemObservableUseCase().asFlow()
     private val _activeMedia = getActiveMediaObservableUseCase()
-
-    private val _progress = MutableStateFlow(0)
-    private val progress: StateFlow<Int> = _progress
 
     val accept: (Action) -> Unit = { action ->
         viewModelScope.launch {
             _actionFlow.emit(action)
         }
     }
-
-    private val _actionFlow = MutableSharedFlow<Action>()
 
     private var showControlJob: Job? = null
 
@@ -81,19 +70,23 @@ class VideoPlayerViewModel @Inject constructor(
                         null
                     }
                     is Action.UiAction.Play -> {
+                        startHideControlsTimer()
                         _uiState.value?.copy(
-                            isPlaying = true
+                            isPlaying = true,
+                            areControlsVisible = true
                         )
                     }
                     is Action.UiAction.Pause -> {
+                        startHideControlsTimer()
                         _uiState.value?.copy(
-                            isPlaying = false
+                            isPlaying = false,
+                            areControlsVisible = true
                         )
                     }
                     is Action.UiAction.SkipNext -> {
                         skipToNextUseCase()
                         _uiState.value?.copy(
-                            position = 0
+                            position = 0,
                         )
                     }
                     is Action.UiAction.SkipPrevious -> {
@@ -103,12 +96,17 @@ class VideoPlayerViewModel @Inject constructor(
                         )
                     }
                     is Action.UiAction.Shuffle -> {
+                        startHideControlsTimer()
                         shuffleUseCase()
-                        null
+                        _uiState.value?.copy(
+                            areControlsVisible = true
+                        )
                     }
                     is Action.UiAction.SetRepeatMode -> {
+                        startHideControlsTimer()
                         _uiState.value?.copy(
-                            repeatMode = it.repeatMode
+                            repeatMode = it.repeatMode,
+                            areControlsVisible = true
                         )
                     }
                     is Action.UiAction.ShowControls -> {
@@ -150,15 +148,6 @@ class VideoPlayerViewModel @Inject constructor(
             }
         }
 
-/*        viewModelScope.launch {
-            _uiState.asFlow().collect {
-                if (it.areControlsVisible){
-                    Log.d(TAG, "Starting timer to hide controls")
-                    startHideControlsTimer()
-                }
-            }
-        }*/
-
         viewModelScope.launch {
             _activeMediaItem.filterNotNull().distinctUntilChanged().collect {
                 accept(Action.SystemAction.EmitActiveMediaItem(it))
@@ -170,125 +159,24 @@ class VideoPlayerViewModel @Inject constructor(
                 accept(Action.SystemAction.EmitActiveMedia(it))
             }
         }
-
-/*        viewModelScope.launch {
-            delay(300)
-            getActiveMediaItemObservableUseCase()
-                .asFlow()
-                .combineTransform(getActiveMediaObservableUseCase()){ mediaItem, activeMedia ->
-                    if (mediaItem != null && activeMedia != null) {
-                        _activeMedia.value = activeMedia
-                        _activeMediaItem.value = mediaItem
-
-                        //Prevents Slider from throwing exception
-                        val tmpDuration = if (activeMedia.duration == 0){
-                            Long.MAX_VALUE
-                        } else {
-                            activeMedia.duration
-                        }
-
-                        emit(
-                            VideoPlayerUiState(
-                                title = mediaItem.title,
-                                album = mediaItem.album,
-                                duration = tmpDuration,
-                                isPlaying = activeMedia.isPlaying,
-                                repeatMode = activeMedia.repeatMode,
-                                areControlsVisible = _uiState.value?.areControlsVisible ?: false
-                            )
-                        )
-                    }
-                }.collect {
-                    _uiState.postValue(it)
-                }
-        }*/
     }
 
-    private fun startHideControlsTimer(){
-        cancelPreviousHideControlsTimer()
-
-        //Log.d(TAG, "Starting timer to hide controls")
+    private fun startHideControlsTimer() {
+        showControlJob?.cancel()
+        showControlJob = null
 
         showControlJob = viewModelScope.launch {
             delay(3000)
             if (isActive){
-                _uiState.value = _uiState.value?.copy(areControlsVisible = false)
+                accept(Action.UiAction.HideControls)
             }
         }
-    }
-
-    private fun cancelPreviousHideControlsTimer(){
-        showControlJob?.cancel()
-        showControlJob = null
-    }
-
-    fun hideControls(){
-        _uiState.value = _uiState.value?.copy(areControlsVisible = false)
     }
 
     fun updateActiveMediaPlaylistPosition(position: Long) {
         updateActiveMediaPlaylistPositionAndMediaIdUseCase(position)
     }
 
-/*    fun skipToNext() {
-        startHideControlsTimer()
-        onProgressChanged(0)
-        skipToNextUseCase()
-    }
-
-    fun skipToPrevious() {
-        startHideControlsTimer()
-        onProgressChanged(0)
-        skipToPreviousUseCase()
-    }
-
-    fun play(){
-        startHideControlsTimer()
-        viewModelScope.launch(Dispatchers.IO) {
-            playUseCase()
-        }
-    }
-
-    fun pause(){
-        startHideControlsTimer()
-        viewModelScope.launch(Dispatchers.IO) {
-            pauseUseCase()
-        }
-    }
-
-    fun shuffle() {
-        startHideControlsTimer()
-        shuffleUseCase()
-    }
-
-    fun onProgressChanged(position: Int){
-        _activeMedia.value?.duration?.let { max ->
-            if (position > max){
-                _progress.value = max.toInt()
-            } else if (position < 0){
-                _progress.value = 0
-            } else {
-                _progress.value = position
-            }
-        }
-    }
-
-    fun onRepeatModeChanged(repeatMode: Int){
-        startHideControlsTimer()
-        _activeMedia.value?.copy(repeatMode = repeatMode)?.let {
-            viewModelScope.launch(Dispatchers.IO) {
-                insertActiveMediaUseCase(it)
-            }
-        }
-    }
-
-    fun onDurationChanged(duration: Long){
-        _activeMedia.value?.copy(duration = duration)?.let {
-            viewModelScope.launch(Dispatchers.IO) {
-                insertActiveMediaUseCase(it)
-            }
-        }
-    }*/
 }
 
 sealed class Action {

@@ -91,6 +91,7 @@
                     android:layout_height="32dp"
                     android:background="#00FFFFFF"
                     android:onClick="@{() -> controller.transportControls.fastForward()}"
+                    android:onClick="@{() -> vm.accept.invoke(Action.UiAction.FastForward.INSTANCE)}"
                     android:scaleType="fitCenter"
                     android:src="@drawable/ic_baseline_forward_30_24"
                     app:layout_constraintBottom_toBottomOf="parent"
