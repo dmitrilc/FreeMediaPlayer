@@ -15,21 +15,27 @@ import android.view.LayoutInflater
 import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
-import android.widget.SeekBar
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
-import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.FragmentVideoPlayerBinding
 import com.dimitrilc.freemediaplayer.hilt.FmpApplication
+import com.dimitrilc.freemediaplayer.ui.viewmodel.player.Action
 import com.dimitrilc.freemediaplayer.ui.viewmodel.player.VideoPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
+import com.google.android.material.slider.Slider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.collectLatest
+import java.text.SimpleDateFormat
+import java.util.*
 
 private const val TAG = "VIDEO_PLAYER_FRAG"
 
@@ -56,7 +62,7 @@ class VideoPlayerFragment : Fragment() {
         (requireActivity().application as FmpApplication).audioBrowser?.disconnect()
 
         videoPlayerViewModel.navigator = {
-            findNavController().navigate(R.id.active_playlist_path)
+            findNavController().navigate(VideoPlayerFragmentDirections.actionVideoPlayerPathToActivePlaylistPath())
         }
 
         setupVideoMediaSessionCompat()
@@ -76,8 +82,7 @@ class VideoPlayerFragment : Fragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        bindSeekBarChangeListener()
-
+        setupSliderListener()
         bindPlayerErrorListener()
         bindPlayerCompletionListener()
         bindPlayerOnPreparedListener()
@@ -87,28 +92,52 @@ class VideoPlayerFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
     }
 
-    private fun bindSeekBarChangeListener() {
-        val seekBarListener = object : SeekBar.OnSeekBarChangeListener {
-            override fun onProgressChanged(
-                seekBar: SeekBar?,
-                progress: Int,
-                fromUser: Boolean
-            ) {
-                if (fromUser) {
-                    mediaControllerCompat.transportControls.seekTo(progress.toLong())
-                }
+    private fun setupSliderListener() {
+        val sliderTouchListener = object : Slider.OnSliderTouchListener {
+            override fun onStartTrackingTouch(slider: Slider) {
+                mediaControllerCompat.sendCommand(COMMAND_STOP_PROGRESS, null, null)
             }
 
-            override fun onStartTrackingTouch(seekBar: SeekBar?) {}
-            override fun onStopTrackingTouch(seekBar: SeekBar?) {}
+            override fun onStopTrackingTouch(slider: Slider) {
+                mediaControllerCompat.transportControls.seekTo(slider.value.toLong())
+                mediaControllerCompat.sendCommand(COMMAND_START_PROGRESS, null, null)
+            }
         }
 
-        binding.seekBarVideoPlayerSeekBar.setOnSeekBarChangeListener(seekBarListener)
+        binding.sliderVideoPlayerSlider.addOnSliderTouchListener(sliderTouchListener)
+
+        binding.sliderVideoPlayerSlider.addOnChangeListener { slider, value, fromUser ->
+            if (fromUser){
+                //videoPlayerViewModel.startHideControlsTimer()
+                videoPlayerViewModel.accept(Action.UiAction.ShowControls)
+            }
+        }
+
+        val smallSdf = SimpleDateFormat("mm:ss", Locale.getDefault())
+        val largeSdf = SimpleDateFormat("h:mm:ss", Locale.getDefault())
+
+        binding.sliderVideoPlayerSlider.setLabelFormatter {
+            val date = Date(it.toLong())
+
+            if (it.compareTo(ONE_HOUR) < 0){
+                smallSdf.format(date)
+            } else {
+                largeSdf.format(date)
+            }
+        }
     }
 
     private fun bindPlayerCompletionListener(){
         binding.videoViewPlayer.setOnCompletionListener {
-            when(videoPlayerViewModel.activeMedia.value?.repeatMode){
+/*            when(videoPlayerViewModel.activeMedia.value?.repeatMode){
+                PlaybackStateCompat.REPEAT_MODE_ONE -> {
+                    mediaControllerCompat.sendCommand(COMMAND_REPEAT, null, null)
+                }
+                else -> {
+                    mediaControllerCompat.transportControls.skipToNext()
+                }
+            }  */
+            when(videoPlayerViewModel.uiState.value?.repeatMode){
                 PlaybackStateCompat.REPEAT_MODE_ONE -> {
                     mediaControllerCompat.sendCommand(COMMAND_REPEAT, null, null)
                 }
@@ -122,13 +151,8 @@ class VideoPlayerFragment : Fragment() {
     private fun bindPlayerOnPreparedListener(){
         val listener = MediaPlayer.OnPreparedListener { player ->
             if (requireActivity().isRotated()) {
-                //startImmersiveMode()
-                //startImmersiveMode()
-
-/*                Log.d(TAG, binding.videoViewContainer.width.toString())
-                Log.d(TAG, binding.videoViewContainer.height.toString())
-
-                if (binding.videoViewPlayer.width > binding.videoViewPlayer.height){//if video is designed for landscape view
+                //if video is designed for landscape view
+                if (player.videoWidth > player.videoHeight){
                     val params = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
                     params.bottomToBottom = binding.videoViewContainer.id
                     params.topToTop = binding.videoViewContainer.id
@@ -136,27 +160,32 @@ class VideoPlayerFragment : Fragment() {
                     params.endToEnd = binding.videoViewContainer.id
 
                     binding.videoViewPlayer.layoutParams = params
-                } else if (binding.videoViewPlayer.width < binding.videoViewPlayer.height){//if video is designed for portrait view
-*//*                    val params = ConstraintLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
+                }
+                //if video is designed for portrait view
+                else if (player.videoWidth < player.videoHeight){
+                    val params = ConstraintLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
                     params.bottomToBottom = binding.videoViewContainer.id
                     params.topToTop = binding.videoViewContainer.id
                     params.startToStart = binding.videoViewContainer.id
                     params.endToEnd = binding.videoViewContainer.id
 
-                    binding.videoViewPlayer.layoutParams = params*//*
-                } else {
+                    binding.videoViewPlayer.layoutParams = params
+                }
+                //If video is a perfect square
+                else {
 
                 }
-            }*/
-
             }
-            //onActiveMediaDurationChanged(player.duration.toLong())
 
             //Updates the new max duration
-            videoPlayerViewModel.onDurationChanged(player.duration.toLong())
+            //videoPlayerViewModel.onDurationChanged(player.duration.toLong())
+            videoPlayerViewModel.accept(Action.UiAction.UpdateDuration(player.duration))
 
-            videoPlayerViewModel.activeMedia.value?.let {
-                mediaControllerCompat.transportControls.seekTo(it.progress)
+/*            videoPlayerViewModel.activeMedia.value?.let {
+                mediaControllerCompat.transportControls.seekTo(videoPlayerViewModel.progress.value.toLong())
+            }*/
+            videoPlayerViewModel.uiState.value?.let {
+                mediaControllerCompat.transportControls.seekTo(it.position.toLong())
             }
 
             mediaControllerCompat.transportControls.play()
@@ -165,11 +194,20 @@ class VideoPlayerFragment : Fragment() {
         binding.videoViewPlayer.setOnPreparedListener(listener)
     }
 
+    private var playingUri: Uri = Uri.EMPTY
+
     private fun listenForActiveMedia(){
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                videoPlayerViewModel.activeMediaItem.collectLatest { mediaItem ->
+/*                videoPlayerViewModel.activeMediaItem.collectLatest { mediaItem ->
                     mediaControllerCompat.transportControls.playFromUri(mediaItem.uri, null)
+                }  */
+                videoPlayerViewModel.uiState.asFlow().collectLatest { state ->
+                    //TODO Check if new video is being requested
+                    if (state.uri != playingUri){
+                        playingUri = state.uri
+                        mediaControllerCompat.transportControls.playFromUri(state.uri, null)
+                    }
                 }
             }
         }
@@ -203,7 +241,11 @@ class VideoPlayerFragment : Fragment() {
                         while (videoMediaSessionCompat.isActive && isActive) {
                             try {
                                 if (binding.videoViewPlayer.isPlaying){
-                                    videoPlayerViewModel.onProgressChanged(binding.videoViewPlayer.currentPosition.toLong())
+                                    //videoPlayerViewModel.onProgressChanged(binding.videoViewPlayer.currentPosition)
+                                    videoPlayerViewModel.accept(
+                                        Action.UiAction.UpdateProgress(
+                                            binding.videoViewPlayer.currentPosition
+                                        ))
                                 }
                             } catch (e: IllegalStateException){
                                 break
@@ -219,7 +261,8 @@ class VideoPlayerFragment : Fragment() {
                 }
 
                 override fun onPlay() {
-                    videoPlayerViewModel.play()
+                    //videoPlayerViewModel.play()
+                    videoPlayerViewModel.accept(Action.UiAction.Play)
 
                     binding.videoViewPlayer.start()
                     startProgressLoop()
@@ -228,7 +271,8 @@ class VideoPlayerFragment : Fragment() {
                 override fun onPause() {
                     endProgressLoop()
                     binding.videoViewPlayer.pause()
-                    videoPlayerViewModel.pause()
+                    //videoPlayerViewModel.pause()
+                    videoPlayerViewModel.accept(Action.UiAction.Pause)
                 }
 
                 override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
@@ -248,37 +292,44 @@ class VideoPlayerFragment : Fragment() {
                 }
 
                 override fun onSkipToNext() {
-                    videoPlayerViewModel.skipToNext()
+                    //videoPlayerViewModel.skipToNext()
+                    videoPlayerViewModel.accept(Action.UiAction.SkipNext)
                 }
 
                 override fun onSkipToPrevious() {
-                    videoPlayerViewModel.skipToPrevious()
+                    //videoPlayerViewModel.skipToPrevious()
+                    videoPlayerViewModel.accept(Action.UiAction.SkipPrevious)
                 }
 
                 override fun onSeekTo(pos: Long) {
                     binding.videoViewPlayer.seekTo(pos.toInt())
-
-                    videoPlayerViewModel.onProgressChanged(pos)
+                    //videoPlayerViewModel.onProgressChanged(pos.toInt())
+                    videoPlayerViewModel.accept(Action.UiAction.UpdateProgress(pos.toInt()))
                 }
 
                 override fun onRewind() {
-                    videoPlayerViewModel.activeMedia.value?.progress?.minus(10_000)?.let {
-                        onSeekTo(it)
+                    //onSeekTo(videoPlayerViewModel.progress.value - 10_000L)
+
+                    videoPlayerViewModel.uiState.value?.let {
+                        onSeekTo(it.position - 10_000L)
                     }
                 }
 
                 override fun onFastForward() {
-                    videoPlayerViewModel.activeMedia.value?.progress?.plus(30_000)?.let {
-                        onSeekTo(it)
+                    //onSeekTo(videoPlayerViewModel.progress.value + 30_000L)
+                    videoPlayerViewModel.uiState.value?.let {
+                        onSeekTo(it.position + 30_000L)
                     }
                 }
 
                 override fun onSetRepeatMode(repeatMode: Int) {
-                    videoPlayerViewModel.onRepeatModeChanged(repeatMode)
+                    //videoPlayerViewModel.onRepeatModeChanged(repeatMode)
+                    videoPlayerViewModel.accept(Action.UiAction.SetRepeatMode(repeatMode))
                 }
 
                 override fun onSetShuffleMode(shuffleMode: Int) {
-                    videoPlayerViewModel.shuffle()
+                    //videoPlayerViewModel.shuffle()
+                    videoPlayerViewModel.accept(Action.UiAction.Shuffle)
                 }
 
                 override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
@@ -288,15 +339,21 @@ class VideoPlayerFragment : Fragment() {
                             endProgressLoop()
                             onPlay()
                         }
+                        COMMAND_STOP_PROGRESS -> {
+                            endProgressLoop()
+                        }
+                        COMMAND_START_PROGRESS -> {
+                            startProgressLoop()
+                        }
                     }
                 }
 
                 override fun onStop() {
-                    super.onStop()
                     endProgressLoop()
                     binding.videoViewPlayer.stopPlayback()
                 }
             }
+
             setCallback(videoMediaSessionCallback)
             isActive = true
         }
@@ -350,18 +407,21 @@ class VideoPlayerFragment : Fragment() {
         }
     }
 
-    override fun onDestroyView() {
+    override fun onPause() {
         mediaControllerCompat.transportControls.stop()
+        super.onPause()
+    }
+
+    override fun onDestroyView() {
+        videoMediaSessionCompat.release()
         super.onDestroyView()
     }
 
-    override fun onDestroy() {
-        videoMediaSessionCompat.release()
-        super.onDestroy()
-    }
-
     companion object {
+        private const val ONE_HOUR = 3600000L
         private const val COMMAND_REPEAT = "0"
+        private const val COMMAND_STOP_PROGRESS = "1"
+        private const val COMMAND_START_PROGRESS = "2"
     }
 
     private fun isVideoSmallerThanContainer(): Boolean {

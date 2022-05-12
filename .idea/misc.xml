@@ -52,14 +52,31 @@
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/menu/navigation_drawer.xml" value="0.25" />
         <entry key="..\:/Users/larry/AndroidStudioProjects/FreeMediaPlayer/app/src/main/res/menu/top_app_bar.xml" value="0.25" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable-v24/ic_launcher_foreground.xml" value="0.1585" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_arrow_back_24.xml" value="0.251" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_folder_24.xml" value="0.251" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_format_list_bulleted_24.xml" value="0.241" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_forward_30_24.xml" value="0.215" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_fullscreen_24.xml" value="0.251" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_fullscreen_exit_24.xml" value="0.251" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_library_music_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_menu_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_more_vert_24.xml" value="0.1585" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_pause_24.xml" value="0.251" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_photo_album_24.xml" value="0.1585" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_play_arrow_24.xml" value="0.251" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_refresh_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_reorder_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_repeat_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_repeat_one_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_replay_10_24.xml" value="0.215" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_settings_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_shuffle_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_skip_next_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_skip_previous_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_baseline_video_library_24.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/ic_launcher_background.xml" value="0.1585" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/drawable/replay_10_selector.xml" value="0.2055" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/active_playlist_item_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/activity_main.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/drawer_layout.xml" value="0.25416666666666665" />
@@ -68,12 +85,12 @@
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_items_fragment.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/folder_relative_view.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_active_playlist.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_player.xml" value="0.1" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_audio_player.xml" value="0.2" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_folders_full.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_fullscreen_video.xml" value="0.25416666666666665" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_player.xml" value="0.4" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_playlists.xml" value="0.25416666666666665" />
-        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_video_player.xml" value="0.264" />
+        <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/fragment_video_player.xml" value="0.21516754850088182" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/media_controller.xml" value="0.192481884057971" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/layout/settings_activity.xml" value="0.2164855072463768" />
         <entry key="..\:/Users/larry/StudioProjects/FreeMediaPlayer/app/src/main/res/menu/bottom_navigation_menu.xml" value="0.25416666666666665" />

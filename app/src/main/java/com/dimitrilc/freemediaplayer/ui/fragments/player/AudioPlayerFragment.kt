@@ -57,7 +57,7 @@ class AudioPlayerFragment : Fragment() {
         }
 
         audioPlayerViewModel.navigateCallback = {
-            findNavController().navigate(R.id.active_playlist_path)
+            findNavController().navigate(AudioPlayerFragmentDirections.actionAudioPlayerPathToActivePlaylistPath())
         }
 
         return binding.root

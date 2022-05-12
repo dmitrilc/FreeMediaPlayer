@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
 
         <import type="android.support.v4.media.session.PlaybackStateCompat" />
+        <import type="android.view.View"/>
+        <import type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.Action"/>
 
         <variable
             name="vm"
@@ -16,23 +19,30 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/videoView_Container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:onClick="@{() -> vm.accept.invoke(Action.UiAction.ShowControls.INSTANCE)}"
         android:background="#000000">
 
         <VideoView
             android:id="@+id/videoView_player"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:onClick="@{() -> vm.accept.invoke(Action.UiAction.ShowControls.INSTANCE)}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/background"
+            android:id="@+id/controlGroupsContainer"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="#B2000000"
+            android:theme="@style/ThemeOverlay.Fmp.ImageButton"
+            android:onClick="@{() -> vm.accept.invoke(Action.UiAction.HideControls.INSTANCE)}"
+            android:visibility="@{vm.uiState.areControlsVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -42,8 +52,8 @@
                 android:id="@+id/videoPlayerFirstControlGroup"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="16dp"
-                app:layout_constraintBottom_toTopOf="@id/seekBar_videoPlayerSeekBar"
+                android:layout_marginHorizontal="16dp"
+                app:layout_constraintBottom_toTopOf="@id/slider_videoPlayerSlider"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent">
 
@@ -58,7 +68,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@+id/imageButton_videoPlayerPlayPause"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerPlayPause"
@@ -71,7 +82,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerForward30"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplay10"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerForward30"
@@ -84,19 +96,22 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerPlayPause"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <SeekBar
-                android:id="@+id/seekBar_videoPlayerSeekBar"
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_videoPlayerSlider"
                 android:layout_width="match_parent"
                 android:layout_height="80dp"
-                android:max="@{Long.valueOf(vm.uiState.duration).intValue()}"
-                android:progress="@{Long.valueOf(vm.uiState.position).intValue()}"
+                android:valueTo="@{vm.uiState.duration}"
+                android:valueFrom="-0.1"
+                android:value="@{vm.uiState.position}"
                 app:layout_constraintBottom_toTopOf="@id/videoPlayerSecondControlGroup"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent" />
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@color/control_image_button_selector" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/videoPlayerSecondControlGroup"
@@ -118,7 +133,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerShuffle"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerShuffle"
@@ -131,7 +147,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekBackward"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplayInfinite"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerSeekBackward"
@@ -144,7 +161,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekForward"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerShuffle"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerSeekForward"
@@ -157,7 +175,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerPlaylist"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekBackward"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerPlaylist"
@@ -170,7 +189,8 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekForward"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

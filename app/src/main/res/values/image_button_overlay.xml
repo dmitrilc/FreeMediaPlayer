@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ThemeOverlay.Fmp.ImageButton" parent="">
+        <item name="colorOnSurface">#FFFFFF</item>
+    </style>
+</resources>
+
