@@ -42,20 +42,17 @@ class AudioPlayerFragment : Fragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (fmpApp.audioBrowser == null){
-            createAudioBrowser()
-        } else {
-            setMediaController(true)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if (fmpApp.audioBrowser == null){
+            createAudioBrowser()
+        } else {
+            setMediaController(true)
+        }
+
         _binding = FragmentAudioPlayerBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.vm = audioPlayerViewModel

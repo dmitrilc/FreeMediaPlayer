@@ -41,6 +41,7 @@ android {
     kotlinOptions {
         jvmTarget = '1.8'
     }
+    namespace 'com.dimitrilc.freemediaplayer'
 }
 
 spotless { // if you are using build.gradle.kts, instead of 'spotless {' use:
