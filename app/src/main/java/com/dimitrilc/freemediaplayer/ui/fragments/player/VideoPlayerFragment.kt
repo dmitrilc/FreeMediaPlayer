@@ -1,9 +1,7 @@
 package com.dimitrilc.freemediaplayer.ui.fragments.player
 
-import android.app.Activity
 import android.media.MediaPlayer
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.os.ResultReceiver
 import android.support.v4.media.session.MediaControllerCompat
@@ -11,7 +9,6 @@ import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.Surface
 import android.view.View
 import android.view.ViewGroup
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
@@ -19,10 +16,7 @@ import android.view.ViewGroup.LayoutParams.WRAP_CONTENT
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.dimitrilc.freemediaplayer.databinding.FragmentVideoPlayerBinding
 import com.dimitrilc.freemediaplayer.hilt.FmpApplication
@@ -32,7 +26,6 @@ import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.slider.Slider
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.collectLatest
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -162,58 +155,10 @@ class VideoPlayerFragment : Fragment() {
                 binding.videoViewPlayer.layoutParams = params
             }
 
-/*            if (requireActivity().isRotated()) {
-                //if video is designed for landscape view
-                if (player.videoWidth > player.videoHeight){
-                    val params = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-                    params.bottomToBottom = binding.videoViewContainer.id
-                    params.topToTop = binding.videoViewContainer.id
-                    params.startToStart = binding.videoViewContainer.id
-                    params.endToEnd = binding.videoViewContainer.id
-
-                    binding.videoViewPlayer.layoutParams = params
-                }
-                //if video is designed for portrait view
-                else if (player.videoWidth < player.videoHeight){
-                    val params = ConstraintLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
-                    params.bottomToBottom = binding.videoViewContainer.id
-                    params.topToTop = binding.videoViewContainer.id
-                    params.startToStart = binding.videoViewContainer.id
-                    params.endToEnd = binding.videoViewContainer.id
-
-                    binding.videoViewPlayer.layoutParams = params
-                }
-                //If video is a perfect square
-                else {
-
-                }
-            } else {
-                //Portrait and video resolution is smaller than screen resolution
-                if (player.videoWidth > player.videoHeight){
-                    val params = ConstraintLayout.LayoutParams(MATCH_PARENT, WRAP_CONTENT)
-                    params.bottomToBottom = binding.videoViewContainer.id
-                    params.topToTop = binding.videoViewContainer.id
-                    params.startToStart = binding.videoViewContainer.id
-                    params.endToEnd = binding.videoViewContainer.id
-
-                    binding.videoViewPlayer.layoutParams = params
-                }
-                else if (player.videoWidth < player.videoHeight){
-                    val params = ConstraintLayout.LayoutParams(WRAP_CONTENT, MATCH_PARENT)
-                    params.bottomToBottom = binding.videoViewContainer.id
-                    params.topToTop = binding.videoViewContainer.id
-                    params.startToStart = binding.videoViewContainer.id
-                    params.endToEnd = binding.videoViewContainer.id
-
-                    binding.videoViewPlayer.layoutParams = params
-                } else {
-
-                }
-            }*/
-
             //Updates the new max duration
             videoPlayerViewModel.accept(Action.UiAction.UpdateDuration(player.duration))
 
+            //On resume or after destroyed
             videoPlayerViewModel.uiState.value?.let {
                 mediaControllerCompat.transportControls.seekTo(it.position.toLong())
             }
@@ -439,20 +384,5 @@ class VideoPlayerFragment : Fragment() {
         private const val COMMAND_REPEAT = "0"
         private const val COMMAND_STOP_PROGRESS = "1"
         private const val COMMAND_START_PROGRESS = "2"
-    }
-}
-
-fun Activity.isRotated(): Boolean {
-    val rotation = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-        baseContext.display?.rotation
-    } else {
-        val display = windowManager.defaultDisplay
-        display.rotation
-    }
-
-    return when(rotation){
-        Surface.ROTATION_90 -> true
-        Surface.ROTATION_270 -> true
-        else -> false
     }
 }

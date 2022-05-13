@@ -5,7 +5,9 @@ import android.media.MediaPlayer
 import android.net.Uri
 import android.os.Bundle
 import android.os.IBinder
+import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
@@ -13,14 +15,18 @@ import android.util.Log
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
-import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaProgress
+import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.activemedia.*
 import com.dimitrilc.freemediaplayer.domain.controls.*
+import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsInGlobalPlaylistOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInfoObservableUseCase
+import com.dimitrilc.freemediaplayer.hilt.FmpApplication
+import com.dimitrilc.freemediaplayer.ui.state.AudioPlayerUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.StateFlow
 import java.io.IOException
 import javax.inject.Inject
 
@@ -36,9 +42,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     @Inject
     lateinit var insertActiveMediaUseCase: InsertActiveMediaUseCase
-
-    @Inject
-    lateinit var updateMediaProgressUseCase: UpdateActiveMediaProgressUseCase
 
     @Inject
     lateinit var getActiveMediaItemOnceUseCase: GetActiveMediaItemOnceUseCase
@@ -59,23 +62,167 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     lateinit var skipToPreviousUseCase: SkipToPreviousUseCase
 
     @Inject
-    lateinit var playUseCase: PlayUseCase
-
-    @Inject
-    lateinit var pauseUseCase: PauseUseCase
-
-    @Inject
     lateinit var shuffleUseCase: ShuffleUseCase
 
-    private val stateBuilder = PlaybackStateCompat.Builder()
+    @Inject
+    lateinit var getActiveMediaItemObservableUseCase: GetActiveMediaItemObservableUseCase
 
-    private var activeMediaCache: ActiveMedia? = null
+    private val stateBuilder = PlaybackStateCompat.Builder()
+    private val metadataBuilder = MediaMetadataCompat.Builder()
+
+    private var activeMediaCache: AudioPlayerUiState? = null
 
     private val mediaSessionCompat: MediaSessionCompat by lazy {
         MediaSessionCompat(applicationContext, TAG)
     }
 
     private val mediaPlayer: MediaPlayer = MediaPlayer()
+
+    private val previousMediaItem = MutableLiveData<MediaItem>()
+    private val activeMediaItem by lazy {
+        getActiveMediaItemObservableUseCase()
+    }
+
+    private val audioMediaSessionCallback = object : MediaSessionCompat.Callback() {
+        var syncJob: Job? = null
+
+        private fun startProgressBroadCastLoop() {
+            syncJob = lifecycleScope.launch {
+                while (mediaSessionCompat.isActive && isActive) {
+                    try {
+                        if (mediaPlayer.isPlaying){
+                            //onActiveMediaPositionChanged(mediaPlayer.currentPosition.toLong())
+                            val state = stateBuilder.setState(
+                                STATE_PLAYING,
+                                mediaPlayer.currentPosition.toLong(),
+                                1.0f
+                            ).build()
+
+                            mediaSessionCompat.setPlaybackState(state)
+                        }
+                    } catch (e: IllegalStateException){
+                        break
+                    }
+                    delay(1000)
+                }
+            }
+        }
+
+        fun endProgressBroadCastLoop(){
+            syncJob?.cancel()
+            syncJob = null
+
+            val state = stateBuilder.setState(
+                STATE_PAUSED,
+                mediaPlayer.currentPosition.toLong(),
+                1.0f
+            ).build()
+
+            mediaSessionCompat.setPlaybackState(state)
+        }
+
+        fun repeat(){
+            onSeekTo(0)
+            endProgressBroadCastLoop()
+            onPlay()
+        }
+
+        override fun onPlay() {
+            mediaPlayer.start()
+            startProgressBroadCastLoop()
+        }
+
+        override fun onPause() {
+            mediaPlayer.pause()
+            endProgressBroadCastLoop()
+        }
+
+        override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
+            endProgressBroadCastLoop()
+
+            try {
+                mediaPlayer.reset()
+                mediaPlayer.setDataSource(applicationContext, uri!!)
+                mediaPlayer.prepare()
+            } catch (e: IllegalStateException){
+                Log.d(TAG, "User is spamming Seek button")
+                Log.d(TAG, "$e")
+            } catch (e: IOException){
+                Log.d(TAG, "$e")
+            }
+        }
+
+        override fun onSkipToQueueItem(playlistPos: Long) {
+            updateActiveMediaPlaylistPositionAndMediaIdUseCase(playlistPos)
+        }
+
+        override fun onSkipToNext() {
+            skipToNextUseCase()
+        }
+
+        override fun onSkipToPrevious() {
+            skipToPreviousUseCase()
+        }
+
+        override fun onSeekTo(pos: Long) {
+            mediaPlayer.seekTo(pos.toInt())
+
+            val state = stateBuilder.setState(
+                STATE_BUFFERING,
+                pos,
+                1.0f
+            ).build()
+
+            mediaSessionCompat.setPlaybackState(state)
+        }
+
+        override fun onRewind() {
+            onSeekTo(mediaPlayer.currentPosition.toLong() - 10_000)
+        }
+
+        override fun onFastForward() {
+            onSeekTo(mediaPlayer.currentPosition.toLong() + 30_000)
+        }
+
+        override fun onSetRepeatMode(repeatMode: Int) {
+            when(mediaSessionCompat.controller.repeatMode){
+                REPEAT_MODE_NONE -> {
+                    mediaSessionCompat.setRepeatMode(REPEAT_MODE_ONE)
+                }
+                REPEAT_MODE_ONE -> {
+                    mediaSessionCompat.setRepeatMode(REPEAT_MODE_NONE)
+                }
+                REPEAT_MODE_ALL -> {
+
+                }
+                REPEAT_MODE_GROUP -> {
+
+                }
+            }
+        }
+
+        override fun onSetShuffleMode(shuffleMode: Int) {
+            shuffleUseCase()
+        }
+
+        override fun onCommand(command: String?, extras: Bundle?, cb: ResultReceiver?) {
+            when(command){
+                COMMAND_RECONNECT -> {
+                    mediaSessionCompat.setMetadata(mediaSessionCompat.controller.metadata)
+                    mediaSessionCompat.setPlaybackState(mediaSessionCompat.controller.playbackState)
+                }
+                COMMAND_REPEAT -> {
+                    repeat()
+                }
+            }
+        }
+
+        override fun onStop() {
+            super.onStop()
+            endProgressBroadCastLoop()
+            mediaPlayer.release()
+        }
+    }
 
     override fun onBind(intent: Intent?): IBinder? {
         mLifecycleDispatcher.onServicePreSuperOnBind()
@@ -119,12 +266,12 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun bindPlayerCompletionListener(){
         mediaPlayer.setOnCompletionListener {
-            when(activeMediaCache?.repeatMode){
+            when(mediaSessionCompat.controller.repeatMode){
                 REPEAT_MODE_ONE -> {
-                    audioMediaSessionCallback.repeat()
+                    mediaSessionCompat.controller.sendCommand(COMMAND_REPEAT, null, null)
                 }
                 else -> {
-                    audioMediaSessionCallback.onSkipToNext()
+                    mediaSessionCompat.controller.transportControls.skipToNext()
                 }
             }
         }
@@ -132,8 +279,30 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun bindPlayerOnPreparedListener(){
         val listener = MediaPlayer.OnPreparedListener { player ->
-            onActiveMediaDurationChanged(player.duration.toLong())
-            audioMediaSessionCallback.onPlay()
+            //onActiveMediaDurationChanged(player.duration.toLong())
+            //audioMediaSessionCallback.onPlay()
+
+            val metadata = metadataBuilder
+                .putLong(
+                    METADATA_KEY_ID,
+                    activeMediaItem.value!!.mediaItemId
+                )
+                .putString(
+                    MediaMetadataCompat.METADATA_KEY_TITLE,
+                    activeMediaItem.value?.title
+                )
+                .putString(
+                    MediaMetadataCompat.METADATA_KEY_ALBUM,
+                    activeMediaItem.value?.album
+                )
+                .putLong(
+                    MediaMetadataCompat.METADATA_KEY_DURATION,
+                    player.duration.toLong())
+                .build()
+
+            mediaSessionCompat.setMetadata(metadata)
+
+            mediaSessionCompat.controller.transportControls.play()
         }
 
         mediaPlayer.setOnPreparedListener(listener)
@@ -145,131 +314,16 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }
 
     private fun listenForActiveMedia(){
-        getActiveMediaObservableUseCase().asLiveData().observe(this) {
-            if (it != null && isDifferentToActiveMediaCache(it)){
-                activeMediaCache = it
-                playCurrent()
-            }
-        }
-    }
-
-    private fun playCurrent() {
-        lifecycleScope.launch {
-            getActiveMediaItemOnceUseCase()?.let {
-                audioMediaSessionCallback.onPlayFromUri(it.uri, null)
-            }
-        }
-    }
-
-    private fun isDifferentToActiveMediaCache(it: ActiveMedia?): Boolean {
-        return it?.mediaItemId != activeMediaCache?.mediaItemId
-    }
-
-    override fun getLifecycle(): Lifecycle = mLifecycleDispatcher.lifecycle
-
-    private val audioMediaSessionCallback = object : MediaSessionCompat.Callback() {
-        var syncJob: Job? = null
-
-        private fun startProgressBroadCastLoop() {
-            syncJob = lifecycleScope.launch {
-                while (mediaSessionCompat.isActive && isActive) {
-                    try {
-                        if (mediaPlayer.isPlaying){
-                            onActiveMediaPositionChanged(mediaPlayer.currentPosition.toLong())
-                        }
-                    } catch (e: IllegalStateException){
-                        break
-                    }
-                    delay(1000)
+        activeMediaItem.observe(this){
+            it?.let {
+                if (it.mediaItemId != previousMediaItem.value?.mediaItemId){
+                    mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
                 }
             }
         }
-
-        fun endProgressBroadCastLoop(){
-            syncJob?.cancel()
-            syncJob = null
-        }
-
-        fun repeat(){
-            onSeekTo(0)
-            endProgressBroadCastLoop()
-            onPlay()
-        }
-
-        override fun onPlay() {
-            onActiveMediaPlayingStateChanged(true)
-
-            mediaPlayer.start()
-
-            startProgressBroadCastLoop()
-        }
-
-        override fun onPause() {
-            mediaPlayer.pause()
-
-            endProgressBroadCastLoop()
-
-            onActiveMediaPlayingStateChanged(false)
-        }
-
-        override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
-            endProgressBroadCastLoop()
-
-            try {
-                mediaPlayer.reset()
-                mediaPlayer.setDataSource(applicationContext, uri!!)
-                mediaPlayer.prepare()
-            } catch (e: IllegalStateException){
-                Log.d(TAG, "User is spamming Seek button")
-                Log.d(TAG, "$e")
-            } catch (e: IOException){
-                Log.d(TAG, "$e")
-            }
-        }
-
-        override fun onSkipToQueueItem(playlistPos: Long) {
-            updateActiveMediaPlaylistPositionAndMediaIdUseCase(playlistPos)
-        }
-
-        override fun onSkipToNext() {
-            skipToNextUseCase()
-        }
-
-        override fun onSkipToPrevious() {
-            skipToPreviousUseCase()
-        }
-
-        override fun onSeekTo(pos: Long) {
-            mediaPlayer.seekTo(pos.toInt())
-            onActiveMediaPositionChanged(pos)
-        }
-
-        override fun onRewind() {
-            activeMediaCache?.progress?.minus(10_000)?.let {
-                onSeekTo(it)
-            }
-        }
-
-        override fun onFastForward() {
-            activeMediaCache?.progress?.plus(30_000)?.let {
-                onSeekTo(it)
-            }
-        }
-
-        override fun onSetRepeatMode(repeatMode: Int) {
-            onActiveMediaRepeatModeChange(repeatMode)
-        }
-
-        override fun onSetShuffleMode(shuffleMode: Int) {
-            shuffleUseCase()
-        }
-
-        override fun onStop() {
-            super.onStop()
-            endProgressBroadCastLoop()
-            mediaPlayer.release()
-        }
     }
+
+    override fun getLifecycle(): Lifecycle = mLifecycleDispatcher.lifecycle
 
     override fun onDestroy() {
         mLifecycleDispatcher.onServicePreSuperOnDestroy()
@@ -277,6 +331,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
         mediaSessionCompat.controller.transportControls.stop()
         mediaSessionCompat.release()
+        (application as FmpApplication).audioBrowser = null
         stopSelf()
     }
 
@@ -311,19 +366,19 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }
 
     private fun onActiveMediaRepeatModeChange(repeatMode: Int){
-        activeMediaCache?.let {
+/*        activeMediaCache?.let {
             val new = it.copy(repeatMode = repeatMode)
             setActiveMediaCache(new)
             postActiveMediaToRoom(new)
-        }
+        }*/
     }
 
     private fun onActiveMediaDurationChanged(duration: Long){
-        activeMediaCache?.let {
+/*        activeMediaCache?.let {
             val new = it.copy(duration = duration)
             setActiveMediaCache(new)
             postActiveMediaToRoom(new)
-        }
+        }*/
     }
 
     private fun onActiveMediaPlayingStateChanged(isPlaying: Boolean){
@@ -335,23 +390,23 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             }
         }*/
 
-        activeMediaCache?.let {
+/*        activeMediaCache?.let {
             val new = it.copy(isPlaying = isPlaying)
             setActiveMediaCache(new)
             postActiveMediaToRoom(new)
-        }
+        }*/
     }
 
     private fun onActiveMediaPositionChanged(position: Long){
-        activeMediaCache?.let {
+/*        activeMediaCache?.let {
             val new = it.copy(progress = position)
             setActiveMediaCache(new)
             postActiveMediaToRoom(new)
-        }
+        }*/
     }
 
     private fun setActiveMediaCache(activeMedia: ActiveMedia){
-        activeMediaCache = activeMedia
+        //activeMediaCache = activeMedia
     }
 
     private fun postActiveMediaToRoom(activeMedia: ActiveMedia){
@@ -367,3 +422,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }*/
 
 }
+
+const val METADATA_KEY_ID = "0"
+const val COMMAND_RECONNECT = "1"
+private const val COMMAND_REPEAT = "2"

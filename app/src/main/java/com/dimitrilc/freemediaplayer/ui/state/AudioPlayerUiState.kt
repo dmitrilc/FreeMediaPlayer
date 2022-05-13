@@ -8,8 +8,8 @@ data class AudioPlayerUiState(
     val title: String? = "null",
     val album: String? = "null",
     val thumbnail: Bitmap? = null,
-    val duration: Long = 0,
-    val position: Long = 0,
+    val duration: Int = 0,
+    val position: Int = 0,
     val isPlaying: Boolean = false,
     val repeatMode: Int = REPEAT_MODE_NONE
 )

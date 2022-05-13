@@ -51,29 +51,29 @@
             app:layout_constraintTop_toBottomOf="@id/textView_playerTitle">
 
             <ImageButton
-                android:id="@+id/imageButton_playerReplay10"
+                android:id="@+id/imageButton_audioPlayerRewind"
                 android:layout_width="32dp"
                 android:layout_height="32dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_replay_10_24"
-                android:onClick="@{() -> vm.onRewindClick()}"
+                android:onClick="@{() -> vm.controller.transportControls.rewind()}"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/imageButton_playerPlayPause"
+                app:layout_constraintEnd_toStartOf="@+id/imageButton_audioPlayerPlayPause"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
-                android:id="@+id/imageButton_playerPlayPause"
+                android:id="@+id/imageButton_audioPlayerPlayPause"
                 android:layout_width="56dp"
                 android:layout_height="56dp"
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
-                android:src="@{vm.uiState.isPlaying ? @drawable/ic_baseline_pause_24 : @drawable/ic_baseline_play_arrow_24 }"
-                android:onClick="@{() -> vm.onPlayPauseClick()}"
+                android:src="@{vm.uiState.isPlaying ? @drawable/ic_baseline_pause_24 : @drawable/ic_baseline_play_arrow_24}"
+                android:onClick="@{() -> vm.uiState.isPlaying ? vm.controller.transportControls.pause() : vm.controller.transportControls.play()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerForward30"
-                app:layout_constraintStart_toEndOf="@id/imageButton_playerReplay10"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerRewind"
                 app:layout_constraintTop_toTopOf="parent" />
 
             <ImageButton
@@ -83,10 +83,10 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_forward_30_24"
-                android:onClick="@{() -> vm.onForwardClick()}"
+                android:onClick="@{() -> vm.controller.transportControls.fastForward()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/imageButton_playerPlayPause"
+                app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerPlayPause"
                 app:layout_constraintTop_toTopOf="parent" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
@@ -116,7 +116,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@{vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? @drawable/ic_baseline_repeat_24 : @drawable/ic_baseline_repeat_one_24}"
-                android:onClick="@{() -> vm.onReplayClick()}"
+                android:onClick="@{() -> vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? vm.controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE) : vm.controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerShuffle"
                 app:layout_constraintStart_toStartOf="parent"
@@ -129,7 +129,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_shuffle_24"
-                android:onClick="@{() -> vm.onShuffleClick()}"
+                android:onClick="@{() -> vm.controller.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekBackward"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerReplayInfinite"
@@ -142,7 +142,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_skip_previous_24"
-                android:onClick="@{() -> vm.onSeekPreviousClick()}"
+                android:onClick="@{() -> vm.controller.transportControls.skipToPrevious()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekForward"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerShuffle"
@@ -155,7 +155,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_skip_next_24"
-                android:onClick="@{() -> vm.onSeekNextClick()}"
+                android:onClick="@{() -> vm.controller.transportControls.skipToNext()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerPlaylist"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekBackward"
@@ -168,7 +168,7 @@
                 android:background="#00FFFFFF"
                 android:scaleType="fitCenter"
                 android:src="@drawable/ic_baseline_format_list_bulleted_24"
-                android:onClick="@{() -> vm.onPlaylistClick()}"
+                android:onClick="@{() -> vm.navigator.invoke()}"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekForward"

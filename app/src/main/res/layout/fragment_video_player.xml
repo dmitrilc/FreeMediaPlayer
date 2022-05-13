@@ -4,10 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <import type="android.support.v4.media.session.PlaybackStateCompat" />
-        <import type="android.view.View"/>
-        <import type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.Action"/>
+        <import type="android.view.View" />
+        <import type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.Action" />
 
         <variable
             name="vm"
@@ -22,8 +21,8 @@
         android:id="@+id/videoView_Container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:onClick="@{() -> vm.accept.invoke(Action.UiAction.ShowControls.INSTANCE)}"
-        android:background="#000000">
+        android:background="#000000"
+        android:onClick="@{() -> vm.accept.invoke(Action.UiAction.ShowControls.INSTANCE)}">
 
         <VideoView
             android:id="@+id/videoView_player"
@@ -40,8 +39,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="#B2000000"
-            android:theme="@style/ThemeOverlay.Fmp.ImageButton"
             android:onClick="@{() -> vm.accept.invoke(Action.UiAction.HideControls.INSTANCE)}"
+            android:theme="@style/ThemeOverlay.Fmp.ImageButton"
             android:visibility="@{vm.uiState.areControlsVisible ? View.VISIBLE : View.GONE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
@@ -52,9 +51,9 @@
                 android:id="@+id/textView_videoTitle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@{vm.uiState.title}"
                 android:textColor="#FFFFFF"
                 android:textSize="24sp"
-                android:text="@{vm.uiState.title}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
@@ -207,9 +206,6 @@
                     app:tint="@color/control_image_button_selector" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
-
         </androidx.constraintlayout.widget.ConstraintLayout>
-
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 </layout>

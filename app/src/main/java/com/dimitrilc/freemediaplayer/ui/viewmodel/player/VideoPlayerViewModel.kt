@@ -1,7 +1,6 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel.player
 
 import androidx.lifecycle.*
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.activemedia.*
 import com.dimitrilc.freemediaplayer.domain.controls.*
@@ -18,16 +17,11 @@ private const val TAG = "VIDEO_PLAYER_VM"
 // to field injection where fields cannot be private
 @HiltViewModel
 class VideoPlayerViewModel @Inject constructor(
-    private val insertActiveMediaUseCase: InsertActiveMediaUseCase,
-    private val updateMediaProgressUseCase: UpdateActiveMediaProgressUseCase,
-    getActiveMediaObservableUseCase: GetActiveMediaObservableUseCase,
     private val updateActiveMediaPlaylistPositionAndMediaIdUseCase: UpdateActiveMediaPlaylistPositionAndMediaIdUseCase,
     private val skipToNextUseCase: SkipToNextUseCase,
     private val skipToPreviousUseCase: SkipToPreviousUseCase,
-    private val playUseCase: PlayUseCase,
-    private val pauseUseCase: PauseUseCase,
     private val shuffleUseCase: ShuffleUseCase,
-    private val getActiveMediaItemObservableUseCase: GetActiveMediaItemObservableUseCase
+    getActiveMediaItemObservableUseCase: GetActiveMediaItemObservableUseCase
 ): ViewModel() {
 
     lateinit var navigator: (()->Unit)
@@ -38,7 +32,6 @@ class VideoPlayerViewModel @Inject constructor(
     private val _actionFlow = MutableSharedFlow<Action>()
 
     val activeMediaItem = getActiveMediaItemObservableUseCase()
-    private val _activeMedia = getActiveMediaObservableUseCase()
 
     val accept: (Action) -> Unit = { action ->
         viewModelScope.launch {
@@ -52,12 +45,6 @@ class VideoPlayerViewModel @Inject constructor(
         viewModelScope.launch {
             _actionFlow.collect {
                 val state: VideoPlayerUiState? = when(it){
-                    is Action.SystemAction.EmitActiveMedia -> {
-                        _uiState.value?.copy(
-                            isPlaying = it.activeMedia.isPlaying,
-                            repeatMode = it.activeMedia.repeatMode
-                        )
-                    }
                     is Action.SystemAction.EmitActiveMediaItem -> {
                         _uiState.value?.copy(
                             title = it.mediaItem.title,
@@ -152,12 +139,6 @@ class VideoPlayerViewModel @Inject constructor(
                 accept(Action.SystemAction.EmitActiveMediaItem(it))
             }
         }
-
-        viewModelScope.launch {
-            _activeMedia.filterNotNull().distinctUntilChanged().collect {
-                accept(Action.SystemAction.EmitActiveMedia(it))
-            }
-        }
     }
 
     private fun startHideControlsTimer() {
@@ -193,7 +174,6 @@ sealed class Action {
         data class UpdateDuration(val duration: Int) : UiAction()
     }
     sealed class SystemAction : Action() {
-        data class EmitActiveMedia(val activeMedia: ActiveMedia) : SystemAction()
         data class EmitActiveMediaItem(val mediaItem: MediaItem) : SystemAction()
     }
 }

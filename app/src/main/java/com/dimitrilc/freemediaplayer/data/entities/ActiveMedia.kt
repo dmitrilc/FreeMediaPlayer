@@ -35,11 +35,5 @@ data class ActiveMedia(
     @ColumnInfo(name = "global_playlist_position")
     val globalPlaylistPosition: Long,
     @ColumnInfo(name = "media_item_id")
-    val mediaItemId: Long,
-    val duration: Long = 0,
-    val progress: Long = 0,
-    @ColumnInfo(name = "is_playing")
-    val isPlaying: Boolean = false,
-    @ColumnInfo(name = "repeat_mode")
-    val repeatMode: Int = REPEAT_MODE_NONE
+    val mediaItemId: Long
 )
