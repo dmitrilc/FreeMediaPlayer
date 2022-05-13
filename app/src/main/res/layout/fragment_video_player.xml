@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <import type="android.support.v4.media.session.PlaybackStateCompat" />
+        <import type="android.view.View" />
+        <import type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.Action" />
+
+        <variable
+            name="vm"
+            type="com.dimitrilc.freemediaplayer.ui.viewmodel.player.VideoPlayerViewModel" />
+
+        <variable
+            name="controller"
+            type="android.support.v4.media.session.MediaControllerCompat" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/videoView_Container"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="#000000"
+        android:onClick="@{() -> vm.accept.invoke(Action.UiAction.ShowControls.INSTANCE)}">
+
+        <VideoView
+            android:id="@+id/videoView_player"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="@{() -> vm.accept.invoke(Action.UiAction.ShowControls.INSTANCE)}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/controlGroupsContainer"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="#B2000000"
+            android:onClick="@{() -> vm.accept.invoke(Action.UiAction.HideControls.INSTANCE)}"
+            android:theme="@style/ThemeOverlay.Fmp.ImageButton"
+            android:visibility="@{vm.uiState.areControlsVisible ? View.VISIBLE : View.GONE}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <TextView
+                android:id="@+id/textView_videoTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{vm.uiState.title}"
+                android:textColor="#FFFFFF"
+                android:textSize="24sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                tools:text="video title.mp4" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/videoPlayerFirstControlGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="16dp"
+                app:layout_constraintBottom_toTopOf="@id/slider_videoPlayerSlider"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerReplay10"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.rewind()}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_replay_10_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@+id/imageButton_videoPlayerPlayPause"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerPlayPause"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> vm.uiState.isPlaying ? controller.transportControls.pause() : controller.transportControls.play()}"
+                    android:scaleType="fitCenter"
+                    android:src="@{vm.uiState.isPlaying ? @drawable/ic_baseline_pause_24 : @drawable/ic_baseline_play_arrow_24 }"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerForward30"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplay10"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerForward30"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.fastForward()}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_forward_30_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerPlayPause"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <com.google.android.material.slider.Slider
+                android:id="@+id/slider_videoPlayerSlider"
+                android:layout_width="match_parent"
+                android:layout_height="80dp"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp"
+                android:value="@{vm.uiState.position}"
+                android:valueFrom="-0.1"
+                android:valueTo="@{vm.uiState.duration}"
+                app:layout_constraintBottom_toTopOf="@id/videoPlayerSecondControlGroup"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:tint="@color/control_image_button_selector" />
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/videoPlayerSecondControlGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerReplayInfinite"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_ONE) : controller.transportControls.setRepeatMode(PlaybackStateCompat.REPEAT_MODE_NONE)}"
+                    android:scaleType="fitCenter"
+                    android:src="@{vm.uiState.repeatMode == PlaybackStateCompat.REPEAT_MODE_NONE ? @drawable/ic_baseline_repeat_24 : @drawable/ic_baseline_repeat_one_24}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerShuffle"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerShuffle"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.setShuffleMode(PlaybackStateCompat.SHUFFLE_MODE_ALL)}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_shuffle_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekBackward"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplayInfinite"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerSeekBackward"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.skipToPrevious()}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_skip_previous_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekForward"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerShuffle"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerSeekForward"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> controller.transportControls.skipToNext()}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_skip_next_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerPlaylist"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekBackward"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+                <ImageButton
+                    android:id="@+id/imageButton_videoPlayerPlaylist"
+                    android:layout_width="32dp"
+                    android:layout_height="32dp"
+                    android:background="#00FFFFFF"
+                    android:onClick="@{() -> vm.navigator.invoke()}"
+                    android:scaleType="fitCenter"
+                    android:src="@drawable/ic_baseline_format_list_bulleted_24"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekForward"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:tint="@color/control_image_button_selector" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

@@ -3,60 +3,121 @@ package com.dimitrilc.freemediaplayer.ui.fragments.player
 import android.content.ComponentName
 import android.os.Bundle
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.MediaMetadataCompat
 import android.support.v4.media.session.MediaControllerCompat
-import android.support.v4.media.MediaBrowserCompat.ConnectionCallback
+import android.support.v4.media.session.PlaybackStateCompat
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.viewModels
+import androidx.navigation.fragment.findNavController
+import com.dimitrilc.freemediaplayer.databinding.FragmentAudioPlayerBinding
+import com.dimitrilc.freemediaplayer.hilt.FmpApplication
 import com.dimitrilc.freemediaplayer.service.AudioPlayerService
+import com.dimitrilc.freemediaplayer.service.COMMAND_RECONNECT
+import com.dimitrilc.freemediaplayer.ui.viewmodel.player.AudioPlayerAction
+import com.dimitrilc.freemediaplayer.ui.viewmodel.player.AudioPlayerViewModel
+import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
-private const val TAG = "PLAYER_AUDIO"
+private const val TAG = "AUDIO_PLAYER_FRAG"
 
-class AudioPlayerFragment : PlayerFragment() {
+@AndroidEntryPoint
+class AudioPlayerFragment : Fragment() {
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        if (!isAudioBrowserActive()){
-            createAudioBrowser()
-        } else {
-            audioBrowserConnectionCallback.onConnected()
-        }
+    @Inject
+    lateinit var fmpApp: FmpApplication
 
-        super.onViewCreated(view, savedInstanceState)
-    }
+    private var _binding: FragmentAudioPlayerBinding? = null
+    private val binding get() = _binding!!
 
-    private fun isAudioBrowserActive() = appViewModel.audioBrowser.value !== null
+    private val audioPlayerViewModel: AudioPlayerViewModel by viewModels()
 
-    private fun createAudioBrowser() {
-        requireActivity().applicationContext.let { context ->
-            val audioBrowser = MediaBrowserCompat(
-                context,
-                ComponentName(context, AudioPlayerService::class.java),
-                audioBrowserConnectionCallback,
-                null // optional Bundle
-            ).apply {
-                connect()
-            }
-
-            appViewModel.audioBrowser.postValue(audioBrowser)
-        }
-    }
-
-    private val audioBrowserConnectionCallback = object : ConnectionCallback() {
+    private val audioBrowserConnectionCallback = object : MediaBrowserCompat.ConnectionCallback() {
         override fun onConnected() {
             super.onConnected()
 
-            addMediaControllerToContext()
-            syncButtonsToController()
+            setMediaController(false)
         }
     }
 
-    override fun getMediaController(): MediaControllerCompat {
-        val token = appViewModel.audioBrowser.value!!.sessionToken
-        return MediaControllerCompat(context, token)
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        if (fmpApp.audioBrowser == null){
+            createAudioBrowser()
+        } else {
+            setMediaController(true)
+        }
     }
 
-    private fun addMediaControllerToContext(){
-        val activity = requireActivity()
-        MediaControllerCompat.setMediaController(activity, mediaControllerCompat)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentAudioPlayerBinding.inflate(inflater, container, false)
+        binding.lifecycleOwner = viewLifecycleOwner
+        binding.vm = audioPlayerViewModel
+
+        binding.seekBarPlayerSeekBar.setOnSeekBarChangeListener(
+            audioPlayerViewModel.seekBarChangeListener
+        )
+
+        audioPlayerViewModel.uiState.observe(viewLifecycleOwner){
+            binding.imageViewAlbumArt.setImageBitmap(it.thumbnail)
+        }
+
+        audioPlayerViewModel.navigator = {
+            findNavController().navigate(AudioPlayerFragmentDirections.actionAudioPlayerPathToActivePlaylistPath())
+        }
+
+        return binding.root
     }
 
-    override fun isAudio() = true
+    private fun createAudioBrowser() {
+        requireContext().applicationContext.let {
+            val audioBrowser = MediaBrowserCompat(
+                it,
+                ComponentName(it, AudioPlayerService::class.java),
+                audioBrowserConnectionCallback,
+                null // optional Bundle
+            )
+
+            (requireActivity().application as FmpApplication).audioBrowser = audioBrowser
+        }
+
+        connectAudioBrowser()
+    }
+
+    private fun connectAudioBrowser(){
+        (requireActivity().application as FmpApplication).audioBrowser?.connect()
+    }
+
+    private fun setMediaController(isResuming: Boolean) {
+        fmpApp.audioBrowser?.let {
+            audioPlayerViewModel.controller = MediaControllerCompat(fmpApp, it.sessionToken)
+
+            val controllerCallback = object : MediaControllerCompat.Callback() {
+                override fun onMetadataChanged(metadata: MediaMetadataCompat?) {
+                    audioPlayerViewModel.accept(AudioPlayerAction.ServiceAction.MetadataChanged(metadata))
+                }
+
+                override fun onPlaybackStateChanged(state: PlaybackStateCompat?) {
+                    audioPlayerViewModel.accept(AudioPlayerAction.ServiceAction.PlaybackStateChanged(state))
+                }
+
+                override fun onRepeatModeChanged(repeatMode: Int) {
+                    audioPlayerViewModel.accept(AudioPlayerAction.ServiceAction.SetRepeatMode(repeatMode))
+                }
+            }
+
+            audioPlayerViewModel.controller?.registerCallback(controllerCallback)
+
+            if (isResuming){
+                audioPlayerViewModel.controller?.sendCommand(COMMAND_RECONNECT, null, null)
+            }
+        }
+    }
+
 }

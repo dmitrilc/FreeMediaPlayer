@@ -20,11 +20,5 @@ interface ActiveMediaDao {
     fun getObservable(): Flow<ActiveMedia?>
 
     @Update(entity = ActiveMedia::class)
-    fun updateProgress(activeMediaProgress: ActiveMediaProgress)
-
-    @Update(entity = ActiveMedia::class)
     fun updatePlaylistPosition(activeMediaPlaylistPosition: ActiveMediaPlaylistPosition)
-
-    @Update(entity = ActiveMedia::class)
-    fun updateIsPlaying(activeMediaIsPlaying: ActiveMediaIsPlaying)
 }

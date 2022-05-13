@@ -14,7 +14,7 @@ import androidx.room.ForeignKey.CASCADE
             onUpdate = CASCADE,
         )
     ],
-    indices = [Index(value = ["global_playlist_item_id"])]
+    indices = [Index(value = ["media_item_id"])]
 )
 data class GlobalPlaylistItem(
     @PrimaryKey

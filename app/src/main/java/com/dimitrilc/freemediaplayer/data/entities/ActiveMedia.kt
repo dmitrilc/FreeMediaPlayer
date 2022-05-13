@@ -3,6 +3,8 @@ package com.dimitrilc.freemediaplayer.data.entities
 import android.support.v4.media.session.PlaybackStateCompat.REPEAT_MODE_NONE
 import androidx.room.*
 
+const val ACTIVE_MEDIA_PROGRESS_KEY = "0"
+
 @Entity(
     tableName = "active_media",
     foreignKeys = [
@@ -33,11 +35,5 @@ data class ActiveMedia(
     @ColumnInfo(name = "global_playlist_position")
     val globalPlaylistPosition: Long,
     @ColumnInfo(name = "media_item_id")
-    val mediaItemId: Long,
-    val duration: Long = 0,
-    val progress: Long = 0,
-    @ColumnInfo(name = "is_playing")
-    val isPlaying: Boolean = false,
-    @ColumnInfo(name = "repeat_mode")
-    val repeatMode: Int = REPEAT_MODE_NONE
+    val mediaItemId: Long
 )

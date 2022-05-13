@@ -12,6 +12,10 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.WindowInsetsControllerCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
@@ -89,6 +93,7 @@ class MainActivity : AppCompatActivity() {
                     setTopAppBarTitle(fullPath)
                     setBottomNavGone()
                     hideOverflowMenu()
+                    endImmersiveMode()
                 }
                 R.id.audio_player_path -> {
                     setTopAppBarTitle("Add file Path here")
@@ -99,7 +104,9 @@ class MainActivity : AppCompatActivity() {
                     setTopAppBarTitle("Add file Path here")
                     setBottomNavGone()
                     closeAudioSession()
-                    hideOverflowMenu()
+                    //hideOverflowMenu()
+                    //endImmersiveMode()
+                    startImmersiveMode()
                 }
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")
@@ -131,8 +138,8 @@ class MainActivity : AppCompatActivity() {
 
         fun closeAudioSession(){
             mediaController?.transportControls?.stop()
-            appViewModel.audioBrowser.value?.disconnect()
-            appViewModel.audioBrowser.postValue(null)
+            appViewModel.audioBrowser?.disconnect()
+            appViewModel.audioBrowser = null
             mediaController = null
         }
 
@@ -144,6 +151,39 @@ class MainActivity : AppCompatActivity() {
         fun showOverflowMenu(){
             binding.materialToolBarViewTopAppBar.menu.findItem(R.id.settings).isVisible = true
             binding.materialToolBarViewTopAppBar.menu.findItem(R.id.rescan).isVisible = true
+        }
+
+        fun startImmersiveMode(){
+            hideTopAppBar()
+
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+
+            // Configure the behavior of the hidden system bars
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            // Hide both the status bar and the navigation bar
+            windowInsetsController.hide(WindowInsetsCompat.Type.systemBars())
+        }
+
+        fun endImmersiveMode(){
+            showTopAppBar()
+            val windowInsetsController = WindowCompat.getInsetsController(window, window.decorView)
+
+            // Configure the behavior of the hidden system bars
+            windowInsetsController.systemBarsBehavior =
+                WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+
+            // Hide both the status bar and the navigation bar
+            windowInsetsController.show(WindowInsetsCompat.Type.systemBars())
+        }
+
+        fun hideTopAppBar(){
+            binding.materialToolBarViewTopAppBar.visibility = View.GONE
+        }
+
+        fun showTopAppBar(){
+            binding.materialToolBarViewTopAppBar.visibility = View.VISIBLE
         }
     }
 

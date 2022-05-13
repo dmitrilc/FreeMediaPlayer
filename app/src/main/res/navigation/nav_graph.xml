@@ -50,7 +50,7 @@
         android:id="@+id/audio_player_path"
         android:name="com.dimitrilc.freemediaplayer.ui.fragments.player.AudioPlayerFragment"
         android:label="fragment_audio_player"
-        tools:layout="@layout/fragment_player" >
+        tools:layout="@layout/fragment_audio_player" >
         <action
             android:id="@+id/action_audio_player_path_to_active_playlist_path"
             app:destination="@id/active_playlist_path" />
@@ -59,7 +59,7 @@
         android:id="@+id/video_player_path"
         android:name="com.dimitrilc.freemediaplayer.ui.fragments.player.VideoPlayerFragment"
         android:label="fragment_video_player"
-        tools:layout="@layout/fragment_player" >
+        tools:layout="@layout/fragment_audio_player" >
         <action
             android:id="@+id/action_video_player_path_to_active_playlist_path"
             app:destination="@id/active_playlist_path" />
