@@ -14,7 +14,6 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
-import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.activemedia.*
 import com.dimitrilc.freemediaplayer.domain.controls.*
@@ -23,10 +22,8 @@ import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemOnceUseC
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsInGlobalPlaylistOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInfoObservableUseCase
 import com.dimitrilc.freemediaplayer.hilt.FmpApplication
-import com.dimitrilc.freemediaplayer.ui.state.AudioPlayerUiState
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.StateFlow
 import java.io.IOException
 import javax.inject.Inject
 
@@ -70,8 +67,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private val stateBuilder = PlaybackStateCompat.Builder()
     private val metadataBuilder = MediaMetadataCompat.Builder()
 
-    private var activeMediaCache: AudioPlayerUiState? = null
-
     private val mediaSessionCompat: MediaSessionCompat by lazy {
         MediaSessionCompat(applicationContext, TAG)
     }
@@ -91,7 +86,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                 while (mediaSessionCompat.isActive && isActive) {
                     try {
                         if (mediaPlayer.isPlaying){
-                            //onActiveMediaPositionChanged(mediaPlayer.currentPosition.toLong())
                             val state = stateBuilder.setState(
                                 STATE_PLAYING,
                                 mediaPlayer.currentPosition.toLong(),
@@ -111,19 +105,11 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         fun endProgressBroadCastLoop(){
             syncJob?.cancel()
             syncJob = null
-
-            val state = stateBuilder.setState(
-                STATE_PAUSED,
-                mediaPlayer.currentPosition.toLong(),
-                1.0f
-            ).build()
-
-            mediaSessionCompat.setPlaybackState(state)
         }
 
         fun repeat(){
-            onSeekTo(0)
             endProgressBroadCastLoop()
+            onSeekTo(0)
             onPlay()
         }
 
@@ -135,6 +121,14 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         override fun onPause() {
             mediaPlayer.pause()
             endProgressBroadCastLoop()
+
+            val state = stateBuilder.setState(
+                STATE_PAUSED,
+                mediaPlayer.currentPosition.toLong(),
+                1.0f
+            ).build()
+
+            mediaSessionCompat.setPlaybackState(state)
         }
 
         override fun onPlayFromUri(uri: Uri?, extras: Bundle?) {
@@ -191,12 +185,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                 }
                 REPEAT_MODE_ONE -> {
                     mediaSessionCompat.setRepeatMode(REPEAT_MODE_NONE)
-                }
-                REPEAT_MODE_ALL -> {
-
-                }
-                REPEAT_MODE_GROUP -> {
-
                 }
             }
         }
@@ -279,9 +267,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun bindPlayerOnPreparedListener(){
         val listener = MediaPlayer.OnPreparedListener { player ->
-            //onActiveMediaDurationChanged(player.duration.toLong())
-            //audioMediaSessionCallback.onPlay()
-
             val metadata = metadataBuilder
                 .putLong(
                     METADATA_KEY_ID,
@@ -364,63 +349,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
         result.sendResult(mediaItems)
     }
-
-    private fun onActiveMediaRepeatModeChange(repeatMode: Int){
-/*        activeMediaCache?.let {
-            val new = it.copy(repeatMode = repeatMode)
-            setActiveMediaCache(new)
-            postActiveMediaToRoom(new)
-        }*/
-    }
-
-    private fun onActiveMediaDurationChanged(duration: Long){
-/*        activeMediaCache?.let {
-            val new = it.copy(duration = duration)
-            setActiveMediaCache(new)
-            postActiveMediaToRoom(new)
-        }*/
-    }
-
-    private fun onActiveMediaPlayingStateChanged(isPlaying: Boolean){
-/*        lifecycleScope.launch(Dispatchers.IO){
-            if (isPlaying){
-                playUseCase()
-            } else {
-                pauseUseCase()
-            }
-        }*/
-
-/*        activeMediaCache?.let {
-            val new = it.copy(isPlaying = isPlaying)
-            setActiveMediaCache(new)
-            postActiveMediaToRoom(new)
-        }*/
-    }
-
-    private fun onActiveMediaPositionChanged(position: Long){
-/*        activeMediaCache?.let {
-            val new = it.copy(progress = position)
-            setActiveMediaCache(new)
-            postActiveMediaToRoom(new)
-        }*/
-    }
-
-    private fun setActiveMediaCache(activeMedia: ActiveMedia){
-        //activeMediaCache = activeMedia
-    }
-
-    private fun postActiveMediaToRoom(activeMedia: ActiveMedia){
-        lifecycleScope.launch(Dispatchers.IO){
-            insertActiveMediaUseCase(activeMedia)
-        }
-    }
-
-/*    private fun postActiveMediaProgressToRoom(activeMediaProgress: ActiveMediaProgress){
-        lifecycleScope.launch(Dispatchers.IO){
-            updateMediaProgressUseCase(activeMediaProgress)
-        }
-    }*/
-
 }
 
 const val METADATA_KEY_ID = "0"
