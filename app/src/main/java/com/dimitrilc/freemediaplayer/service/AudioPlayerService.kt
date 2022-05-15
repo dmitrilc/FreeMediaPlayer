@@ -73,9 +73,8 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private val mediaPlayer: MediaPlayer = MediaPlayer()
 
-    private val previousMediaItem = MutableLiveData<MediaItem>()
     private val activeMediaItem by lazy {
-        getActiveMediaItemObservableUseCase()
+        getActiveMediaItemObservableUseCase().distinctUntilChanged()
     }
 
     private val audioMediaSessionCallback = object : MediaSessionCompat.Callback() {
@@ -301,9 +300,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private fun listenForActiveMedia(){
         activeMediaItem.observe(this){
             it?.let {
-                if (it.mediaItemId != previousMediaItem.value?.mediaItemId){
-                    mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
-                }
+                mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
             }
         }
     }
