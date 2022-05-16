@@ -13,6 +13,7 @@ import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPl
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorker
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaWorker
 import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.InsertGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.MoveGlobalPlaylistItemPositionsWorker
 import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.ShuffleGlobalPlaylistWorker
 import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.UpdateGlobalPlaylistWorker
 import com.dimitrilc.freemediaplayer.data.worker.mediaitem.MediaScanWorker
@@ -123,6 +124,26 @@ class MediaManagerImpl @Inject constructor(
     override fun activateMediaScanWorker() {
         val mediaScanWorkRequest = OneTimeWorkRequestBuilder<MediaScanWorker>().build()
         WorkManager.getInstance(app).enqueue(mediaScanWorkRequest)
+    }
+
+    override fun moveGlobalPlaylistItemPosition(from: Int, to: Int) {
+        val data = Data.Builder()
+            .putInt(WORKER_DATA_KEY_FROM, from)
+            .putInt(WORKER_DATA_KEY_TO, to)
+            .build()
+
+        val moveGlobalPlaylistItemPositionsWorker =
+            OneTimeWorkRequestBuilder<MoveGlobalPlaylistItemPositionsWorker>()
+                .setInputData(data)
+                .build()
+
+        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+            .build()
+
+        WorkManager.getInstance(app)
+            .beginWith(moveGlobalPlaylistItemPositionsWorker)
+            .then(updateActiveMediaWorkRequest )
+            .enqueue()
     }
 
     override suspend fun onSwiped(position: Long) {

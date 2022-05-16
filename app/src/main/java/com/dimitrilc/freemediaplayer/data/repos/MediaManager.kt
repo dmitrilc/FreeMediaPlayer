@@ -11,4 +11,5 @@ interface MediaManager {
     fun updateActiveMediaPlaylistPositionToNextOnGlobalPlaylist()
     fun updateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylist()
     suspend fun onSwiped(position: Long)
+    fun moveGlobalPlaylistItemPosition(from: Int, to: Int)
 }
