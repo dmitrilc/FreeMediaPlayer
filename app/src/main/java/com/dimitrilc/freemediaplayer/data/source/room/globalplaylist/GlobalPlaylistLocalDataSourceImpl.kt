@@ -12,5 +12,7 @@ class GlobalPlaylistLocalDataSourceImpl
     override fun getAllObservable() = globalPlaylistDao.getAllObservable()
     override suspend fun getAllOnce() = globalPlaylistDao.getAllOnce()
     override suspend fun count() = globalPlaylistDao.count()
-    override fun removeAtPosition(position: Long) = globalPlaylistDao.removeAtPosition(position)
+    override fun removeAtPosition(position: Long) = globalPlaylistDao.removeByPosition(position)
+    override suspend fun getByPosition(pos: Int) = globalPlaylistDao.getByPosition(pos)
+    override fun delete(vararg items: GlobalPlaylistItem) = globalPlaylistDao.delete(*items)
 }

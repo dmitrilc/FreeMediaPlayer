@@ -10,4 +10,6 @@ interface GlobalPlaylistLocalDataSource {
     suspend fun getAllOnce(): List<GlobalPlaylistItem>?
     suspend fun count(): Long?
     fun removeAtPosition(position: Long)
+    suspend fun getByPosition(pos: Int): GlobalPlaylistItem?
+    fun delete(vararg items: GlobalPlaylistItem)
 }
