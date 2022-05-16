@@ -14,7 +14,6 @@ import android.support.v4.media.session.PlaybackStateCompat.*
 import android.util.Log
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.activemedia.*
 import com.dimitrilc.freemediaplayer.domain.controls.*
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemObservableUseCase
@@ -74,7 +73,8 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private val mediaPlayer: MediaPlayer = MediaPlayer()
 
     private val activeMediaItem by lazy {
-        getActiveMediaItemObservableUseCase().distinctUntilChanged()
+        getActiveMediaItemObservableUseCase()
+            .distinctUntilChanged() //This still emits null if ActiveMedia is removed from the db
     }
 
     private val audioMediaSessionCallback = object : MediaSessionCompat.Callback() {
@@ -300,7 +300,9 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private fun listenForActiveMedia(){
         activeMediaItem.observe(this){
             it?.let {
-                mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
+                if (mediaSessionCompat.controller.metadata?.getLong(METADATA_KEY_ID) != it.mediaItemId){
+                    mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
+                }
             }
         }
     }
