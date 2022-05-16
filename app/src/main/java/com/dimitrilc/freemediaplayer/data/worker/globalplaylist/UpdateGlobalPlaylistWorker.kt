@@ -18,27 +18,20 @@ class UpdateGlobalPlaylistWorker @AssistedInject constructor(
 ) : Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
-        val mediaItemIdList = inputData.getLongArray(WORKER_DATA_KEY_MEDIA_ITEM_ID_LIST)!!
+        val mediaItemIdList = inputData.getLongArray(WORKER_DATA_KEY_MEDIA_ITEM_ID_LIST)
 
-        val globalPlaylist = mediaItemIdList.mapIndexed { index, id ->
-            GlobalPlaylistItem(
-                globalPlaylistItemId = index.toLong(),
-                mediaItemId = id)
+        return if (mediaItemIdList != null){
+            val globalPlaylist = mediaItemIdList.mapIndexed { index, id ->
+                GlobalPlaylistItem(
+                    globalPlaylistItemId = index.toLong(),
+                    mediaItemId = id)
+            }
+
+            globalPlaylistRepository.replace(globalPlaylist)
+
+            Result.success()
+        } else {
+            Result.failure()
         }
-
-            //Needs to run sequentially because of foreign key constraint
-        globalPlaylistRepository.replace(globalPlaylist)
-
-/*            val index = mediaItemIdList.indexOf(activeMediaItemId)
-
-            val newActiveItem = ActiveMedia(
-                globalPlaylistPosition = index.toLong(),
-                mediaItemId = activeMediaItemId
-            )
-
-            activeMediaRepository.insert(newActiveItem)*/
-
-
-        return Result.success()
     }
 }
