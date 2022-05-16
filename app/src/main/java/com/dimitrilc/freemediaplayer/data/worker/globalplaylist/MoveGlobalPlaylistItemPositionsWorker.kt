@@ -50,14 +50,31 @@ class MoveGlobalPlaylistItemPositionsWorker @AssistedInject constructor(
 
                     if (activeMedia != null) {
                         if (activeMedia.mediaItemId == movedItem.mediaItemId) {
-                            data.putLong(
-                                WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX,
-                                reIndexedPlaylist[to].globalPlaylistItemId
-                            )
+                            data
+                                .putLong(
+                                    WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX,
+                                    reIndexedPlaylist[to].globalPlaylistItemId
+                                )
                                 .putLong(
                                     WORKER_DATA_KEY_MEDIA_ITEM_ID,
                                     movedItem.mediaItemId
                                 )
+                        } else {
+                            val activeGlobalPlaylistItem = reIndexedPlaylist.find {
+                                it.mediaItemId == activeMedia.mediaItemId
+                            }
+
+                            if (activeGlobalPlaylistItem != null) {
+                                data
+                                    .putLong(
+                                        WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX,
+                                        activeGlobalPlaylistItem.globalPlaylistItemId
+                                    )
+                                    .putLong(
+                                        WORKER_DATA_KEY_MEDIA_ITEM_ID,
+                                        activeGlobalPlaylistItem.mediaItemId
+                                    )
+                            }
                         }
                     }
                 }
