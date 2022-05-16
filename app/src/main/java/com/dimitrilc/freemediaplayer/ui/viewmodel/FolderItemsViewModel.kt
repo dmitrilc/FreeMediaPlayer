@@ -18,6 +18,7 @@ import javax.inject.Inject
 
 private const val TAG = "FOLDER_ITEMS_VIEW_MODEL"
 
+//TOOD Use savedStateHandle to get location instead of waiting for fragment to pass it in at runtime
 @HiltViewModel
 class FolderItemsViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
@@ -77,15 +78,14 @@ class FolderItemsViewModel @Inject constructor(
     }
 
     private fun initFromUseCase(){
+        //TODO isAudio seems useless here
         val result = getMediaItemsByLocationUseCase(isAudio, location).map { items ->
             items?.map {
-                val videoId = if (isAudio) null else it.mediaItemId
-
                 FolderItemsUiState(
                     title = it.title,
                     album = it.album,
                     thumbnailUri = it.albumArtUri,
-                    videoId = videoId,
+                    videoId = if (it.isAudio) null else it.mediaItemId,
                     thumbnailLoader = thumbLoader,
                     onClick = onClick
                 )
