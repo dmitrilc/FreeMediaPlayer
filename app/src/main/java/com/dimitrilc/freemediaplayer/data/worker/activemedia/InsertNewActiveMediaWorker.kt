@@ -19,14 +19,19 @@ class InsertNewActiveMediaWorker @AssistedInject constructor(
 ) : Worker(appContext, workerParams) {
 
     override fun doWork(): Result {
-        val playlistIndex = inputData.getLong(WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX, 0)
-        val activeMediaItemId = inputData.getLong(WORKER_DATA_KEY_MEDIA_ITEM_ID, 0)
+        val playlistIndex = inputData.getLong(WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX, -1)
+        val activeMediaItemId = inputData.getLong(WORKER_DATA_KEY_MEDIA_ITEM_ID, -1)
 
-        val activeItem = ActiveMedia(
-            globalPlaylistPosition = playlistIndex,
-            mediaItemId = activeMediaItemId)
+        if (playlistIndex != -1L && activeMediaItemId != -1L){
+            val activeItem = ActiveMedia(
+                globalPlaylistPosition = playlistIndex,
+                mediaItemId = activeMediaItemId
+            )
 
-        activeMediaRepository.insert(activeItem)
+            activeMediaRepository.insert(activeItem)
+        } else {
+            Result.failure()
+        }
 
         return Result.success()
     }
