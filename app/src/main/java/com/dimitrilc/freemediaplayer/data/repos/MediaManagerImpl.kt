@@ -3,9 +3,6 @@ package com.dimitrilc.freemediaplayer.data.repos
 import android.app.Application
 import androidx.work.*
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
-import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepository
-import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
-import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
 import com.dimitrilc.freemediaplayer.data.worker.*
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.InsertNewActiveMediaWorker
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorker
@@ -81,12 +78,12 @@ class MediaManagerImpl @Inject constructor(
         val shuffleGlobalPlaylistWorkRequest = OneTimeWorkRequestBuilder<ShuffleGlobalPlaylistWorker>()
             .build()
 
-        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<UpdateActiveMediaWorker>()
+        val insertActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
             .build()
 
         WorkManager.getInstance(app)
             .beginWith(shuffleGlobalPlaylistWorkRequest)
-            .then(updateActiveMediaWorkRequest)
+            .then(insertActiveMediaWorkRequest)
             .enqueue()
     }
 
@@ -147,12 +144,12 @@ class MediaManagerImpl @Inject constructor(
                 .setInputData(data)
                 .build()
 
-        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+        val insertActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
             .build()
 
         WorkManager.getInstance(app)
             .beginWith(removeGlobalPlaylistItemByPositionWorker)
-            .then(updateActiveMediaWorkRequest)
+            .then(insertActiveMediaWorkRequest)
             .enqueue()
     }
 }

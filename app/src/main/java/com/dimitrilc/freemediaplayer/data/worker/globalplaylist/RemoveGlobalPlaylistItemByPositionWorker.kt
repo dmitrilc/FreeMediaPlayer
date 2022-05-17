@@ -38,7 +38,7 @@ class RemoveGlobalPlaylistItemByPositionWorker @AssistedInject constructor(
                         )
                     }
 
-                val activeMedia = appDb.activeMediaItemDao().getOnce()
+                val activeMedia = appDb.activeMediaDao().getOnce()
                 appDb.globalPlaylistDao().replacePlaylist(reIndexedPlaylist)
 
                 if (activeMedia != null) {
