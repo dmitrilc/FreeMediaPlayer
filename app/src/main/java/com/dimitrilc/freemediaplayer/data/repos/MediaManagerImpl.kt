@@ -1,7 +1,6 @@
 package com.dimitrilc.freemediaplayer.data.repos
 
 import android.app.Application
-import androidx.room.withTransaction
 import androidx.work.*
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepository
@@ -12,23 +11,15 @@ import com.dimitrilc.freemediaplayer.data.worker.activemedia.InsertNewActiveMedi
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorker
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylistWorker
 import com.dimitrilc.freemediaplayer.data.worker.activemedia.UpdateActiveMediaWorker
-import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.InsertGlobalPlaylistWorker
-import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.MoveGlobalPlaylistItemPositionsWorker
-import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.ShuffleGlobalPlaylistWorker
-import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.UpdateGlobalPlaylistWorker
+import com.dimitrilc.freemediaplayer.data.worker.globalplaylist.*
 import com.dimitrilc.freemediaplayer.data.worker.mediaitem.MediaScanWorker
-import kotlinx.coroutines.withContext
 import java.util.*
 import javax.inject.Inject
-import kotlin.coroutines.coroutineContext
 
 const val UPDATE_ACTIVE_WORKER_UUID = "UPDATE_ACTIVE_WORKER_UUID"
 
 class MediaManagerImpl @Inject constructor(
-    private val app: Application,
-    private val globalPlaylistRepository: GlobalPlaylistRepository,
-    private val activeMediaRepository: ActiveMediaRepository,
-    private val appDb: AppDatabase
+    private val app: Application
 ) : MediaManager {
 
     private val dataBuilder = Data.Builder()
@@ -126,7 +117,7 @@ class MediaManagerImpl @Inject constructor(
         WorkManager.getInstance(app).enqueue(mediaScanWorkRequest)
     }
 
-    override fun moveGlobalPlaylistItemPosition(from: Int, to: Int) {
+    override fun moveGlobalPlaylistItemByPositionAndUpdateActiveMedia(from: Int, to: Int) {
         val data = Data.Builder()
             .putInt(WORKER_DATA_KEY_FROM, from)
             .putInt(WORKER_DATA_KEY_TO, to)
@@ -142,12 +133,12 @@ class MediaManagerImpl @Inject constructor(
 
         WorkManager.getInstance(app)
             .beginWith(moveGlobalPlaylistItemPositionsWorker)
-            .then(updateActiveMediaWorkRequest )
+            .then(updateActiveMediaWorkRequest)
             .enqueue()
     }
 
-    override suspend fun onSwiped(position: Long) {
-        appDb.withTransaction {
+/*    override suspend fun onSwiped(position: Long) {
+*//*        appDb.withTransaction {
             val playlist = globalPlaylistRepository.getAllOnce()
             val activeMedia = activeMediaRepository.getOnce()
 
@@ -173,6 +164,25 @@ class MediaManagerImpl @Inject constructor(
                     }
                 }
             }
-        }
+        }*//*
+    }*/
+
+    override fun removeGlobalPlaylistItemByPositionAndUpdateActiveMedia(pos: Long){
+        val data = Data.Builder()
+            .putLong(WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX, pos)
+            .build()
+
+        val removeGlobalPlaylistItemByPositionWorker =
+            OneTimeWorkRequestBuilder<RemoveGlobalPlaylistItemByPositionWorker>()
+                .setInputData(data)
+                .build()
+
+        val updateActiveMediaWorkRequest = OneTimeWorkRequestBuilder<InsertNewActiveMediaWorker>()
+            .build()
+
+        WorkManager.getInstance(app)
+            .beginWith(removeGlobalPlaylistItemByPositionWorker)
+            .then(updateActiveMediaWorkRequest)
+            .enqueue()
     }
 }

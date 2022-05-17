@@ -7,6 +7,6 @@ class MoveGlobalPlaylistItemPositionUseCase @Inject constructor(
     private val mediaManager: MediaManager
 ) {
     operator fun invoke(from: Int, to: Int){
-        mediaManager.moveGlobalPlaylistItemPosition(from, to)
+        mediaManager.moveGlobalPlaylistItemByPositionAndUpdateActiveMedia(from, to)
     }
 }

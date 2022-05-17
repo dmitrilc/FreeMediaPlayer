@@ -37,13 +37,12 @@ class MoveGlobalPlaylistItemPositionsWorker @AssistedInject constructor(
                     playList.removeAt(from)
                     playList.add(to, movedItem)
 
-                    val reIndexedPlaylist = playList.asSequence()
+                    val reIndexedPlaylist = playList
                         .mapIndexed { index, item ->
                             item.copy(
                                 globalPlaylistItemId = index.toLong()
                             )
                         }
-                        .toList()
 
                     val activeMedia = activeMediaRepository.getOnce()
                     globalPlaylistRepository.replace(reIndexedPlaylist)

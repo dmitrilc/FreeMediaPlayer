@@ -2,6 +2,7 @@ package com.dimitrilc.freemediaplayer.ui.adapter
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import androidx.lifecycle.LiveData
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
@@ -12,7 +13,7 @@ import com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState
 private const val TAG = "ACTIVE_PLAYLIST_ITEM_ADAPTER"
 
 class ActivePlaylistItemAdapter(private val dataSet: List<FolderItemsUiState>) :
-    ListAdapter<FolderItemsUiState, ActivePlaylistItemAdapter.ActivePlaylistItemViewHolder>(DIFF_CALLBACK) {
+    RecyclerView.Adapter<ActivePlaylistItemAdapter.ActivePlaylistItemViewHolder>() {
 
     class ActivePlaylistItemViewHolder(val activePlaylistItemViewBinding: ActivePlaylistItemViewBinding) :
         RecyclerView.ViewHolder(activePlaylistItemViewBinding.root)
@@ -28,7 +29,7 @@ class ActivePlaylistItemAdapter(private val dataSet: List<FolderItemsUiState>) :
 
     override fun onBindViewHolder(viewHolder: ActivePlaylistItemViewHolder, position: Int) {
         val item = dataSet[position]
-        viewHolder.activePlaylistItemViewBinding.adapterPos = position
+        viewHolder.activePlaylistItemViewBinding.adapterPos = viewHolder.bindingAdapterPosition
         viewHolder.activePlaylistItemViewBinding.state = item
 
         val thumb = item.thumbnailLoader(item.thumbnailUri, item.videoId)
@@ -44,24 +45,6 @@ class ActivePlaylistItemAdapter(private val dataSet: List<FolderItemsUiState>) :
     }
 
     override fun getItemCount() = dataSet.size
-
-    companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<FolderItemsUiState>() {
-            override fun areItemsTheSame(
-                oldItem: FolderItemsUiState,
-                newItem: FolderItemsUiState
-            ): Boolean {
-                return oldItem == newItem
-            }
-
-            override fun areContentsTheSame(
-                oldItem: FolderItemsUiState,
-                newItem: FolderItemsUiState
-            ): Boolean {
-                return oldItem == newItem
-            }
-        }
-    }
 }
 
 /*

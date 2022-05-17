@@ -2,16 +2,13 @@ package com.dimitrilc.freemediaplayer.ui.fragments
 
 import android.graphics.Canvas
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
@@ -19,12 +16,8 @@ import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
 import com.dimitrilc.freemediaplayer.ui.adapter.ActivePlaylistItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FragmentActivePlaylistBinding
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
-import com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState
 import com.dimitrilc.freemediaplayer.ui.viewmodel.ActivePlaylistViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 
 private const val TAG = "ACTIVE_PLAYLIST"
@@ -36,10 +29,6 @@ class ActivePlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val activePlaylistViewModel: ActivePlaylistViewModel by viewModels()
-    private val appViewModel: AppViewModel by activityViewModels()
-
-    private val mPlaylistCache = mutableListOf<MediaItem>()
-    private val mActiveMediaCache = MutableLiveData<MediaItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -47,50 +36,24 @@ class ActivePlaylistFragment : Fragment() {
     ): View {
         _binding = FragmentActivePlaylistBinding.inflate(inflater, container, false)
 
-        val helper = ItemTouchHelper(helperCallback)
-        helper.attachToRecyclerView(binding.recyclerActivePlaylist)
-
-/*        lifecycleScope.launch {
-            withContext(lifecycleScope.coroutineContext){
-                mPlaylistCache.addAll(appViewModel.getMediaItemsInGlobalPlaylistOnce()!!)
-            }
-            withContext(lifecycleScope.coroutineContext){
-                binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(mPlaylistCache)
-            }
-        }*/
-
-        //Functions in this class should not use this value. This is only to update the cache.
-/*        activePlaylistViewModel.activeMediaItemLiveData.observe(viewLifecycleOwner){
-            mActiveMediaCache.value = it
-        }*/
-
-        //mActiveMediaCache.observe(viewLifecycleOwner){
-            //activity?.mediaController?.sendCommand(PLAY_SELECTED, null, null)
-        //}
-
         prepareRecycler()
 
         return binding.root
     }
 
-    private val cache = MutableLiveData<List<FolderItemsUiState>>()
-
-    private val activePlaylistItemAdapter: ActivePlaylistItemAdapter? = null
-
     private fun prepareRecycler(){
-        viewLifecycleOwner.lifecycleScope.launch {
-            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED){
-                activePlaylistViewModel.uiState.collectLatest {
-                    //Only on first emission
-                    if (activePlaylistItemAdapter == null){
-                        val activePlaylistItemAdapter = ActivePlaylistItemAdapter(it)
-                        binding.recyclerActivePlaylist.adapter = activePlaylistItemAdapter
-                    }
+        val helper = ItemTouchHelper(helperCallback)
+        helper.attachToRecyclerView(binding.recyclerActivePlaylist)
 
-                    activePlaylistItemAdapter?.submitList(it)
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                activePlaylistViewModel.playlist.collect {
+                    if (it.isNotEmpty() && binding.recyclerActivePlaylist.adapter == null){
+                        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(activePlaylistViewModel.cache)
+                    }
                 }
             }
-       }
+        }
     }
 
     private val helperCallback = object : ItemTouchHelper.SimpleCallback(
@@ -136,41 +99,22 @@ class ActivePlaylistFragment : Fragment() {
                     && fromPos != null
                     && toPos != null){
 
-                    activePlaylistViewModel.moveGlobalPlaylistItemsPositions(fromPos!!, toPos!!)
+                    activePlaylistViewModel.onPlaylistItemMoved(fromPos!!, toPos!!)
+                    binding.recyclerActivePlaylist.adapter?.notifyItemRangeChanged(fromPos!!, toPos!! + 1)
                     this.fromPos = null
                 }
             }
         }
 
-        private fun isActiveRemoved(audio: MediaItem) = mActiveMediaCache.value == audio
-        private fun isEndItemRemoved(removedPos: Int) = (removedPos - 1) == mPlaylistCache.lastIndex
-
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            //Updates the latest action so onMoved will work correctly
             lastAction = ACTION_STATE_SWIPE
-/*            val position = viewHolder.bindingAdapterPosition
-            binding.recyclerActivePlaylist.adapter!!.notifyItemRemoved(position)
-            val removedItem = mPlaylistCache.removeAt(position)
+            val position = viewHolder.bindingAdapterPosition
 
-            if (mPlaylistCache.isEmpty()){ //list is empty
-                return
-            }
+            //report to viewModel that item is removed
+            activePlaylistViewModel.onPlaylistItemRemoved(position)
 
-            if (isActiveRemoved(removedItem)){
-                val nextItemIndex = if (isEndItemRemoved(position)){
-                    0
-                } else {
-                    position
-                }
-
-                setActiveMedia(nextItemIndex)
-            } else {
-                activePlaylistViewModel.removeGlobalPlaylistItem(
-                    GlobalPlaylistItem(
-                        position.toLong(),
-                        removedItem.mediaItemId
-                    )
-                )
-            }*/
+            binding.recyclerActivePlaylist.adapter?.notifyItemRemoved(position)
         }
 
         override fun onChildDraw(

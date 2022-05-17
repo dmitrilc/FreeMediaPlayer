@@ -299,7 +299,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun listenForActiveMedia(){
         activeMediaItem.observe(this){
-            it?.let {
+            if (it != null){
                 if (mediaSessionCompat.controller.metadata?.getLong(METADATA_KEY_ID) != it.mediaItemId){
                     mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
                 }

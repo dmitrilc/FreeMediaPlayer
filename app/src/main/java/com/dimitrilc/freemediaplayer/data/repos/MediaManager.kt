@@ -10,6 +10,6 @@ interface MediaManager {
     fun activateMediaScanWorker()
     fun updateActiveMediaPlaylistPositionToNextOnGlobalPlaylist()
     fun updateActiveMediaPlaylistPositionToPreviousOnGlobalPlaylist()
-    suspend fun onSwiped(position: Long)
-    fun moveGlobalPlaylistItemPosition(from: Int, to: Int)
+    fun moveGlobalPlaylistItemByPositionAndUpdateActiveMedia(from: Int, to: Int)
+    fun removeGlobalPlaylistItemByPositionAndUpdateActiveMedia(pos: Long)
 }

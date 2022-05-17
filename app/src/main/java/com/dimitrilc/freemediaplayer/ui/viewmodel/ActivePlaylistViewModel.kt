@@ -4,7 +4,6 @@ import android.graphics.Bitmap
 import android.util.Log
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetActiveMediaItemObservableUseCase
 import com.dimitrilc.freemediaplayer.domain.UpdateGlobalPlaylistAndActiveMediaUseCase
@@ -13,7 +12,9 @@ import com.dimitrilc.freemediaplayer.domain.activemedia.UpdateActiveMediaByGloba
 import com.dimitrilc.freemediaplayer.domain.activemedia.UpdateActiveMediaByObjectUseCase
 import com.dimitrilc.freemediaplayer.domain.globalplaylist.RemoveGlobalPlaylistItemUseCase
 import com.dimitrilc.freemediaplayer.domain.globalplaylist.MoveGlobalPlaylistItemPositionUseCase
+import com.dimitrilc.freemediaplayer.domain.globalplaylist.SwipedUseCase
 import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsInGlobalPlaylistObservableUseCase
+import com.dimitrilc.freemediaplayer.domain.mediaitem.GetMediaItemsInGlobalPlaylistOnceUseCase
 import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByMediaIdUseCase
 import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByUriUseCase
 import com.dimitrilc.freemediaplayer.ui.state.callback.CustomBiFunction
@@ -38,31 +39,43 @@ class ActivePlaylistViewModel @Inject constructor(
     private val updateActiveMediaByGlobalPlaylistPositionUseCase: UpdateActiveMediaByGlobalPlaylistPositionUseCase,
     private val updateActiveMediaByObjectUseCase: UpdateActiveMediaByObjectUseCase,
     private val insertActiveMediaUseCase: InsertActiveMediaUseCase,
-    private val moveGlobalPlaylistItemPositionUseCase: MoveGlobalPlaylistItemPositionUseCase
+    private val moveGlobalPlaylistItemPositionUseCase: MoveGlobalPlaylistItemPositionUseCase,
+    private val swipedUseCase: SwipedUseCase
 ) : ViewModel() {
-    val activeMediaItemLiveData = getActiveMediaItemObservableUseCase()
 
     private val onClick = object : IntConsumerCompat {
         override fun invoke(pos: Int) {
-            Log.d(TAG, "Inserting active media")
+            Log.d(TAG, "$pos")
             //TODO use Worker
-            _mediaItemsInGlobalPlaylist.value.let {
-                viewModelScope.launch(Dispatchers.IO) {
-                    insertActiveMediaUseCase(
-                        ActiveMedia(
-                            globalPlaylistPosition = pos.toLong(),
-                            mediaItemId = it[pos].mediaItemId
-                        )
+            viewModelScope.launch(Dispatchers.IO) {
+                insertActiveMediaUseCase(
+                    ActiveMedia(
+                        globalPlaylistPosition = pos.toLong(),
+                        mediaItemId = _playlist.value[pos].mediaItemId
                     )
-                }
+                )
             }
         }
     }
 
-    private val _mediaItemsInGlobalPlaylist = MutableStateFlow<List<MediaItem>>(listOf())
+    private val _playlist = MutableStateFlow<List<MediaItem>>(listOf())
+    val playlist = _playlist.asStateFlow()
 
-/*    private val _uiState = MutableLiveData<List<FolderItemsUiState>>()
-    val uiState: LiveData<List<FolderItemsUiState>> = _uiState*/
+    val cache = mutableListOf<FolderItemsUiState>()
+
+/*        _playlistCache.map {
+        FolderItemsUiState(
+            title = it.title,
+            album = it.album,
+            thumbnailUri = it.albumArtUri,
+            videoId = if (it.isAudio) null else it.mediaItemId,
+            thumbnailLoader = thumbLoader,
+            onClick = onClick
+        )
+    }*/
+
+/*    private val _mediaItemsInGlobalPlaylist = MutableStateFlow<List<MediaItem>>(listOf())
+
     val uiState = _mediaItemsInGlobalPlaylist.map { items ->
         items.map {
             FolderItemsUiState(
@@ -74,17 +87,48 @@ class ActivePlaylistViewModel @Inject constructor(
                 onClick = onClick
             )
         }
-    }
+    }*/
 
     init {
         viewModelScope.launch {
             getMediaItemsInGlobalPlaylistObservableUseCase()
                 .asFlow()
                 .filterNotNull()
-                .collect {
-                    _mediaItemsInGlobalPlaylist.value = it
+                .collect { playlist ->
+                    if (cache.isEmpty()){
+                        val transformed = playlist.map {
+                            FolderItemsUiState(
+                                title = it.title,
+                                album = it.album,
+                                thumbnailUri = it.albumArtUri,
+                                videoId = if (it.isAudio) null else it.mediaItemId,
+                                thumbnailLoader = thumbLoader,
+                                onClick = onClick
+                            )
+                        }
+
+                        cache.addAll(transformed)
+                    }
+
+                    _playlist.value = playlist
                 }
         }
+
+/*        viewModelScope.launch {
+            getMediaItemsInGlobalPlaylistObservableUseCase()?.let { playlist ->
+                _playlistCache.addAll(playlist)
+                playlistCache.addAll(playlist.map {
+                    FolderItemsUiState(
+                        title = it.title,
+                        album = it.album,
+                        thumbnailUri = it.albumArtUri,
+                        videoId = if (it.isAudio) null else it.mediaItemId,
+                        thumbnailLoader = thumbLoader,
+                        onClick = onClick
+                    )
+                })
+            }
+        }*/
     }
 
 /*    private val thumbLoader = object : CustomBiFunction<String?, Long?, Bitmap?> {
@@ -116,18 +160,6 @@ class ActivePlaylistViewModel @Inject constructor(
         }*/
     }
 
-    fun updateGlobalPlaylistAndActiveMedia(playlist: List<MediaItem>, activeItem: MediaItem) {
-        updateGlobalPlaylistAndActiveMediaUseCase(playlist, activeItem)
-    }
-    
-    fun removeGlobalPlaylistItemAtPosition(pos: Int){
-        
-    }
-
-    fun removeGlobalPlaylistItem(removed: GlobalPlaylistItem){
-        removeGlobalPlaylistItemUseCase(removed)
-    }
-
     //TOOD Clean up
     fun setActiveMedia(bindingAdapterPosition: Int){
 /*        val controller: MediaController? = requireActivity().mediaController
@@ -142,8 +174,15 @@ class ActivePlaylistViewModel @Inject constructor(
         }*/
     }
 
-    fun moveGlobalPlaylistItemsPositions(from: Int, to: Int) {
+    fun onPlaylistItemMoved(from: Int, to: Int) {
+        val movedItem = cache.removeAt(from)
+        cache.add(to, movedItem)
+
         moveGlobalPlaylistItemPositionUseCase(from, to)
+    }
+
+    fun onPlaylistItemRemoved(pos: Int) {
+        swipedUseCase(pos.toLong())
     }
 
 }
