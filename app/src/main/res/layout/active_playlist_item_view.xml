@@ -3,10 +3,22 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+
+        <variable
+            name="state"
+            type="com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/activePlaylistItemView"
+        android:layout_width="match_parent"
+        android:layout_height="72dp"
+        app:strokeWidth="0dp">
+
         <androidx.constraintlayout.widget.ConstraintLayout
-            android:id="@+id/activePlaylistItemView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="72dp">
 
             <ImageView
                 android:id="@+id/imageView_activePlaylistItemDisplayArt"
@@ -15,10 +27,10 @@
                 android:layout_marginStart="8dp"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="8dp"
-                android:src="@drawable/album_art"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/active_playlist_item_album_art" />
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="0dp"
@@ -36,6 +48,7 @@
                     android:layout_marginTop="16dp"
                     android:layout_marginEnd="16dp"
                     android:maxLines="1"
+                    android:text="@{state.title}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -49,7 +62,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="16dp"
                     android:maxLines="1"
-                    android:text="longgggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg Album"
+                    android:text="@{state.album}"
                     android:textSize="12sp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -64,11 +77,15 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="16dp"
                 android:background="#00FFFFFF"
+                android:visibility="gone"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:srcCompat="@drawable/ic_baseline_reorder_24" />
+                app:srcCompat="@drawable/ic_baseline_reorder_24"
+                android:contentDescription="@string/reorder_playlist_item_button" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </com.google.android.material.card.MaterialCardView>
 
 </layout>

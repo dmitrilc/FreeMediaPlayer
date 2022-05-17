@@ -18,5 +18,5 @@ import com.dimitrilc.freemediaplayer.data.room.dao.MediaItemDao
 abstract class AppDatabase : RoomDatabase() {
     abstract fun mediaItemDao(): MediaItemDao
     abstract fun globalPlaylistDao(): GlobalPlaylistDao
-    abstract fun activeMediaItemDao(): ActiveMediaDao
+    abstract fun activeMediaDao(): ActiveMediaDao
 }

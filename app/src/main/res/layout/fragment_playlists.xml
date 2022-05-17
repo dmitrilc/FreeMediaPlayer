@@ -2,12 +2,41 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:id="@+id/imageView_construction"
+            android:layout_width="0dp"
+            android:layout_height="200dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@drawable/ic_baseline_construction_24"
+            android:contentDescription="@string/picture_of_hammer_and_tools" />
+
+        <TextView
+            android:id="@+id/textView_construction"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/under_construction"
+            android:textSize="32sp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/imageView_construction" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+<!--    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_playlists"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:visibility="gone"
         android:scrollbars="vertical"
         app:layoutManager="LinearLayoutManager"
         android:paddingBottom="96dp"
-        android:clipToPadding="false"/>
+        android:clipToPadding="false">
+    </androidx.recyclerview.widget.RecyclerView>-->
 </layout>

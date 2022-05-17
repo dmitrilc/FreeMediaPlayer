@@ -1,33 +1,25 @@
 package com.dimitrilc.freemediaplayer.ui.fragments
 
 import android.graphics.Canvas
-import android.media.session.MediaController
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ImageView
 import androidx.core.view.ViewCompat
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
-import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
-import androidx.navigation.fragment.findNavController
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.ItemTouchHelper
 import androidx.recyclerview.widget.ItemTouchHelper.*
 import androidx.recyclerview.widget.RecyclerView
-import com.dimitrilc.freemediaplayer.data.entities.GlobalPlaylistItem
 import com.dimitrilc.freemediaplayer.ui.adapter.ActivePlaylistItemAdapter
 import com.dimitrilc.freemediaplayer.databinding.FragmentActivePlaylistBinding
-import com.dimitrilc.freemediaplayer.data.entities.MediaItem
 import com.dimitrilc.freemediaplayer.ui.viewmodel.ActivePlaylistViewModel
-import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val TAG = "ACTIVE_PLAYLIST"
 
@@ -38,10 +30,6 @@ class ActivePlaylistFragment : Fragment() {
     private val binding get() = _binding!!
 
     private val activePlaylistViewModel: ActivePlaylistViewModel by viewModels()
-    private val appViewModel: AppViewModel by activityViewModels()
-
-    private val mPlaylistCache = mutableListOf<MediaItem>()
-    private val mActiveMediaCache = MutableLiveData<MediaItem>()
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -49,52 +37,23 @@ class ActivePlaylistFragment : Fragment() {
     ): View {
         _binding = FragmentActivePlaylistBinding.inflate(inflater, container, false)
 
-        val helper = ItemTouchHelper(helperCallback)
-
-        helper.attachToRecyclerView(binding.recyclerActivePlaylist)
-
-        lifecycleScope.launch {
-            withContext(lifecycleScope.coroutineContext){
-                mPlaylistCache.addAll(appViewModel.getMediaItemsInGlobalPlaylistOnce()!!)
-            }
-            withContext(lifecycleScope.coroutineContext){
-                binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(mPlaylistCache)
-            }
-        }
-
-        //Functions in this class should not use this value. This is only to update the cache.
-        activePlaylistViewModel.activeMediaItemLiveData.observe(viewLifecycleOwner){
-            mActiveMediaCache.value = it
-        }
-
-        //mActiveMediaCache.observe(viewLifecycleOwner){
-            //activity?.mediaController?.sendCommand(PLAY_SELECTED, null, null)
-        //}
+        prepareRecycler()
 
         return binding.root
     }
 
-    fun onAdapterChildThumbnailLoad(v: ImageView, artUri: String, videoId: Long?) {
-        lifecycleScope.launch {
-            val bitmap = async(Dispatchers.IO) {
-                activePlaylistViewModel.getThumbnail(artUri, videoId)
+    private fun prepareRecycler(){
+        val helper = ItemTouchHelper(helperCallback)
+        helper.attachToRecyclerView(binding.recyclerActivePlaylist)
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                activePlaylistViewModel.playlist.collect {
+                    if (it.isNotEmpty() && binding.recyclerActivePlaylist.adapter == null){
+                        binding.recyclerActivePlaylist.adapter = ActivePlaylistItemAdapter(activePlaylistViewModel.cache)
+                    }
+                }
             }
-
-            v.setImageBitmap(bitmap.await())
-        }
-    }
-
-    //TOOD Clean up
-    fun setActiveMedia(bindingAdapterPosition: Int){
-        val controller: MediaController? = requireActivity().mediaController
-
-        if (controller != null){ //audio
-            activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
-            //controller.transportControls.skipToQueueItem(bindingAdapterPosition.toLong())
-        } else { //video
-            activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, mPlaylistCache[bindingAdapterPosition])
-            val navController = findNavController()
-            navController.popBackStack()
         }
     }
 
@@ -102,53 +61,65 @@ class ActivePlaylistFragment : Fragment() {
         UP or DOWN,
         START or END
     ) {
+        private var lastAction = ACTION_STATE_IDLE
+        private var fromPos: Int? = null
+        private var toPos: Int? = null
+
         override fun onMove(
             recyclerView: RecyclerView,
             viewHolder: RecyclerView.ViewHolder,
             target: RecyclerView.ViewHolder
         ): Boolean {
-            val fromPos = viewHolder.bindingAdapterPosition
-            val toPos = target.bindingAdapterPosition
-            val movedItem = mPlaylistCache[fromPos]
-
-            mPlaylistCache.removeAt(fromPos)
-            mPlaylistCache.add(toPos, movedItem)
-
-            activePlaylistViewModel.updateGlobalPlaylistAndActiveMedia(mPlaylistCache, movedItem)
-
-            binding.recyclerActivePlaylist.adapter!!.notifyItemMoved(fromPos, toPos)
-
             return true
         }
 
-        private fun isActiveRemoved(audio: MediaItem) = mActiveMediaCache.value == audio
-        private fun isEndItemRemoved(removedPos: Int) = (removedPos - 1) == mPlaylistCache.lastIndex
+        override fun onMoved(
+            recyclerView: RecyclerView,
+            viewHolder: RecyclerView.ViewHolder,
+            fromPos: Int,
+            target: RecyclerView.ViewHolder,
+            toPos: Int,
+            x: Int,
+            y: Int
+        ) {
+            super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
+
+            //Notifies recyclerview to start animation
+            binding.recyclerActivePlaylist.adapter?.notifyItemMoved(fromPos, toPos)
+
+            if (this.fromPos == null){
+                this.fromPos = fromPos
+            }
+
+            this.toPos = toPos
+            lastAction = ACTION_STATE_DRAG
+        }
+
+        override fun onSelectedChanged(viewHolder: RecyclerView.ViewHolder?, actionState: Int) {
+            super.onSelectedChanged(viewHolder, actionState)
+            if (actionState == ACTION_STATE_IDLE){
+                if (lastAction == ACTION_STATE_DRAG
+                    && fromPos != null
+                    && toPos != null){
+
+                    //report to viewModel that item is moved
+                    activePlaylistViewModel.onPlaylistItemMoved(fromPos!!, toPos!!)
+
+                    this.fromPos = null
+                }
+            }
+        }
 
         override fun onSwiped(viewHolder: RecyclerView.ViewHolder, direction: Int) {
+            //Updates the latest action so onMoved will work correctly
+            lastAction = ACTION_STATE_SWIPE
             val position = viewHolder.bindingAdapterPosition
-            binding.recyclerActivePlaylist.adapter!!.notifyItemRemoved(position)
-            val removedItem = mPlaylistCache.removeAt(position)
 
-            if (mPlaylistCache.isEmpty()){ //list is empty
-                return
-            }
+            //report to viewModel that item is removed
+            activePlaylistViewModel.onPlaylistItemRemoved(position)
 
-            if (isActiveRemoved(removedItem)){
-                val nextItemIndex = if (isEndItemRemoved(position)){
-                    0
-                } else {
-                    position
-                }
-
-                setActiveMedia(nextItemIndex)
-            } else {
-                activePlaylistViewModel.removeGlobalPlaylistItem(
-                    GlobalPlaylistItem(
-                        position.toLong(),
-                        removedItem.mediaItemId
-                    )
-                )
-            }
+            //Notifies recyclerview to start animation
+            binding.recyclerActivePlaylist.adapter?.notifyItemRemoved(position)
         }
 
         override fun onChildDraw(
@@ -170,11 +141,11 @@ class ActivePlaylistFragment : Fragment() {
                 isCurrentlyActive
             )
 
+            //TODO Check why elevation is not working
             if (isCurrentlyActive){
                 ViewCompat.setElevation(viewHolder.itemView, 32f)
             }
         }
-
     }
 
 }

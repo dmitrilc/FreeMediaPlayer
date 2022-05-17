@@ -37,4 +37,6 @@ class GlobalPlaylistRepositoryImpl
     override suspend fun getAllOnce() = globalPlaylistLocalDataSource.getAllOnce()
     override suspend fun count() = globalPlaylistLocalDataSource.count()
     override fun removeItemAtPosition(position: Long) = globalPlaylistLocalDataSource.removeAtPosition(position)
+    override suspend fun getByPosition(pos: Int) = globalPlaylistLocalDataSource.getByPosition(pos)
+    override fun delete(vararg items: GlobalPlaylistItem) = globalPlaylistLocalDataSource.delete(*items)
 }

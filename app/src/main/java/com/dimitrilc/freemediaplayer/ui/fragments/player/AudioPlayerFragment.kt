@@ -12,6 +12,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.navigation.fragment.findNavController
+import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.FragmentAudioPlayerBinding
 import com.dimitrilc.freemediaplayer.hilt.FmpApplication
 import com.dimitrilc.freemediaplayer.service.AudioPlayerService
@@ -42,20 +43,17 @@ class AudioPlayerFragment : Fragment() {
         }
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        if (fmpApp.audioBrowser == null){
-            createAudioBrowser()
-        } else {
-            setMediaController(true)
-        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
+        if (fmpApp.audioBrowser == null){
+            createAudioBrowser()
+        } else {
+            setMediaController(true)
+        }
+
         _binding = FragmentAudioPlayerBinding.inflate(inflater, container, false)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.vm = audioPlayerViewModel
@@ -65,7 +63,11 @@ class AudioPlayerFragment : Fragment() {
         )
 
         audioPlayerViewModel.uiState.observe(viewLifecycleOwner){
-            binding.imageViewAlbumArt.setImageBitmap(it.thumbnail)
+            if (it.thumbnail != null){
+                binding.imageViewAlbumArt.setImageBitmap(it.thumbnail)
+            } else {
+                binding.imageViewAlbumArt.setImageResource(R.drawable.ic_baseline_music_note_24)
+            }
         }
 
         audioPlayerViewModel.navigator = {

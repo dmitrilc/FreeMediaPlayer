@@ -21,4 +21,19 @@ data class FolderItemsUiState(
             videoId = videoId
         )
     }
+
+    companion object {
+        fun empty() = FolderItemsUiState(
+            title = "",
+            album = "",
+            thumbnailUri = null,
+            videoId = null,
+            thumbnailLoader = object : CustomBiFunction<String?, Long?, Bitmap?>{
+                override fun invoke(arg1: String?, arg2: Long?): Bitmap? = null
+            },
+            onClick = object : IntConsumerCompat {
+                override fun invoke(arg1: Int) {}
+            }
+        )
+    }
 }

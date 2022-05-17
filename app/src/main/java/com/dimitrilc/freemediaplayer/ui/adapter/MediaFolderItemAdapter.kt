@@ -34,7 +34,7 @@ class MediaFolderItemAdapter(private val dataSet: List<FolderItemsUiState>) :
         if (thumb != null){
             viewHolder.folderItemViewBinding.imageViewFolderItemDisplayArt.setImageBitmap(thumb)
         } else {
-            viewHolder.folderItemViewBinding.imageViewFolderItemDisplayArt.setImageResource(R.drawable.album_art)
+            viewHolder.folderItemViewBinding.imageViewFolderItemDisplayArt.setImageResource(R.drawable.ic_baseline_music_note_24)
         }
     }
 

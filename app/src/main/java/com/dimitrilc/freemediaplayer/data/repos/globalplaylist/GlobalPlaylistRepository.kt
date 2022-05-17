@@ -10,4 +10,6 @@ interface GlobalPlaylistRepository {
     suspend fun getAllOnce(): List<GlobalPlaylistItem>?
     suspend fun count(): Long?
     fun removeItemAtPosition(position: Long)
+    suspend fun getByPosition(pos: Int): GlobalPlaylistItem?
+    fun delete(vararg items: GlobalPlaylistItem)
 }

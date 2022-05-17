@@ -80,7 +80,8 @@
                     app:layout_constraintEnd_toStartOf="@+id/imageButton_videoPlayerPlayPause"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/rewind_ten_seconds" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerPlayPause"
@@ -94,7 +95,8 @@
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerForward30"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplay10"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/play_or_pause" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerForward30"
@@ -108,7 +110,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerPlayPause"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/fast_forward_thirty_seconds" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -147,7 +150,8 @@
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerShuffle"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/toggle_repeat_mode" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerShuffle"
@@ -161,7 +165,8 @@
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekBackward"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerReplayInfinite"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/shuffle" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerSeekBackward"
@@ -175,7 +180,8 @@
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerSeekForward"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerShuffle"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/seeek_previous" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerSeekForward"
@@ -189,7 +195,8 @@
                     app:layout_constraintEnd_toStartOf="@id/imageButton_videoPlayerPlaylist"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekBackward"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/seek_next" />
 
                 <ImageButton
                     android:id="@+id/imageButton_videoPlayerPlaylist"
@@ -203,7 +210,8 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toEndOf="@id/imageButton_videoPlayerSeekForward"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="@color/control_image_button_selector" />
+                    app:tint="@color/control_image_button_selector"
+                    android:contentDescription="@string/open_active_playlist" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
         </androidx.constraintlayout.widget.ConstraintLayout>
