@@ -1,7 +1,6 @@
 package com.dimitrilc.freemediaplayer.ui.viewmodel
 
 import android.graphics.Bitmap
-import android.util.Log
 import androidx.lifecycle.*
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.entities.MediaItem
@@ -37,7 +36,6 @@ class ActivePlaylistViewModel @Inject constructor(
 
     private val onClick = object : IntConsumerCompat {
         override fun invoke(pos: Int) {
-            Log.d(TAG, pos.toString())
             //TODO use Worker
             viewModelScope.launch(Dispatchers.IO) {
                 insertActiveMediaUseCase(
@@ -56,6 +54,7 @@ class ActivePlaylistViewModel @Inject constructor(
                 .asFlow()
                 .filterNotNull()
                 .collect { playlist ->
+                    //Populates local cache if it is empty
                     if (cache.isEmpty()){
                         val transformed = playlist.map {
                             FolderItemsUiState(
@@ -84,14 +83,19 @@ class ActivePlaylistViewModel @Inject constructor(
     }
 
     fun onPlaylistItemMoved(from: Int, to: Int) {
+        //Modifies local cache
         val movedItem = cache.removeAt(from)
         cache.add(to, movedItem)
 
+        //Push changes to room as well
         moveGlobalPlaylistItemPositionUseCase(from, to)
     }
 
     fun onPlaylistItemRemoved(pos: Int) {
+        //Modifies local cache
         cache.removeAt(pos)
+
+        //Push changes to room as well
         swipedUseCase(pos.toLong())
     }
 

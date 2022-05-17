@@ -2,6 +2,7 @@ package com.dimitrilc.freemediaplayer.ui.fragments
 
 import android.graphics.Canvas
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -82,6 +83,8 @@ class ActivePlaylistFragment : Fragment() {
             y: Int
         ) {
             super.onMoved(recyclerView, viewHolder, fromPos, target, toPos, x, y)
+
+            //Notifies recyclerview to start animation
             binding.recyclerActivePlaylist.adapter?.notifyItemMoved(fromPos, toPos)
 
             if (this.fromPos == null){
@@ -99,7 +102,9 @@ class ActivePlaylistFragment : Fragment() {
                     && fromPos != null
                     && toPos != null){
 
+                    //report to viewModel that item is moved
                     activePlaylistViewModel.onPlaylistItemMoved(fromPos!!, toPos!!)
+
                     this.fromPos = null
                 }
             }
@@ -113,6 +118,7 @@ class ActivePlaylistFragment : Fragment() {
             //report to viewModel that item is removed
             activePlaylistViewModel.onPlaylistItemRemoved(position)
 
+            //Notifies recyclerview to start animation
             binding.recyclerActivePlaylist.adapter?.notifyItemRemoved(position)
         }
 
@@ -135,14 +141,11 @@ class ActivePlaylistFragment : Fragment() {
                 isCurrentlyActive
             )
 
-            //TOOD Check why elevation is not working
+            //TODO Check why elevation is not working
             if (isCurrentlyActive){
                 ViewCompat.setElevation(viewHolder.itemView, 32f)
             }
         }
-
     }
 
 }
-
-//TODO Consider reusing folder items layout or adapter or code.
