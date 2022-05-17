@@ -25,7 +25,8 @@
             app:layout_constraintDimensionRatio="1:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintTop_toTopOf="parent"
+            android:contentDescription="@string/audio_album_art" />
 
         <TextView
             android:id="@+id/textView_playerTitle"
@@ -61,7 +62,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/imageButton_audioPlayerPlayPause"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/rewind_ten_seconds" />
 
             <ImageButton
                 android:id="@+id/imageButton_audioPlayerPlayPause"
@@ -74,7 +76,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerForward30"
                 app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerRewind"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/play_or_pause" />
 
             <ImageButton
                 android:id="@+id/imageButton_playerForward30"
@@ -87,7 +90,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imageButton_audioPlayerPlayPause"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/fast_forward_thirty_seconds" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -120,7 +124,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerShuffle"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/toggle_repeat_mode" />
 
             <ImageButton
                 android:id="@+id/imageButton_playerShuffle"
@@ -133,7 +138,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekBackward"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerReplayInfinite"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/shuffle" />
 
             <ImageButton
                 android:id="@+id/imageButton_playerSeekBackward"
@@ -146,7 +152,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerSeekForward"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerShuffle"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/seeek_previous" />
 
             <ImageButton
                 android:id="@+id/imageButton_playerSeekForward"
@@ -159,7 +166,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@id/imageButton_playerPlaylist"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekBackward"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/seek_next" />
 
             <ImageButton
                 android:id="@+id/imageButton_playerPlaylist"
@@ -172,7 +180,8 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/imageButton_playerSeekForward"
-                app:layout_constraintTop_toTopOf="parent" />
+                app:layout_constraintTop_toTopOf="parent"
+                android:contentDescription="@string/open_active_playlist" />
         </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
