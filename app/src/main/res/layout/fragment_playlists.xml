@@ -14,14 +14,15 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/ic_baseline_construction_24" />
+            app:srcCompat="@drawable/ic_baseline_construction_24"
+            android:contentDescription="@string/picture_of_hammer_and_tools" />
 
         <TextView
             android:id="@+id/textView_construction"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Under Construction"
-            android:textSize="32dp"
+            android:text="@string/under_construction"
+            android:textSize="32sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0.5"
             app:layout_constraintStart_toStartOf="parent"
