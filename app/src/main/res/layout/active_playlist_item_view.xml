@@ -6,10 +6,6 @@
     <data>
 
         <variable
-            name="adapterPos"
-            type="Integer" />
-
-        <variable
             name="state"
             type="com.dimitrilc.freemediaplayer.ui.state.folders.items.FolderItemsUiState" />
     </data>
@@ -17,8 +13,7 @@
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/activePlaylistItemView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:onClick="@{() -> state.onClick.invoke(adapterPos)}">
+        android:layout_height="wrap_content">
 
         <ImageView
             android:id="@+id/imageView_activePlaylistItemDisplayArt"

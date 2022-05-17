@@ -100,7 +100,6 @@ class ActivePlaylistFragment : Fragment() {
                     && toPos != null){
 
                     activePlaylistViewModel.onPlaylistItemMoved(fromPos!!, toPos!!)
-                    binding.recyclerActivePlaylist.adapter?.notifyItemRangeChanged(fromPos!!, toPos!! + 1)
                     this.fromPos = null
                 }
             }

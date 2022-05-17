@@ -137,36 +137,6 @@ class MediaManagerImpl @Inject constructor(
             .enqueue()
     }
 
-/*    override suspend fun onSwiped(position: Long) {
-*//*        appDb.withTransaction {
-            val playlist = globalPlaylistRepository.getAllOnce()
-            val activeMedia = activeMediaRepository.getOnce()
-
-            if (playlist != null && activeMedia != null){
-                if (activeMedia.globalPlaylistPosition == position){ //active item removed
-                    val nextItemIndex = if (position.toInt() == playlist.lastIndex){
-                        0
-                    } else {
-                        position
-                    }
-
-                    withContext(coroutineContext){
-                        globalPlaylistRepository.removeItemAtPosition(position)
-                    }
-
-                    withContext(coroutineContext){
-                        val nextActiveMedia = activeMedia.copy(
-                            globalPlaylistPosition = nextItemIndex,
-                            mediaItemId = playlist[nextItemIndex.toInt()].mediaItemId
-                        )
-
-                        //activeMediaRepository.insert(nextActiveMedia)
-                    }
-                }
-            }
-        }*//*
-    }*/
-
     override fun removeGlobalPlaylistItemByPositionAndUpdateActiveMedia(pos: Long){
         val data = Data.Builder()
             .putLong(WORKER_DATA_KEY_GLOBAL_PLAYLIST_INDEX, pos)
