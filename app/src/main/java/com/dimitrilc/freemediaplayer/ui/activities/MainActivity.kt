@@ -1,7 +1,11 @@
 package com.dimitrilc.freemediaplayer.ui.activities
 
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.content.Context
 import android.content.SharedPreferences
+import android.os.Build
 import android.os.Bundle
 import android.view.View
 import androidx.activity.result.contract.ActivityResultContracts
@@ -12,7 +16,6 @@ import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_NO
 import androidx.appcompat.app.AppCompatDelegate.MODE_NIGHT_YES
 import androidx.core.content.ContextCompat
 import androidx.core.content.PermissionChecker
-import androidx.core.view.ViewCompat
 import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
@@ -33,6 +36,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 private const val TAG = "MAIN_ACTIVITY"
+
+const val AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID = "AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -213,6 +218,8 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        createNotificationChannel()
+
         checkIsDarkAndSetTheme()
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -229,6 +236,26 @@ class MainActivity : AppCompatActivity() {
         navController.addOnDestinationChangedListener(onDestinationChangedListener)
 
         requestReadExternalStoragePerm()
+    }
+
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "Audio Player Controls"
+            val descriptionText = "Audio Player Controls"
+            val importance = NotificationManager.IMPORTANCE_LOW
+            val channel = NotificationChannel(
+                AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID,
+                name,
+                importance
+            ).apply {
+                description = descriptionText
+            }
+
+            // Register the channel with the system
+            val notificationManager: NotificationManager =
+                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+            notificationManager.createNotificationChannel(channel)
+        }
     }
 
     private fun restoreNavState(){

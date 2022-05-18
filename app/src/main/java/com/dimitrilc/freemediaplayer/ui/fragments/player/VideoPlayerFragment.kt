@@ -41,7 +41,7 @@ class VideoPlayerFragment : Fragment() {
     private val stateBuilder = PlaybackStateCompat.Builder()
 
     private val videoMediaSessionCompat: MediaSessionCompat by lazy {
-        MediaSessionCompat(context, TAG)
+        MediaSessionCompat(requireContext(), TAG)
     }
 
     private val mediaControllerCompat: MediaControllerCompat by lazy {
