@@ -7,20 +7,14 @@ import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
 import android.widget.SeekBar
 import androidx.lifecycle.*
-import com.dimitrilc.freemediaplayer.domain.mediastore.GetThumbByMediaIdUseCase
-import com.dimitrilc.freemediaplayer.service.METADATA_KEY_ID
+import com.dimitrilc.freemediaplayer.service.METADATA_KEY_BITMAP
 import com.dimitrilc.freemediaplayer.ui.state.AudioPlayerUiState
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 private const val TAG = "AUDIO_PLAYER_VM"
 
-@HiltViewModel
-class AudioPlayerViewModel @Inject constructor(
-    private val getThumbByMediaIdUseCase: GetThumbByMediaIdUseCase
-) : ViewModel(){
+class AudioPlayerViewModel : ViewModel(){
 
     var controller: MediaControllerCompat? = null
 
@@ -61,20 +55,10 @@ class AudioPlayerViewModel @Inject constructor(
                 val state: AudioPlayerUiState? = when(action){
                     is AudioPlayerAction.ServiceAction.MetadataChanged -> {
                         action.metadata.let {
-                            val id = it?.getLong(METADATA_KEY_ID)
                             val duration = it?.getLong(MediaMetadataCompat.METADATA_KEY_DURATION)
                             val title = it?.getString(MediaMetadataCompat.METADATA_KEY_TITLE)
                             val album = it?.getString(MediaMetadataCompat.METADATA_KEY_ALBUM)
-
-                            /* Checks whether the local cache of thumbnail already
-                            contains the thumbnail for this MediaItem */
-                            val thumb = if (_thumbCache.containsKey(id)){
-                                _thumbCache[id] //Gets thumbnail from cache
-                            } else {
-                                val result = getThumbByMediaIdUseCase(id!!) //Loads new thumbnail
-                                _thumbCache[id] = result //Assigns new thumbnail to cache
-                                result
-                            }
+                            val thumb = it?.getBitmap(METADATA_KEY_BITMAP)
 
                             _uiState.value?.copy(
                                 title = title,

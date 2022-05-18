@@ -45,11 +45,9 @@ interface MediaItemDao {
     @Query("SELECT * FROM media_item WHERE media_item_id=(SELECT media_item_id FROM active_media LIMIT 1)")
     fun getActiveMediaItemObservable(): LiveData<MediaItem?>
 
-    //@Query("SELECT * FROM media_item JOIN global_playlist ON media_item.media_item_id=global_playlist.media_item_id ORDER BY global_playlist.global_playlist_item_id")
     @Query("SELECT * FROM media_item, global_playlist WHERE media_item.media_item_id = global_playlist.media_item_id ORDER BY global_playlist.global_playlist_item_id")
     fun getMediaItemsInGlobalPlaylistObservable(): LiveData<List<MediaItem>?>
 
-    //@Query("SELECT * FROM media_item JOIN global_playlist ON media_item.media_item_id=global_playlist.media_item_id ORDER BY global_playlist.global_playlist_item_id")
     @Query("SELECT * FROM media_item, global_playlist WHERE media_item.media_item_id = global_playlist.media_item_id ORDER BY global_playlist.global_playlist_item_id")
     suspend fun getMediaItemsInGlobalPlaylistOnce(): List<MediaItem>?
 }
