@@ -355,9 +355,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                 val thumbnail = withContext(Dispatchers.Default) {
                     activeMediaItem.value?.let {
                         getThumbByMediaIdUseCase(it.mediaItemId)
-                    } ?: AppCompatResources
-                        .getDrawable(applicationContext, R.drawable.ic_baseline_music_note_24)
-                        ?.toBitmap()
+                    }
                 }
 
                 val metadata = metadataBuilder
@@ -375,10 +373,12 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                     )
                     .putLong(
                         MediaMetadataCompat.METADATA_KEY_DURATION,
-                        player.duration.toLong())
+                        player.duration.toLong()
+                    )
                     .putBitmap(
                         METADATA_KEY_BITMAP,
-                        thumbnail)
+                        thumbnail
+                    )
                     .build()
 
                 mediaSessionCompat.setMetadata(metadata)
