@@ -29,4 +29,8 @@
         <item name="colorShadow">@color/md_theme_light_shadow</item>-->
         <item name="colorPrimaryInverse">@color/md_theme_light_primaryInverse</item>
     </style>
+
+    <style name="Theme.Widget.MediaControls" parent="Theme.Material3.DynamicColors.DayNight">
+        <item name="android:background">?android:attr/colorBackground</item>
+    </style>
 </resources>
