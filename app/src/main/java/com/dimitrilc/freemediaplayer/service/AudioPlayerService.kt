@@ -3,6 +3,7 @@ package com.dimitrilc.freemediaplayer.service
 import android.app.PendingIntent
 import android.app.PendingIntent.FLAG_IMMUTABLE
 import android.app.PendingIntent.FLAG_ONE_SHOT
+import android.appwidget.AppWidgetManager.*
 import android.content.Intent
 import android.media.MediaPlayer
 import android.net.Uri
@@ -12,14 +13,17 @@ import android.os.IBinder
 import android.os.ResultReceiver
 import android.support.v4.media.MediaBrowserCompat
 import android.support.v4.media.MediaMetadataCompat
+import android.support.v4.media.MediaMetadataCompat.*
 import android.support.v4.media.session.MediaSessionCompat
 import android.support.v4.media.session.PlaybackStateCompat
 import android.support.v4.media.session.PlaybackStateCompat.*
+import android.support.v4.media.session.PlaybackStateCompat.Builder
 import android.util.Log
-import androidx.appcompat.content.res.AppCompatResources
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.graphics.drawable.toBitmap
+import androidx.datastore.preferences.core.booleanPreferencesKey
+import androidx.datastore.preferences.core.edit
+import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.*
 import androidx.media.MediaBrowserServiceCompat
 import androidx.media.session.MediaButtonReceiver
@@ -38,13 +42,15 @@ import com.dimitrilc.freemediaplayer.domain.worker.GetUpdateActiveMediaWorkerInf
 import com.dimitrilc.freemediaplayer.hilt.FmpApplication
 import com.dimitrilc.freemediaplayer.ui.activities.AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID
 import com.dimitrilc.freemediaplayer.ui.activities.MainActivity
+import com.dimitrilc.freemediaplayer.ui.widget.MediaControlWidgetProvider
+import com.dimitrilc.freemediaplayer.ui.widget.dataStore
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.*
 import java.io.IOException
 import javax.inject.Inject
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 
-private const val TAG = "PLAYER_SERVICE"
+private const val TAG = "AUDIO_PLAYER_SERVICE"
 private const val NOTIFICATION_ID = 1
 
 @AndroidEntryPoint
@@ -156,6 +162,12 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     }
 
     private val notificationBuilderLiveData = MutableLiveData<NotificationCompat.Builder>()
+
+    private val widgetUpdateIntent by lazy {
+        Intent(this, MediaControlWidgetProvider::class.java).apply {
+            action = ACTION_APPWIDGET_UPDATE
+        }
+    }
 
     private val audioMediaSessionCallback = object : MediaSessionCompat.Callback() {
         var syncJob: Job? = null
@@ -290,6 +302,8 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             super.onStop()
             endProgressBroadCastLoop()
             mediaPlayer.release()
+            mediaSessionCompat.release()
+            (application as FmpApplication).audioSession = null
         }
     }
 
@@ -314,6 +328,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         }
 
         sessionToken = mediaSessionCompat.sessionToken
+        (application as FmpApplication).audioSession = mediaSessionCompat
 
         listenForActiveMedia()
         listenForNotificationUpdates()
@@ -410,11 +425,18 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         }
     }
 
+    //Media Button events always start this service
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         mLifecycleDispatcher.onServicePreSuperOnStart()
 
-        //Handling intents from notification controls
-        MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
+        if (activeMediaItem.value?.isAudio == true
+            && (application as FmpApplication).audioBrowser != null
+        ){
+            //Handling intents from notification controls
+            MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
+        } else {
+            onDestroy()
+        }
 
         return super.onStartCommand(intent, flags, startId)
     }
@@ -454,7 +476,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun listenForActiveMedia(){
         activeMediaItem.observe(this){
-            if (it != null){
+            if (it != null && it.isAudio){
                 if (mediaSessionCompat.controller.metadata?.getLong(METADATA_KEY_ID) != it.mediaItemId){
                     mediaSessionCompat.controller.transportControls.playFromUri(it.uri, null)
                 }
@@ -465,8 +487,26 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     private fun listenForNotificationUpdates(){
         notificationBuilderLiveData.observe(this){
             if (it != null){
-                with(NotificationManagerCompat.from(applicationContext)) {
-                    this.notify(NOTIFICATION_ID, it.build())
+                with(NotificationManagerCompat.from(baseContext)) {
+                    notify(NOTIFICATION_ID, it.build())
+                }
+
+                lifecycleScope.launch(Dispatchers.IO) {
+                    applicationContext.dataStore.edit { preferences ->
+                        preferences[PREFERENCES_KEY_STATE_PLAYING] = mediaSessionCompat.controller.playbackState.state == STATE_PLAYING
+                        activeMediaItem.value?.albumArtUri?.let { artUri ->
+                            preferences[PREFERENCES_KEY_ART_URI] = artUri
+                        }
+                        activeMediaItem.value?.let { item ->
+                            item.albumArtUri?.let { artUri ->
+                                preferences[PREFERENCES_KEY_ART_URI] = artUri
+                            }
+                            preferences[PREFERENCES_KEY_TITLE] = item.title
+                            preferences[PREFERENCES_KEY_ALBUM] = item.album
+                        }
+                    }
+
+                    baseContext.sendBroadcast(widgetUpdateIntent)
                 }
             }
         }
@@ -479,7 +519,6 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         super.onDestroy()
 
         mediaSessionCompat.controller.transportControls.stop()
-        mediaSessionCompat.release()
         (application as FmpApplication).audioBrowser = null
         stopSelf()
     }
@@ -519,3 +558,7 @@ const val METADATA_KEY_ID = "0"
 const val COMMAND_RECONNECT = "1"
 private const val COMMAND_REPEAT = "2"
 const val METADATA_KEY_BITMAP = "METADATA_KEY_BITMAP"
+val PREFERENCES_KEY_TITLE = stringPreferencesKey(METADATA_KEY_TITLE)
+val PREFERENCES_KEY_ALBUM = stringPreferencesKey(METADATA_KEY_ALBUM)
+val PREFERENCES_KEY_STATE_PLAYING = booleanPreferencesKey("$STATE_PLAYING")
+val PREFERENCES_KEY_ART_URI = stringPreferencesKey(METADATA_KEY_ALBUM_ART_URI)

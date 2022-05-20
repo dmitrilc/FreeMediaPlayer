@@ -39,7 +39,7 @@ class AudioPlayerFragment : Fragment() {
         override fun onConnected() {
             super.onConnected()
 
-            setMediaController(false)
+            setMediaController()
         }
     }
 
@@ -51,7 +51,7 @@ class AudioPlayerFragment : Fragment() {
         if (fmpApp.audioBrowser == null){
             createAudioBrowser()
         } else {
-            setMediaController(true)
+            setMediaController()
         }
 
         _binding = FragmentAudioPlayerBinding.inflate(inflater, container, false)
@@ -96,7 +96,7 @@ class AudioPlayerFragment : Fragment() {
         (requireActivity().application as FmpApplication).audioBrowser?.connect()
     }
 
-    private fun setMediaController(isResuming: Boolean) {
+    private fun setMediaController() {
         fmpApp.audioBrowser?.let {
             audioPlayerViewModel.controller = MediaControllerCompat(fmpApp, it.sessionToken)
 
@@ -116,9 +116,7 @@ class AudioPlayerFragment : Fragment() {
 
             audioPlayerViewModel.controller?.registerCallback(controllerCallback)
 
-            if (isResuming){
-                audioPlayerViewModel.controller?.sendCommand(COMMAND_RECONNECT, null, null)
-            }
+            audioPlayerViewModel.controller?.sendCommand(COMMAND_RECONNECT, null, null)
         }
     }
 

@@ -52,7 +52,9 @@ class VideoPlayerFragment : Fragment() {
         super.onCreate(savedInstanceState)
 
         //Disconnects Audio playback, if present
+        (requireActivity().application as FmpApplication).audioSession?.controller?.transportControls?.stop()
         (requireActivity().application as FmpApplication).audioBrowser?.disconnect()
+        (requireActivity().application as FmpApplication).audioBrowser = null
 
         videoPlayerViewModel.navigator = {
             findNavController().navigate(VideoPlayerFragmentDirections.actionVideoPlayerPathToActivePlaylistPath())

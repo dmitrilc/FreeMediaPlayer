@@ -2,6 +2,7 @@ package com.dimitrilc.freemediaplayer.hilt
 
 import android.app.Application
 import android.support.v4.media.MediaBrowserCompat
+import android.support.v4.media.session.MediaSessionCompat
 import androidx.hilt.work.HiltWorkerFactory
 import androidx.work.Configuration
 import com.google.android.material.color.DynamicColors
@@ -13,6 +14,7 @@ import javax.inject.Inject
 class FmpApplication : Application(), Configuration.Provider {
 
     var audioBrowser: MediaBrowserCompat? = null
+    var audioSession: MediaSessionCompat? = null
 
     //https://developer.android.com/training/dependency-injection/hilt-jetpack#workmanager
     @Inject
