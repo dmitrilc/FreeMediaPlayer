@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:theme="@style/Theme.Widget.MediaControls">
+
+    <ImageView
+        android:id="@+id/imageView_widgetAlbumArt"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_alignParentStart="true"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="8dp"
+        android:src="@drawable/ic_baseline_music_note_24" />
+
+    <RelativeLayout
+        android:id="@+id/layout_widgetInfoContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginVertical="4dp"
+        android:layout_toEndOf="@id/imageView_widgetAlbumArt">
+
+        <TextView
+            android:id="@+id/textView_widgetTitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentStart="true"
+            android:textSize="12sp"
+            tools:text="Song Title" />
+
+        <TextView
+            android:id="@+id/textView_widgetSeparator"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/textView_widgetTitle"
+            android:text=" - "
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/textView_widgetAlbum"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_toEndOf="@id/textView_widgetSeparator"
+            android:textSize="12sp"
+            tools:text="Album" />
+    </RelativeLayout>
+
+    <ImageButton
+        android:id="@+id/imageButton_widgetSeekPrevious"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_below="@id/layout_widgetInfoContainer"
+        android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@id/imageView_widgetAlbumArt"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_skip_previous_24" />
+
+    <ImageButton
+        android:id="@+id/imageButton_widgetPlayPause"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_below="@id/layout_widgetInfoContainer"
+        android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@id/imageButton_widgetSeekPrevious"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_play_arrow_24" />
+
+    <ImageButton
+        android:id="@+id/imageButton_widgetSeekNext"
+        android:layout_width="32dp"
+        android:layout_height="32dp"
+        android:layout_below="@id/layout_widgetInfoContainer"
+        android:layout_marginEnd="8dp"
+        android:layout_toEndOf="@id/imageButton_widgetPlayPause"
+        android:background="#00FFFFFF"
+        android:scaleType="fitCenter"
+        android:src="@drawable/ic_baseline_skip_next_24" />
+</RelativeLayout>
