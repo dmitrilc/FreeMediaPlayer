@@ -32,3 +32,13 @@ Landscaped Video Player
 
 https://user-images.githubusercontent.com/4550185/169658361-00cbfde1-17b3-4d05-a32b-8dde1cd76630.mp4
 
+Active Playlist drag-and-drop to re-order
+
+https://user-images.githubusercontent.com/4550185/169658656-e341f22c-71bd-411e-a079-4d8cbe635715.mp4
+
+Active Playlist swipe-to-remove
+
+https://user-images.githubusercontent.com/4550185/169658776-57072bfd-74c8-4b71-a69d-cde74b0b606a.mp4
+
+
+
