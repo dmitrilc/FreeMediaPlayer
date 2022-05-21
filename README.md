@@ -64,4 +64,12 @@ https://user-images.githubusercontent.com/4550185/169659163-0a4ec774-59a5-4630-9
 
 https://user-images.githubusercontent.com/4550185/169659346-6aa0fbad-d197-4b84-b2b3-19df48809dce.mp4
 
+## Project Structure
+
+**data**: All classes belonging to the data layer should go here. The types of class in this package are **Repository**, **Repository Manager**, **DataSource**, **Room** classes (**Dao**, `@Entity`, **Database**, etc.), **DataStore**, **Worker**, etc.
+**domain**: All **UseCase** classes should go here.
+**hilt**: All Hilt configuration classes such as **Module** should go here.
+**service**: All services should go here.
+**ui**: All **Activity**, **Fragment**, **ViewModel**, or **Widget** should go here.
+
 
