@@ -40,5 +40,7 @@ Active Playlist swipe-to-remove
 
 https://user-images.githubusercontent.com/4550185/169658776-57072bfd-74c8-4b71-a69d-cde74b0b606a.mp4
 
+Media Controller in Notification
 
+https://user-images.githubusercontent.com/4550185/169658875-21db9a8f-0216-42a0-895e-cbbc3369c8fc.mp4
 
