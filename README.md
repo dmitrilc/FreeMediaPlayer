@@ -4,55 +4,55 @@ A free media player for Android. This app can play both audio and video files.
 
 ## Features
 
-Permission Popup
+### Permission Popup
 
 <img src="https://user-images.githubusercontent.com/4550185/169656765-d1cb973d-c3a1-4583-af3a-c922fd5f4669.png" width="270" height="570">
 
-Bottom Navigation
+### Bottom Navigation
 
 https://user-images.githubusercontent.com/4550185/169657912-5300726a-cd76-472b-9485-9ea872ca7316.mp4
 
-Sort files based on media type
+### Sort files based on media type
 
 https://user-images.githubusercontent.com/4550185/169658008-4d5d5ce5-5875-423d-9274-afc2bd4b4f3c.mp4
 
-Files Browser
+### Files Browser
 
 https://user-images.githubusercontent.com/4550185/169658068-fac18c9f-b966-4a0e-bd08-2d26192ac9d0.mp4
 
-Music Player
+### Music Player
 
 https://user-images.githubusercontent.com/4550185/169658157-7949881f-71a3-4740-b134-2712c97a52e9.mp4
 
-Portrait Video Player
+### Portrait Video Player
 
 https://user-images.githubusercontent.com/4550185/169658257-f546efce-0b81-4a78-a575-0b21ee681a53.mp4
 
-Landscaped Video Player
+### Landscaped Video Player
 
 https://user-images.githubusercontent.com/4550185/169658361-00cbfde1-17b3-4d05-a32b-8dde1cd76630.mp4
 
-Active Playlist drag-and-drop to re-order
+### Active Playlist drag-and-drop to re-order
 
 https://user-images.githubusercontent.com/4550185/169658656-e341f22c-71bd-411e-a079-4d8cbe635715.mp4
 
-Active Playlist swipe-to-remove
+### Active Playlist swipe-to-remove
 
 https://user-images.githubusercontent.com/4550185/169658776-57072bfd-74c8-4b71-a69d-cde74b0b606a.mp4
 
-Media Controller in Notification
+### Media Controller in Notification
 
 https://user-images.githubusercontent.com/4550185/169658875-21db9a8f-0216-42a0-895e-cbbc3369c8fc.mp4
 
-Media Controller with home screen widget
+### Media Controller with home screen widget
 
 https://user-images.githubusercontent.com/4550185/169659016-7870eff1-fd84-412c-ad67-8f751c5025b6.mp4
 
-Dark and Light mode switch
+### Dark and Light mode switch
 
 https://user-images.githubusercontent.com/4550185/169659163-0a4ec774-59a5-4630-9a12-331f5456e788.mp4
 
-Dynamic Colors theme
+### Dynamic Colors theme
 
 https://user-images.githubusercontent.com/4550185/169659346-6aa0fbad-d197-4b84-b2b3-19df48809dce.mp4
 
