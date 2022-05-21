@@ -10,12 +10,25 @@ Permission Popup
 
 Bottom Navigation
 
-![Bottom Nav](https://user-images.githubusercontent.com/4550185/169657097-02da1d8f-3467-4065-aeb7-c3f93bcdd209.gif)
+https://user-images.githubusercontent.com/4550185/169657912-5300726a-cd76-472b-9485-9ea872ca7316.mp4
 
 Sort files based on media type
 
-![Folders Screen](https://user-images.githubusercontent.com/4550185/169657199-a6cfe88d-7879-442e-889d-f8c9c9f46815.gif)
+https://user-images.githubusercontent.com/4550185/169658008-4d5d5ce5-5875-423d-9274-afc2bd4b4f3c.mp4
 
 Files Browser
 
-![Files Browser](https://user-images.githubusercontent.com/4550185/169657335-bfb9a547-ebea-495c-a9d3-4ebc2eb4d1fe.gif)
+https://user-images.githubusercontent.com/4550185/169658068-fac18c9f-b966-4a0e-bd08-2d26192ac9d0.mp4
+
+Music Player
+
+https://user-images.githubusercontent.com/4550185/169658157-7949881f-71a3-4740-b134-2712c97a52e9.mp4
+
+Portrait Video Player
+
+https://user-images.githubusercontent.com/4550185/169658257-f546efce-0b81-4a78-a575-0b21ee681a53.mp4
+
+Landscaped Video Player
+
+https://user-images.githubusercontent.com/4550185/169658361-00cbfde1-17b3-4d05-a32b-8dde1cd76630.mp4
+
