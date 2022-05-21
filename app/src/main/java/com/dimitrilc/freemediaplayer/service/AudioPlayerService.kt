@@ -91,6 +91,9 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
     @Inject
     lateinit var getThumbByMediaIdUseCase: GetThumbByMediaIdUseCase
 
+    @Inject
+    lateinit var fmpApp: FmpApplication
+
     private val stateBuilder = Builder()
     private val metadataBuilder = MediaMetadataCompat.Builder()
 
@@ -303,7 +306,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
             endProgressBroadCastLoop()
             mediaPlayer.release()
             mediaSessionCompat.release()
-            (application as FmpApplication).audioSession = null
+            fmpApp.audioSession = null
         }
     }
 
@@ -328,7 +331,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         }
 
         sessionToken = mediaSessionCompat.sessionToken
-        (application as FmpApplication).audioSession = mediaSessionCompat
+        fmpApp.audioSession = mediaSessionCompat
 
         listenForActiveMedia()
         listenForNotificationUpdates()
@@ -430,7 +433,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         mLifecycleDispatcher.onServicePreSuperOnStart()
 
         if (activeMediaItem.value?.isAudio == true
-            && (application as FmpApplication).audioBrowser != null
+            && fmpApp.audioBrowser != null
         ){
             //Handling intents from notification controls
             MediaButtonReceiver.handleIntent(mediaSessionCompat, intent)
@@ -518,8 +521,9 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         mLifecycleDispatcher.onServicePreSuperOnDestroy()
         super.onDestroy()
 
+        stopForeground(true)
         mediaSessionCompat.controller.transportControls.stop()
-        (application as FmpApplication).audioBrowser = null
+        fmpApp.audioBrowser = null
         stopSelf()
     }
 
