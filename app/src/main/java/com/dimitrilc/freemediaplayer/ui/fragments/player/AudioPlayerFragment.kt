@@ -78,22 +78,14 @@ class AudioPlayerFragment : Fragment() {
     }
 
     private fun createAudioBrowser() {
-        requireContext().applicationContext.let {
-            val audioBrowser = MediaBrowserCompat(
-                it,
-                ComponentName(it, AudioPlayerService::class.java),
-                audioBrowserConnectionCallback,
-                null // optional Bundle
-            )
-
-            (requireActivity().application as FmpApplication).audioBrowser = audioBrowser
+        fmpApp.audioBrowser = MediaBrowserCompat(
+            fmpApp.applicationContext,
+            ComponentName(fmpApp.applicationContext, AudioPlayerService::class.java),
+            audioBrowserConnectionCallback,
+            null // optional Bundle
+        ).apply {
+            connect()
         }
-
-        connectAudioBrowser()
-    }
-
-    private fun connectAudioBrowser(){
-        (requireActivity().application as FmpApplication).audioBrowser?.connect()
     }
 
     private fun setMediaController() {
