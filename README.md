@@ -15,3 +15,7 @@ Bottom Navigation
 Sort files based on media type
 
 ![Folders Screen](https://user-images.githubusercontent.com/4550185/169657199-a6cfe88d-7879-442e-889d-f8c9c9f46815.gif)
+
+Files Browser
+
+![Files Browser](https://user-images.githubusercontent.com/4550185/169657335-bfb9a547-ebea-495c-a9d3-4ebc2eb4d1fe.gif)
