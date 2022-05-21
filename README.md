@@ -2,6 +2,8 @@
 
 A free media player for Android. This app can play both audio and video files.
 
+This is a work in progress. Any contribution or feedback would be greatly appreciated.
+
 ## Screens
 
 ![First Screens](https://user-images.githubusercontent.com/4550185/169659972-384351dd-deef-4157-b41e-0bae2bf815f3.jpg)
