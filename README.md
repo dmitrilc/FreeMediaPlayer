@@ -64,12 +64,29 @@ https://user-images.githubusercontent.com/4550185/169659163-0a4ec774-59a5-4630-9
 
 https://user-images.githubusercontent.com/4550185/169659346-6aa0fbad-d197-4b84-b2b3-19df48809dce.mp4
 
+# Technical Stuff
+
 ## Project Structure
 
 **data**: All classes belonging to the data layer should go here. The types of class in this package are **Repository**, **Repository Manager**, **DataSource**, **Room** classes (**Dao**, `@Entity`, **Database**, etc.), **DataStore**, **Worker**, etc.
+
 **domain**: All **UseCase** classes should go here.
+
 **hilt**: All Hilt configuration classes such as **Module** should go here.
+
 **service**: All services should go here.
+
 **ui**: All **Activity**, **Fragment**, **ViewModel**, or **Widget** should go here.
 
+## Architecture
 
+1. The app heavily follows Google's guide to app achitecture https://developer.android.com/topic/architecture?hl=en. All of the layers are separated.
+2. For the Audio and Video players, the app also use the Google guide to Media app architecture https://developer.android.com/guide/topics/media-apps/media-apps-overview.
+3. Media files and metadata relies on Android's MediaStore.
+
+### UI architecture
+1. For simple screens, databinding and simple callbacks are used.
+2. For complicated screens with lots of actions, such as the Video player, MVI is used to model user actions **AND** actions coming from the data layer.
+
+## Theming
+The app heavily relies on Material 3 for theming purposes.
