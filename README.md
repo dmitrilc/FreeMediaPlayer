@@ -44,3 +44,7 @@ Media Controller in Notification
 
 https://user-images.githubusercontent.com/4550185/169658875-21db9a8f-0216-42a0-895e-cbbc3369c8fc.mp4
 
+Media Controller with home screen widget
+
+https://user-images.githubusercontent.com/4550185/169659016-7870eff1-fd84-412c-ad67-8f751c5025b6.mp4
+
