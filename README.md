@@ -48,3 +48,7 @@ Media Controller with home screen widget
 
 https://user-images.githubusercontent.com/4550185/169659016-7870eff1-fd84-412c-ad67-8f751c5025b6.mp4
 
+Dark and Light mode switch
+
+https://user-images.githubusercontent.com/4550185/169659163-0a4ec774-59a5-4630-9a12-331f5456e788.mp4
+
