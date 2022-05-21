@@ -4,6 +4,7 @@ import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.content.Context
+import android.content.Intent
 import android.content.SharedPreferences
 import android.os.Build
 import android.os.Bundle
@@ -28,12 +29,15 @@ import androidx.navigation.ui.setupWithNavController
 import androidx.preference.PreferenceManager
 import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.databinding.ActivityMainBinding
+import com.dimitrilc.freemediaplayer.hilt.FmpApplication
+import com.dimitrilc.freemediaplayer.service.AudioPlayerService
 import com.dimitrilc.freemediaplayer.ui.viewmodel.AppViewModel
 import com.dimitrilc.freemediaplayer.ui.viewmodel.KEY_FULL_PATH
 import com.dimitrilc.freemediaplayer.ui.viewmodel.MainActivityViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 private const val TAG = "MAIN_ACTIVITY"
 
@@ -43,6 +47,9 @@ const val AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID = "AUDIO_CONTROLS_NOTIFICATION_
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+
+    @Inject
+    lateinit var fmpApp: FmpApplication
 
     //Can only access during onCreate().
     //Cannot use viewbinding because of bug https://issuetracker.google.com/issues/142847973
@@ -112,6 +119,7 @@ class MainActivity : AppCompatActivity() {
                     //hideOverflowMenu()
                     //endImmersiveMode()
                     startImmersiveMode()
+                    stopAudioService()
                 }
                 R.id.active_playlist_path -> {
                     setTopAppBarTitle("Playlist")
@@ -189,6 +197,13 @@ class MainActivity : AppCompatActivity() {
 
         fun showTopAppBar(){
             binding.materialToolBarViewTopAppBar.visibility = View.VISIBLE
+        }
+
+        fun stopAudioService(){
+            fmpApp.audioBrowser?.disconnect()
+            fmpApp.audioBrowser = null
+            val stopIntent = Intent(applicationContext, AudioPlayerService::class.java)
+            stopService(stopIntent)
         }
     }
 

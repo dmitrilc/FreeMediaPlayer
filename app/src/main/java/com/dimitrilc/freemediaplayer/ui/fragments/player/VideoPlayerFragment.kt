@@ -19,7 +19,6 @@ import androidx.fragment.app.viewModels
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.fragment.findNavController
 import com.dimitrilc.freemediaplayer.databinding.FragmentVideoPlayerBinding
-import com.dimitrilc.freemediaplayer.hilt.FmpApplication
 import com.dimitrilc.freemediaplayer.ui.viewmodel.player.Action
 import com.dimitrilc.freemediaplayer.ui.viewmodel.player.VideoPlayerViewModel
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
@@ -50,11 +49,6 @@ class VideoPlayerFragment : Fragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        //Disconnects Audio playback, if present
-        (requireActivity().application as FmpApplication).audioSession?.controller?.transportControls?.stop()
-        (requireActivity().application as FmpApplication).audioBrowser?.disconnect()
-        (requireActivity().application as FmpApplication).audioBrowser = null
 
         videoPlayerViewModel.navigator = {
             findNavController().navigate(VideoPlayerFragmentDirections.actionVideoPlayerPathToActivePlaylistPath())
