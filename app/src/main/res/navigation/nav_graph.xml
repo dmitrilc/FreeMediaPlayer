@@ -3,24 +3,104 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/nav_graph"
-    app:startDestination="@id/homeFragment">
+    app:startDestination="@id/audio_folders_path">
     <fragment
-        android:id="@+id/homeFragment"
-        android:name="com.example.freemediaplayer.HomeFragment"
-        android:label="fragment_home"
-        tools:layout="@layout/fragment_home" >
+        android:id="@id/audio_folders_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.folder.audio.AudioFoldersFragment"
+        tools:layout="@layout/fragment_folders_full"
+        android:label="Audio Location">
         <action
-            android:id="@+id/action_homeFragment_to_musicPlayerFragment"
-            app:destination="@id/musicPlayerFragment" />
+            android:id="@+id/action_audio_folders_path_to_audioFolderItemsFragment"
+            app:destination="@id/audio_folder_items_path" />
         <action
-            android:id="@+id/action_homeFragment_to_videoPlayerFragment"
-            app:destination="@id/videoPlayerFragment" />
+            android:id="@+id/action_audio_folders_path_to_settings_path"
+            app:destination="@id/settings_path" />
     </fragment>
-    <fragment android:id="@+id/musicPlayerFragment" />
-    <fragment android:id="@+id/videoPlayerFragment" >
+    <fragment
+        android:id="@id/video_folders_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.folder.video.VideoFoldersFragment"
+        android:label="Video Location"
+        tools:layout="@layout/fragment_folders_full" >
         <action
-            android:id="@+id/action_videoPlayerFragment_to_videoPlayerFullscreen"
-            app:destination="@id/videoPlayerFullscreen" />
+            android:id="@+id/action_video_folders_path_to_videoFolderItemsFragment"
+            app:destination="@id/video_folder_items_path" />
+        <action
+            android:id="@+id/action_video_folders_path_to_settings_path"
+            app:destination="@id/settings_path" />
     </fragment>
-    <fragment android:id="@+id/videoPlayerFullscreen" />
+    <fragment
+        android:id="@+id/audio_folder_items_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.folderitems.AudioFolderItemsFragment"
+        tools:layout="@layout/folder_items_fragment"
+        android:label="AudioFolderItemsFragment" >
+        <action
+            android:id="@+id/action_audioFolderItemsFragment_to_player_path"
+            app:destination="@id/audio_player_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/video_folder_items_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.folderitems.VideoFolderItemsFragment"
+        tools:layout="@layout/folder_items_fragment"
+        android:label="VideoFolderItemsFragment" >
+        <action
+            android:id="@+id/action_videoFolderItemsFragment_to_player_path"
+            app:destination="@id/video_player_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/audio_player_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.player.AudioPlayerFragment"
+        android:label="fragment_audio_player"
+        tools:layout="@layout/fragment_audio_player" >
+        <action
+            android:id="@+id/action_audio_player_path_to_active_playlist_path"
+            app:destination="@id/active_playlist_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/video_player_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.player.VideoPlayerFragment"
+        android:label="fragment_video_player"
+        tools:layout="@layout/fragment_audio_player" >
+        <action
+            android:id="@+id/action_video_player_path_to_active_playlist_path"
+            app:destination="@id/active_playlist_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/active_playlist_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.ActivePlaylistFragment"
+        android:label="PlaylistFragment"
+        tools:layout="@layout/active_playlist_item_view"/>
+    <fragment
+        android:id="@id/playlists_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.PlaylistsFragment"
+        android:label="fragment_playlists"
+        tools:layout="@layout/fragment_playlists" >
+        <action
+            android:id="@+id/action_playlists_path_to_video_player_path"
+            app:destination="@id/video_player_path" />
+        <action
+            android:id="@+id/action_playlists_path_to_audio_player_path"
+            app:destination="@id/audio_player_path" />
+        <action
+            android:id="@+id/action_playlists_path_to_settings_path"
+            app:destination="@id/settings_path" />
+    </fragment>
+    <fragment
+        android:id="@+id/settings_path"
+        android:name="com.dimitrilc.freemediaplayer.ui.fragments.settings.SettingsFragment"
+        android:label="SettingsFragment" />
+    <action
+        android:id="@+id/action_global_audio_folders_path"
+        app:destination="@id/audio_folders_path" />
+    <action
+        android:id="@+id/action_global_video_folders_path"
+        app:destination="@id/video_folders_path"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/audio_folders_path"
+        app:popUpToInclusive="true" />
+    <action
+        android:id="@+id/action_global_playlists_path"
+        app:destination="@id/playlists_path"
+        app:launchSingleTop="true"
+        app:popUpTo="@id/audio_folders_path"
+        app:popUpToInclusive="true" />
 </navigation>

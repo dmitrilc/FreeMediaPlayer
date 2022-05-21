@@ -1,7 +1,7 @@
 syntax = "proto3";
 package test;
 
-option java_package = "com.example.freemediaplayer.proto";
+option java_package = "com.dimitrilc.freemediaplayer.data.proto";
 option java_multiple_files = true;
 option optimize_for = LITE_RUNTIME;
 
@@ -9,9 +9,16 @@ message BottomNavProto {
   State state = 1;
 
   enum State {
-    MUSIC = 0;
-    VIDEOS = 1;
-    PLAYLISTS = 2;
-    RADIO = 3;
+    AUDIO_FOLDERS = 0;
+    AUDIO_FOLDER_ITEMS = 1;
+    AUDIO_PLAYER = 2;
+
+    VIDEOS_FOLDERS = 3;
+    VIDEO_FOLDER_ITEMS = 4;
+    VIDEO_PLAYER = 5;
+
+    ACTIVE_PLAYLIST = 6;
+
+    PLAYLISTS = 7;
   }
 }

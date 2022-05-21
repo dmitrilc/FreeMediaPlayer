@@ -1,9 +1,28 @@
 <resources>
     <string name="app_name">Free Media Player</string>
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
-    <string name="bottom_navigation_radio">Free Radio</string>
     <string name="bottom_navigation_audio">Music</string>
     <string name="bottom_navigation_video">Videos</string>
+    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="bottom_navigation_playlists">Playlists</string>
+    <string name="preferences_key_is_dark">preferences_key_is_dark</string>
+    <string name="picture_of_hammer_and_tools">picture of hammer and tools</string>
+    <string name="under_construction">Under Construction</string>
+    <string name="active_playlist_item_album_art">active playlist item album art</string>
+    <string name="reorder_playlist_item_button">reorder playlist item button</string>
+    <string name="do_more_with_this_item">do more with this item</string>
+    <string name="audio_album_art">audio album art</string>
+    <string name="rewind_ten_seconds">rewind ten seconds</string>
+    <string name="play_or_pause">play or pause</string>
+    <string name="fast_forward_thirty_seconds">fast forward thirty seconds</string>
+    <string name="toggle_repeat_mode">toggle repeat mode</string>
+    <string name="shuffle">shuffle</string>
+    <string name="seeek_previous">seeek previous</string>
+    <string name="seek_next">seek next</string>
+    <string name="open_active_playlist">open active playlist</string>
+    <string name="item_display_art">item display art</string>
+    <string name="appwidget_description">Media Control Widget</string>
+    <string name="audio_player_widget_album_art">Audio Player Widget Album Art</string>
+    <string name="audio_player_widget_seek_previous">Audio Player Widget Seek Previous</string>
+    <string name="audio_player_widget_play_or_pause">Audio Player Widget Play or Pause</string>
+    <string name="audio_player_widget_seek_next">Audio Player Widget Seek Next</string>
 </resources>
