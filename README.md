@@ -79,7 +79,6 @@ https://user-images.githubusercontent.com/4550185/169659346-6aa0fbad-d197-4b84-b
 **ui**: All **Activity**, **Fragment**, **ViewModel**, or **Widget** should go here.
 
 ## Architecture
-
 1. The app heavily follows Google's guide to app achitecture https://developer.android.com/topic/architecture?hl=en. All of the layers are separated.
 2. For the Audio and Video players, the app also use the Google guide to Media app architecture https://developer.android.com/guide/topics/media-apps/media-apps-overview.
 3. Media files and metadata relies on Android's MediaStore.
@@ -90,3 +89,6 @@ https://user-images.githubusercontent.com/4550185/169659346-6aa0fbad-d197-4b84-b
 
 ## Theming
 The app heavily relies on Material 3 for theming purposes.
+
+## Testing
+I try my best to provide adequate Unit and instrumented tests if I have time.
