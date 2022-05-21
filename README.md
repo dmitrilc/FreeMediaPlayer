@@ -2,6 +2,12 @@
 
 A free media player for Android. This app can play both audio and video files.
 
+## Screens
+
+![First Screens](https://user-images.githubusercontent.com/4550185/169659972-384351dd-deef-4157-b41e-0bae2bf815f3.jpg)
+![2nd Screen](https://user-images.githubusercontent.com/4550185/169660013-10806aa9-a9d4-4422-9e02-bebe76726525.jpg)
+![screen 4](https://user-images.githubusercontent.com/4550185/169660231-e93abf5a-d014-4f53-a864-daab78a857d3.jpg)
+
 ## Features
 
 ### Permission Popup
