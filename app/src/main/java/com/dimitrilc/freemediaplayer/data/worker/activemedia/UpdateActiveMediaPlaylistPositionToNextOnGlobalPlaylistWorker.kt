@@ -1,16 +1,19 @@
 package com.dimitrilc.freemediaplayer.data.worker.activemedia
 
 import android.content.Context
-import android.util.Log
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.room.withTransaction
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.data.entities.ActiveMedia
 import com.dimitrilc.freemediaplayer.data.repos.activemedia.ActiveMediaRepository
 import com.dimitrilc.freemediaplayer.data.repos.globalplaylist.GlobalPlaylistRepository
-import com.dimitrilc.freemediaplayer.data.room.dao.ActiveMediaPlaylistPosition
 import com.dimitrilc.freemediaplayer.data.room.database.AppDatabase
+import com.dimitrilc.freemediaplayer.service.MISC_NOTIFICATION_ID
+import com.dimitrilc.freemediaplayer.ui.activities.MISC_NOTIFICATION_CHANNEL_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -26,7 +29,6 @@ class UpdateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorker @AssistedInj
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        Log.d(TAG, "TO_NEXT_WORKER")
         appDb.withTransaction {
             val activeMediaPosition = activeMediaRepository.getOnce()?.globalPlaylistPosition
             val playlist = globalPlaylistRepository.getAllOnce()
@@ -51,6 +53,18 @@ class UpdateActiveMediaPlaylistPositionToNextOnGlobalPlaylistWorker @AssistedInj
         }
 
         return Result.success()
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        //Simple notification that is only shown when this worker is expedited.
+        // This will prevent crashing on android pre-12.
+        val notification = NotificationCompat.Builder(
+            appContext,
+            MISC_NOTIFICATION_CHANNEL_ID
+        ).setSmallIcon(R.drawable.ic_launcher_foreground)
+            .build()
+
+        return ForegroundInfo(MISC_NOTIFICATION_ID, notification)
     }
 
 }
