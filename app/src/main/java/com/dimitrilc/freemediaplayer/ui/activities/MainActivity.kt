@@ -42,6 +42,7 @@ import javax.inject.Inject
 private const val TAG = "MAIN_ACTIVITY"
 
 const val AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID = "AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID"
+const val MISC_NOTIFICATION_CHANNEL_ID = "MISC_NOTIFICATION_CHANNEL_ID"
 
 @AndroidEntryPoint
 class MainActivity : AppCompatActivity() {
@@ -266,10 +267,22 @@ class MainActivity : AppCompatActivity() {
                 description = descriptionText
             }
 
+            val miscName = "Misc"
+            val miscDescriptionText = "Misc"
+            val miscImportance = NotificationManager.IMPORTANCE_MIN
+            val miscChannel = NotificationChannel(
+                MISC_NOTIFICATION_CHANNEL_ID,
+                miscName,
+                miscImportance
+            ).apply {
+                description = miscDescriptionText
+            }
+
             // Register the channel with the system
             val notificationManager: NotificationManager =
                 getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             notificationManager.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(miscChannel)
         }
     }
 
