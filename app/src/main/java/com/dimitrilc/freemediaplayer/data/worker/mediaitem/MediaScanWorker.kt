@@ -1,11 +1,16 @@
 package com.dimitrilc.freemediaplayer.data.worker.mediaitem
 
 import android.content.Context
+import androidx.core.app.NotificationCompat
 import androidx.hilt.work.HiltWorker
 import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
+import com.dimitrilc.freemediaplayer.R
 import com.dimitrilc.freemediaplayer.data.repos.mediaitem.MediaItemRepository
 import com.dimitrilc.freemediaplayer.data.repos.mediastore.MediaStoreRepository
+import com.dimitrilc.freemediaplayer.service.MISC_NOTIFICATION_ID
+import com.dimitrilc.freemediaplayer.ui.activities.MISC_NOTIFICATION_CHANNEL_ID
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 
@@ -33,6 +38,18 @@ class MediaScanWorker
         }
 
         return Result.success()
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        //Simple notification that is only shown when this worker is expedited.
+        // This will prevent crashing on android pre-12.
+        val notification = NotificationCompat.Builder(
+            appContext,
+            MISC_NOTIFICATION_CHANNEL_ID
+        ).setSmallIcon(R.drawable.ic_launcher_foreground)
+            .build()
+
+        return ForegroundInfo(MISC_NOTIFICATION_ID, notification)
     }
 
 }
