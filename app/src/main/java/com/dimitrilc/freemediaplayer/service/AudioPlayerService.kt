@@ -51,7 +51,16 @@ import javax.inject.Inject
 import androidx.media.app.NotificationCompat as MediaNotificationCompat
 
 private const val TAG = "AUDIO_PLAYER_SERVICE"
-private const val NOTIFICATION_ID = 1
+private const val CONTROLS_NOTIFICATION_ID = 1
+const val MISC_NOTIFICATION_ID = 2
+const val METADATA_KEY_ID = "0"
+const val COMMAND_RECONNECT = "1"
+private const val COMMAND_REPEAT = "2"
+const val METADATA_KEY_BITMAP = "METADATA_KEY_BITMAP"
+val PREFERENCES_KEY_TITLE = stringPreferencesKey(METADATA_KEY_TITLE)
+val PREFERENCES_KEY_ALBUM = stringPreferencesKey(METADATA_KEY_ALBUM)
+val PREFERENCES_KEY_STATE_PLAYING = booleanPreferencesKey("$STATE_PLAYING")
+val PREFERENCES_KEY_ART_URI = stringPreferencesKey(METADATA_KEY_ALBUM_ART_URI)
 
 @AndroidEntryPoint
 class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
@@ -170,6 +179,12 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         Intent(this, MediaControlWidgetProvider::class.java).apply {
             action = ACTION_APPWIDGET_UPDATE
         }
+    }
+
+    private val mediaStyle by lazy {
+        MediaNotificationCompat.MediaStyle()
+            .setShowActionsInCompactView(0, 1, 2)
+            .setMediaSession(mediaSessionCompat.sessionToken)
     }
 
     private val audioMediaSessionCallback = object : MediaSessionCompat.Callback() {
@@ -423,6 +438,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
                 .addAction(skipToPreviousAction)
                 .addAction(if (isPlaying) pauseAction else playAction)
                 .addAction(skipToNextAction)
+                .setStyle(mediaStyle)
 
             notificationBuilderLiveData.value = builder
         }
@@ -446,7 +462,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
     private fun createMediaControlsNotification(){
         startForeground(
-            NOTIFICATION_ID,
+            CONTROLS_NOTIFICATION_ID,
             getNotificationBuilder().build()
         )
     }
@@ -462,18 +478,12 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
 
         val openAppIntent = PendingIntent.getActivity(this, 0, intent, flags)
 
-        //Creates the media style configuration
-        val mediaStyle = MediaNotificationCompat.MediaStyle()
-            .setShowActionsInCompactView(0, 1, 2)
-            .setMediaSession(mediaSessionCompat.sessionToken)
-
         //To be used to update metadata only
         return NotificationCompat
             .Builder(
                 applicationContext,
                 AUDIO_CONTROLS_NOTIFICATION_CHANNEL_ID
             ).setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setStyle(mediaStyle)
             .setContentIntent(openAppIntent)
     }
 
@@ -491,7 +501,7 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         notificationBuilderLiveData.observe(this){
             if (it != null){
                 with(NotificationManagerCompat.from(baseContext)) {
-                    notify(NOTIFICATION_ID, it.build())
+                    notify(CONTROLS_NOTIFICATION_ID, it.build())
                 }
 
                 lifecycleScope.launch(Dispatchers.IO) {
@@ -557,12 +567,3 @@ class AudioPlayerService : LifecycleOwner, MediaBrowserServiceCompat() {
         result.sendResult(mediaItems)
     }
 }
-
-const val METADATA_KEY_ID = "0"
-const val COMMAND_RECONNECT = "1"
-private const val COMMAND_REPEAT = "2"
-const val METADATA_KEY_BITMAP = "METADATA_KEY_BITMAP"
-val PREFERENCES_KEY_TITLE = stringPreferencesKey(METADATA_KEY_TITLE)
-val PREFERENCES_KEY_ALBUM = stringPreferencesKey(METADATA_KEY_ALBUM)
-val PREFERENCES_KEY_STATE_PLAYING = booleanPreferencesKey("$STATE_PLAYING")
-val PREFERENCES_KEY_ART_URI = stringPreferencesKey(METADATA_KEY_ALBUM_ART_URI)
